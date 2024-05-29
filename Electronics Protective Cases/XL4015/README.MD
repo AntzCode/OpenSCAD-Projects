@@ -13,7 +13,7 @@ Very versatile low cost DC to DC buck Converter. CONSTANT CURRENT & CONSTANT VOL
 - DC Input Range:  4 - 38v
 - DC Output Range: 1.2 - 36v, 5A
 
-## Enclosure Models
+## Enclosure Variants
 
 ### 1. Compact Enclosure
 
