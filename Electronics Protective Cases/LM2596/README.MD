@@ -30,4 +30,4 @@ range of input voltage. 5v at 3A max output.
 
 ![Photo: Enclosure for XL4015](./screenshots/LM2596-enclosure-complete.png)
 
-[./LM2596-enclosure-compact.scad]()
+Source code: [LM2596-enclosure-compact.scad](./LM2596-enclosure-compact.scad)

@@ -19,4 +19,6 @@ Very versatile low cost DC to DC buck Converter. CONSTANT CURRENT & CONSTANT VOL
 
 ![Photo: Enclosure for XL4015](./screenshots/preview-complete.png)
 
-[./XL4015-enclosure-compact.scad]()
+Source code: [XL4015-enclosure-compact.scad](./XL4015-enclosure-compact.scad)
+
+
