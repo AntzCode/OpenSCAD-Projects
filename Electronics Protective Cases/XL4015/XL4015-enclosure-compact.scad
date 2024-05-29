@@ -12,9 +12,9 @@ use <BOSL/shapes.scad>
 $fn=32;
 
 // show/hide various parts
-hideMountPlate=true;
+hideMountPlate=false;
 hideBox=false;
-hideBoard=true;
+hideBoard=false;
 hideHardWiresAccess=false;
 hideAdjustmentAccess=false;
 
@@ -22,7 +22,7 @@ hideAdjustmentAccess=false;
 drillMountPlateScrewHoles=true;
 
 // attach screwtabs to the lid or not?
-hideScrewTabs=true;
+hideScrewTabs=false;
 
 // explode the model for screenshots
 explode=false;
@@ -773,7 +773,7 @@ if(!hideBoard){
     boardExplodeZ=explode ? explodeDistanceZ * 1 : 0;
     
     translate([boardExplodeX,boardExplodeY,boardExplodeZ]){
-        translate([0,-boxThickness/2,mountPlateThickness+gapBelowBoard+boardThickness/2]){
+        translate([0,0,mountPlateThickness+gapBelowBoard+boardThickness/2]){
             color ("red") cube([boardWidth,boardLength,boardThickness], true);
         }
     }
