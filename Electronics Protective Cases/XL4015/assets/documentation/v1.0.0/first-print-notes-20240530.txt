@@ -1,0 +1,18 @@
+3D Print: Enclosure for Electronics Circuit Board XL4015 5A DC-DC CCCV Buck Converter 
+First Print ABS 20240530, Makerspace Hamilton Central Library, New Zealand
+
+- circuit board is too tight in the box, increase internal size 2mm X & Y 
+- terminal reinforcement lugs need strengthening, ensure protrusion of union
+- reinforce wall next to hard wires port, triangle inner corner fill
+- reinforce wall corners, triangle inner corner fill
+- increase grip strength of mount plate clips, use triangle instead of sphere
+- move adjustment screwdriver holes 0.5mm closer to nearest side of box
+- increase diameter of hardwire terminal screwdriver holes to 5mm
+- voltage adj screw hole 2mm too close to current adj screw hole, move 2mm away
+- vent holes too small & weak, use 2 rows, 8 cols 3mm dia holes, 2mm apart
+- screw tabs strengthening on wall box sides, use trapeziod shape instead of rect
+- text is unclear, use raised text instead of inset, min size 4mm lowercase, 1mm thick
+mount plate corner pins too close to edge, move inwards 0.25mm
+- mount plate corner pins too short, increase by 1mm
+- Input / Output labels wrong end, swap labels
+- + / - labels wrong side, swap labels
