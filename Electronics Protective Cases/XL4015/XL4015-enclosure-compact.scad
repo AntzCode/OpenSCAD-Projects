@@ -1,6 +1,7 @@
 /**
  * 3D model enclosure for XL4015
  * Author: AntzCode Ltd
+ * Version: 1.0.0
  * URL: https://github.com/AntzCode/OpenSCAD-Projects/Electronics%20Protective%20Cases/XL4015
  * License: GPLv3
 */

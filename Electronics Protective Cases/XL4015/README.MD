@@ -6,7 +6,7 @@ This [OpenSCAD](https://openscad.org/) project defines the shape of designs for 
 
 ## XL4015: Constant Current & Constant Voltage Step down DC-DC Converter
 
-Very versatile low cost DC to DC buck Converter. CONSTANT CURRENT & CONSTANT VOLTAGE This type of device is another game changer for Electronics DIYers.
+The [XL4015](https://www.electroschematics.com/dc-module/) is a very versatile low cost DC to DC buck Converter. CONSTANT CURRENT & CONSTANT VOLTAGE This type of device is another game changer for Electronics DIYers.
 
 ![Photo: Top View](./screenshots/advertisement.jpg)
 
