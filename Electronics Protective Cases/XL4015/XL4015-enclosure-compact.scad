@@ -1,7 +1,7 @@
 /**
  * 3D model enclosure for XL4015
  * Author: AntzCode Ltd
- * Version: 1.0.0
+ * Version: 1.0.1
  * URL: https://github.com/AntzCode/OpenSCAD-Projects/Electronics%20Protective%20Cases/XL4015
  * License: GPLv3
 */
@@ -35,6 +35,8 @@ explodeDistanceZ=24;
 boardWidth=26;
 boardLength=51;
 boardThickness=1.5;
+boardSpacingX=1;
+boardSpacingY=1;
 
 // gap above chipboard for components to fit
 gapAboveBoard=11;
@@ -123,8 +125,8 @@ ventHoleRightSpacing=0.4;
 ventHoleGrillThickness=1.5;
 
 // mount plate width
-mountPlateWidth=boardWidth;
-mountPlateLength=boardLength;
+mountPlateWidth=boardWidth+boardSpacingX*2;
+mountPlateLength=boardLength+boardSpacingY*2;
 
 // mount-plate clips (circular lugs)
 mountPlateClipsDiameter=2;
@@ -169,8 +171,8 @@ mountPlatePinRiserDiameter=3;
  * End of user configuration - do not adjust below this line
  */
 
-boxOuterWidth=boardWidth+(boxThickness*2);
-boxOuterLength=boardLength+(boxThickness*2);
+boxOuterWidth=mountPlateWidth+(boxThickness*2);
+boxOuterLength=mountPlateLength+(boxThickness*2);
 boxOuterHeight=boardThickness+gapAboveBoard+gapBelowBoard+boxThickness+mountPlateThickness;
 
 module roundedtab(xdim,ydim,zdim,rdim){
@@ -201,9 +203,9 @@ module box_shell(){
             
             // reinforcement of input screw 
             translate([
-            boardWidth/2-terminalReinforcementStopperLength/2-0-hardWiresPortOffsetX,
-            (-boxOuterLength/2+terminalReinforcementStopperWidth/2+boxThickness+terminalReinforcementStopperOffsetY),
-            boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                mountPlateWidth/2-terminalReinforcementStopperLength/2-boardSpacingX-0-hardWiresPortOffsetX,
+                (-boxOuterLength/2+terminalReinforcementStopperWidth/2+boxThickness+boardSpacingY+terminalReinforcementStopperOffsetY),
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
             ]){
                 cuboid([
                 terminalReinforcementStopperLength,
@@ -214,9 +216,9 @@ module box_shell(){
             
             // reinforcement of output screw 
             translate([
-            -(boardWidth/2-terminalReinforcementStopperLength/2)+hardWiresPortOffsetX,
-            (boxOuterLength/2-terminalReinforcementStopperWidth/2-boxThickness-terminalReinforcementStopperOffsetY),
-            boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                -(mountPlateWidth/2-terminalReinforcementStopperLength/2)+boardSpacingX+hardWiresPortOffsetX,
+                (boxOuterLength/2-terminalReinforcementStopperWidth/2-boxThickness-boardSpacingY-terminalReinforcementStopperOffsetY),
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
             ]){
                 cuboid([
                 terminalReinforcementStopperLength,
@@ -227,18 +229,18 @@ module box_shell(){
             
             // reinforcement of current pot
             translate([
-            boardWidth/2-3-4,
-            -(boardLength/2)+1+13.8,
-            boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                mountPlateWidth/2-boardSpacingX-3-4,
+                -(mountPlateLength/2)+1+boardSpacingY+13.8,
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
             ]){
                 cuboid([6,2,4], align=V_CENTER, chamfer=1, edges=EDGE_BOT_BK);
             }
             
             // reinforcement of voltage pot
             translate([
-            boardWidth/2-3-4,
-            -(boardLength/2)+1+26,
-            boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                mountPlateWidth/2-boardSpacingX-3-4,
+                -(mountPlateLength/2)+boardSpacingY+1+26,
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
             ]){
                 cuboid([6,2,4], align=V_CENTER, chamfer=1, edges=EDGE_BOT_FR);
             }
@@ -250,12 +252,13 @@ module box_shell(){
 // hole for hard wires OUT
 module hard_wires_out_port(){
     translate([
-        -(boxOuterWidth/2)+boxThickness+hardWiresPortOffsetX,
+        -(boxOuterWidth/2)+boxThickness+hardWiresPortOffsetX+boardSpacingX,
         (boxOuterLength/2)-boxThickness-0.5,
         -1
     ]){
-        cuboid([hardWiresPortWidth,boxThickness+1,
-        1+hardWiresPortHeight+mountPlateThickness+gapBelowBoard+boardThickness
+        cuboid([
+            hardWiresPortWidth,boxThickness+1,
+            1+hardWiresPortHeight+mountPlateThickness+gapBelowBoard+boardThickness
         ],align=V_ALLPOS);
     }
 }
@@ -263,8 +266,8 @@ module hard_wires_out_port(){
 // hole for hard wires screwdriver access
 module hard_wires_out_screw_hole(){
     translate([
-        (0-boxOuterWidth/2)+boxThickness+hardWiresScrewholeDiameter/2+hardWiresScrewholeOffsetX,
-        (boxOuterLength/2-boxThickness)-hardWiresScrewholeDiameter-hardWiresScrewholeOffsetY,
+        (0-boxOuterWidth/2)+boxThickness+hardWiresScrewholeDiameter/2+hardWiresScrewholeOffsetX+boardSpacingX,
+        (boxOuterLength/2-boxThickness)-hardWiresScrewholeDiameter-hardWiresScrewholeOffsetY-boardSpacingY,
         boxOuterHeight-boxThickness-0.5]
     ){
         hull(){
@@ -281,12 +284,13 @@ module hard_wires_out_screw_hole(){
 // hole for hard wires IN
 module hard_wires_in_port(){
     translate([
-        (boxOuterWidth/2-hardWiresPortWidth)-boxThickness-(hardWiresPortOffsetX),
+        (boxOuterWidth/2-hardWiresPortWidth)-boxThickness-(hardWiresPortOffsetX)-boardSpacingX,
         -(boxOuterLength/2)-0.5,
         -1
     ]){
-        cuboid([hardWiresPortWidth,boxThickness+1,
-        1+hardWiresPortHeight+mountPlateThickness+gapBelowBoard+boardThickness
+        cuboid([
+            hardWiresPortWidth,boxThickness+1,
+            1+hardWiresPortHeight+mountPlateThickness+gapBelowBoard+boardThickness
         ],align=V_ALLPOS);
     }
 }
@@ -294,8 +298,8 @@ module hard_wires_in_port(){
 // hole for hard wires screwdriver access
 module hard_wires_in_screw_hole(){
     translate([
-        (boxOuterWidth/2-hardWiresScrewholeLength-hardWiresScrewholeOffsetX),
-        -(boxOuterLength/2-boxThickness)+hardWiresScrewholeOffsetY,
+        (boxOuterWidth/2-hardWiresScrewholeLength-hardWiresScrewholeOffsetX-boardSpacingX),
+        -(boxOuterLength/2-boxThickness)+hardWiresScrewholeOffsetY+boardSpacingY,
         boxOuterHeight-boxThickness
     ]){
         hull(){
@@ -351,13 +355,13 @@ module mount_plate(){
     union(){
         translate([0,0,mountPlateThickness/2]){
             // draw the plate as a solid piece, chamfered top edges to help inserting into the cover
-            cuboid([boardWidth,boardLength,mountPlateThickness], chamfer=0.2, edges=EDGES_X_TOP+EDGES_Y_TOP);
+            cuboid([mountPlateWidth,mountPlateLength,mountPlateThickness], chamfer=0.2, edges=EDGES_X_TOP+EDGES_Y_TOP);
         }
         
         // add pin 1
         translate([
-            (boardWidth/2-mountPlatePin1Diameter/2-mountPlatePin1OffsetX),
-            -(boardLength/2-mountPlatePin1Diameter/2-mountPlatePin1OffsetY),
+            (mountPlateWidth/2-mountPlatePin1Diameter/2-mountPlatePin1OffsetX-boardSpacingX),
+            -(mountPlateLength/2-mountPlatePin1Diameter/2-mountPlatePin1OffsetY-boardSpacingY),
             mountPlateThickness+mountPlatePin1Length/2
         ]){
             zcyl(h=mountPlatePin1Length,d1=mountPlatePin1Diameter,d2=mountPlatePin1Diameter-0.5);
@@ -368,8 +372,8 @@ module mount_plate(){
         
         // add pin 2
         translate([
-            -(boardWidth/2-mountPlatePin2Diameter/2-mountPlatePin2OffsetX),
-            -(boardLength/2-mountPlatePin2Diameter/2-mountPlatePin2OffsetY),
+            -(mountPlateWidth/2-mountPlatePin2Diameter/2-mountPlatePin2OffsetX-boardSpacingX),
+            -(mountPlateLength/2-mountPlatePin2Diameter/2-mountPlatePin2OffsetY-boardSpacingY),
             mountPlateThickness+mountPlatePin2Length/2
         ]){
             zcyl(h=mountPlatePin2Length,d1=mountPlatePin2Diameter,d2=mountPlatePin2Diameter-0.5);
@@ -380,8 +384,8 @@ module mount_plate(){
         
         // add pin 3
         translate([
-            -(boardWidth/2-mountPlatePin3Diameter/2-mountPlatePin3OffsetX),
-            (boardLength/2-mountPlatePin3Diameter/2-mountPlatePin3OffsetY),
+            -(mountPlateWidth/2-mountPlatePin3Diameter/2-mountPlatePin3OffsetX-boardSpacingX),
+            (mountPlateLength/2-mountPlatePin3Diameter/2-mountPlatePin3OffsetY-boardSpacingY),
             mountPlateThickness+mountPlatePin3Length/2]
         ){
             zcyl(h=mountPlatePin3Length,d1=mountPlatePin3Diameter,d2=mountPlatePin3Diameter-0.5);
@@ -392,8 +396,8 @@ module mount_plate(){
         
         // add pin 4
         translate([
-            (boardWidth/2-mountPlatePin4Diameter/2-mountPlatePin4OffsetX),
-            (boardLength/2-mountPlatePin4Diameter/2-mountPlatePin4OffsetY),
+            (mountPlateWidth/2-mountPlatePin4Diameter/2-mountPlatePin4OffsetX-boardSpacingX),
+            (mountPlateLength/2-mountPlatePin4Diameter/2-mountPlatePin4OffsetY-boardSpacingY),
             mountPlateThickness+mountPlatePin3Length/2]
         ){
             zcyl(h=mountPlatePin4Length,d1=mountPlatePin4Diameter,d2=mountPlatePin4Diameter-0.5);
@@ -426,8 +430,10 @@ module mount_plate(){
 // mount plate clips
 module mount_plate_clips(){
     translate([
-    (mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
-    mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness,mountPlateThickness/2]){
+        (mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
+        mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness,
+        mountPlateThickness/2
+    ]){
         sphere(d=mountPlateClipsDiameter);
     }
     
@@ -472,8 +478,8 @@ module mount_plate_screw_holes(){
 // screwdriver access for voltage adjustments
 module volt_adjust_hole(){
     translate([
-        boxOuterWidth/2-voltAdjustHoleDiameter/2-boxThickness-voltAdjustHoleOffsetX,
-        boxOuterLength/2-voltAdjustHoleDiameter/2-boxThickness-voltAdjustHoleOffsetY,
+        boxOuterWidth/2-voltAdjustHoleDiameter/2-boxThickness-voltAdjustHoleOffsetX-boardSpacingX,
+        boxOuterLength/2-voltAdjustHoleDiameter/2-boxThickness-voltAdjustHoleOffsetY-boardSpacingY,
         boxOuterHeight-0.5
     ]){
         zcyl(l=boxThickness+1,d=voltAdjustHoleDiameter);
@@ -483,8 +489,8 @@ module volt_adjust_hole(){
 // screwdriver access for current adjustments
 module current_adjust_hole(){
     translate([
-        boxOuterWidth/2-currentAdjustHoleDiameter/2-boxThickness-currentAdjustHoleOffsetX,
-        boxOuterLength/2-currentAdjustHoleDiameter/2-boxThickness-currentAdjustHoleOffsetY,
+        boxOuterWidth/2-currentAdjustHoleDiameter/2-boxThickness-currentAdjustHoleOffsetX-boardSpacingX,
+        boxOuterLength/2-currentAdjustHoleDiameter/2-boxThickness-currentAdjustHoleOffsetY-boardSpacingY,
         boxOuterHeight-0.5
     ]){
         zcyl(l=boxThickness+1,d=currentAdjustHoleDiameter);
@@ -520,7 +526,7 @@ module etch_label(){
 
         // output neg
         translate([
-                boxOuterWidth/2-5-boxThickness,
+                boxOuterWidth/2-5-boxThickness-boardSpacingX,
                 boxOuterLength/2+0.01,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
@@ -533,7 +539,7 @@ module etch_label(){
         
         // output pos
         translate([
-                boxOuterWidth/2-hardWiresPortWidth-5-boxThickness,
+                boxOuterWidth/2-hardWiresPortWidth-5-boxThickness-boardSpacingX,
                 boxOuterLength/2+0.01,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
@@ -546,7 +552,7 @@ module etch_label(){
         
         // input neg
         translate([
-                boxOuterWidth/2-boxThickness-2-hardWiresPortOffsetX,
+                boxOuterWidth/2-boxThickness-2-hardWiresPortOffsetX-boardSpacingX,
                 -boxOuterLength/2+0.49,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
@@ -559,7 +565,7 @@ module etch_label(){
         
         // input pos
         translate([
-                boxOuterWidth/2-boxThickness-hardWiresPortOffsetX-hardWiresPortWidth-2,
+                boxOuterWidth/2-boxThickness-hardWiresPortOffsetX-hardWiresPortWidth-boardSpacingX-2,
                 -boxOuterLength/2+0.49,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
@@ -577,8 +583,8 @@ module etch_label(){
         if(!hideAdjustmentAccess){
 
             translate([
-                -(boxOuterWidth/2-boxThickness-currentAdjustHoleOffsetX-currentAdjustHoleDiameter-1),
-                -(boxOuterLength/2-currentAdjustHoleOffsetY-currentAdjustHoleDiameter),
+                -(boxOuterWidth/2-boxThickness-currentAdjustHoleOffsetX-currentAdjustHoleDiameter-boardSpacingX-1),
+                -(boxOuterLength/2-currentAdjustHoleOffsetY-currentAdjustHoleDiameter-boardSpacingY),
                 boxOuterHeight
             ]){
                 linear_extrude(0.5){
@@ -587,8 +593,8 @@ module etch_label(){
             }
             
             translate([
-            -(boxOuterWidth/2-boxThickness-voltAdjustHoleOffsetX-voltAdjustHoleDiameter-1),
-                -(boxOuterLength/2-voltAdjustHoleOffsetY-voltAdjustHoleDiameter),
+                -(boxOuterWidth/2-boxThickness-voltAdjustHoleOffsetX-voltAdjustHoleDiameter-boardSpacingX-1),
+                -(boxOuterLength/2-voltAdjustHoleOffsetY-voltAdjustHoleDiameter-boardSpacingY),
                 boxOuterHeight
             ]){
                 linear_extrude(0.5){
@@ -599,8 +605,8 @@ module etch_label(){
         }
         
         translate([
-        -(boxOuterWidth/2-5),
-            (boxOuterLength/2-boxThickness-5),
+            -(boxOuterWidth/2-boardSpacingX-5),
+            (boxOuterLength/2-boxThickness-boardSpacingY-5),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -609,8 +615,8 @@ module etch_label(){
         }
         
         translate([
-        -boxOuterWidth/2+7,
-            (boxOuterLength/2-boxThickness-9),
+            -boxOuterWidth/2+boardSpacingX+7,
+            (boxOuterLength/2-boxThickness-boardSpacingY-9),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -619,8 +625,8 @@ module etch_label(){
         }
         
         translate([
-        (boxOuterWidth/2-12),
-            -(boxOuterLength/2-boxThickness-2),
+            (boxOuterWidth/2-boardSpacingX-12),
+            -(boxOuterLength/2-boxThickness-boardSpacingY-2),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -628,8 +634,8 @@ module etch_label(){
             }
         }
         translate([
-        -(boxOuterWidth/2)+6,
-            -(boxOuterLength/2-boxThickness-7),
+            -(boxOuterWidth/2)+boardSpacingX+6,
+            -(boxOuterLength/2-boxThickness-boardSpacingY-7),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -637,19 +643,9 @@ module etch_label(){
             }
         }
         
-        
         translate([
-        (boxOuterWidth/2-12),
-            -(boxOuterLength/2-boxThickness-2),
-            boxOuterHeight
-        ]){
-            linear_extrude(0.5){
-                text("OUT", size=3);
-            }
-        }
-        translate([
-        -(boxOuterWidth/2)+3.5,
-            -(boxOuterLength/2-boxThickness-19),
+            -(boxOuterWidth/2)+boardSpacingX+3.5,
+            -(boxOuterLength/2-boxThickness-boardSpacingY-19),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -658,8 +654,8 @@ module etch_label(){
         }
         
         translate([
-        -(boxOuterWidth/2)+3,
-            -(boxOuterLength/2-boxThickness-15),
+            -(boxOuterWidth/2)+boardSpacingX+3,
+            -(boxOuterLength/2-boardSpacingY-boxThickness-15),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -779,7 +775,7 @@ if(!hideBoard){
         }
     }
 }
-
+    
 if(!hideMountPlate){
     // draw the mount plate
     difference(){
