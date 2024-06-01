@@ -245,11 +245,33 @@ module box_shell(){
             ]){
                 cuboid([6,2,5], align=V_CENTER, chamfer=1, edges=EDGE_BOT_FR);
             }
-            
+
+            // reinforce box corner near INPUT
+            translate([
+                -boxOuterWidth/2+boxThickness,
+                -boxOuterLength/2+boxThickness,
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+            ]){
+                linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+            }
+
+            // reinforce box corner near OUTPUT
+            translate([
+                boxOuterWidth/2-boxThickness,
+                boxOuterLength/2-boxThickness,
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+            ]){
+                rotate([0,0,180]){
+                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+                }
+            }
+
         }
     }
 }
 
+            
+            
 // hole for hard wires OUT
 module hard_wires_out_port(){
     translate([
