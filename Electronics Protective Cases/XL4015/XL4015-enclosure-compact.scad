@@ -100,7 +100,7 @@ screwTabScrewholeCountersinkDiameter=8;
 screwTabScrewholeCountersinkDepth=3;
 
 // a stopper to support the hard-wires terminals
-terminalReinforcementStopperWidth=5;
+terminalReinforcementStopperWidth=7;
 terminalReinforcementStopperLength=10;
 terminalReinforcementStopperHeight=6;
 terminalReinforcementStopperOffsetY=8;
@@ -210,7 +210,7 @@ module box_shell(){
                 cuboid([
                 terminalReinforcementStopperLength,
                     terminalReinforcementStopperWidth,
-                    terminalReinforcementStopperHeight
+                    terminalReinforcementStopperHeight+1
                 ], align=V_CENTER, chamfer=2, edges=EDGE_BOT_BK);
             }
             
@@ -223,26 +223,27 @@ module box_shell(){
                 cuboid([
                 terminalReinforcementStopperLength,
                     terminalReinforcementStopperWidth,
-                    terminalReinforcementStopperHeight
+                    terminalReinforcementStopperHeight+1
                 ], align=V_CENTER, chamfer=2, edges=EDGE_BOT_FR);
             }
             
-            // reinforcement of current pot
+                // reinforcement of current pot
             translate([
                 mountPlateWidth/2-boardSpacingX-3-4,
                 -(mountPlateLength/2)+1+boardSpacingY+13.8,
-                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+2
             ]){
-                cuboid([6,2,4], align=V_CENTER, chamfer=1, edges=EDGE_BOT_BK);
+                cuboid([6,2,5], align=V_CENTER, chamfer=1, edges=EDGE_BOT_BK);
             }
-            
+        
+                
             // reinforcement of voltage pot
             translate([
                 mountPlateWidth/2-boardSpacingX-3-4,
                 -(mountPlateLength/2)+boardSpacingY+1+26,
-                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+1
+                boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+2
             ]){
-                cuboid([6,2,4], align=V_CENTER, chamfer=1, edges=EDGE_BOT_FR);
+                cuboid([6,2,5], align=V_CENTER, chamfer=1, edges=EDGE_BOT_FR);
             }
             
         }
