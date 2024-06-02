@@ -70,7 +70,7 @@ hardWiresScrewholeOffsetY=0.5;
 // screwdriver access hole for CCCV adjustments
 voltAdjustHoleDiameter=4.5;
 voltAdjustHoleOffsetX=6.5;
-voltAdjustHoleOffsetY=25.2;
+voltAdjustHoleOffsetY=23.2;
 currentAdjustHoleDiameter=4.5;
 currentAdjustHoleOffsetX=6.5;
 currentAdjustHoleOffsetY=30.5;
@@ -719,7 +719,7 @@ module etch_label(){
         
         translate([
             -(boxOuterWidth/2)+boardSpacingX+3.5,
-            -(boxOuterLength/2-boxThickness-boardSpacingY-19),
+            -(boxOuterLength/2-boxThickness-boardSpacingY-17),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
@@ -729,7 +729,7 @@ module etch_label(){
         
         translate([
             -(boxOuterWidth/2)+boardSpacingX+3,
-            -(boxOuterLength/2-boardSpacingY-boxThickness-15),
+            -(boxOuterLength/2-boardSpacingY-boxThickness-13),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
