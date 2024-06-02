@@ -453,20 +453,20 @@ module mount_plate(){
         
         // support under DC In
         translate([
-            0,
+            -mountPlatePinRiserDiameter,
             (mountPlateLength/2-mountPlatePinRiserDiameter),
             mountPlateThickness+gapBelowBoard/2
         ]){
-            zcyl(h=gapBelowBoard,d=mountPlatePinRiserDiameter/2);
+            zcyl(h=gapBelowBoard,d=mountPlatePinRiserDiameter);
         }
         
         // support under DC Out
         translate([
-            0,
+            mountPlatePinRiserDiameter,
             -(mountPlateLength/2-mountPlatePinRiserDiameter),
             mountPlateThickness+gapBelowBoard/2
         ]){
-            zcyl(h=gapBelowBoard,d=mountPlatePinRiserDiameter/2);
+            zcyl(h=gapBelowBoard,d=mountPlatePinRiserDiameter);
         }
             
     }
