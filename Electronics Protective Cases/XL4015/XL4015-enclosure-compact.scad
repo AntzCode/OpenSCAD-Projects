@@ -130,6 +130,7 @@ mountPlateLength=boardLength+boardSpacingY*2;
 
 // mount-plate clips (circular lugs)
 mountPlateClipsDiameter=2;
+mountPlateClipLength=2;
 mountPlateClipsProtrusionOffset=-0.5;
 mountPlateClipsPositionOffset=2;
 
@@ -473,25 +474,53 @@ module mount_plate(){
 }
 
 // mount plate clips
-module mount_plate_clips(){
-    translate([
-        (mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
-        mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness,
-        mountPlateThickness/2
-    ]){
-        sphere(d=mountPlateClipsDiameter);
-    }
-    
-    translate([-(mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness,mountPlateThickness/2]){
-        sphere(d=mountPlateClipsDiameter);
-    }
-    
-    translate([(mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),-(mountPlateLength/2-mountPlateClipsPositionOffset),mountPlateThickness/2]){
-        sphere(d=mountPlateClipsDiameter);
-    }
-    
-    translate([-(mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),-(mountPlateLength/2-mountPlateClipsPositionOffset),mountPlateThickness/2]){
-        sphere(d=mountPlateClipsDiameter);
+module mount_plate_clips(isInset){
+
+    difference(){
+        union(){
+            translate([
+                (mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
+                mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness-(isInset?-0.5:0),
+                mountPlateThickness/2
+            ]){
+                rotate([90,0,0]){
+                    linear_extrude(mountPlateClipLength+(isInset?1:0)) polygon(points=[[0,0],[0,3],[1,0]]);
+                }
+            }
+            
+            translate([
+                -(mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
+                mountPlateLength/2-mountPlateClipsPositionOffset-boxThickness-(isInset?mountPlateClipLength-0.5:1),
+                mountPlateThickness/2
+            ]){
+                rotate([270,180,0]){
+                    linear_extrude(mountPlateClipLength+(isInset?1:0)) polygon(points=[[0,0],[0,3],[1,0]]);
+                }
+            }
+            
+            translate([
+                (mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
+                (0-mountPlateLength/2)+mountPlateClipsPositionOffset+mountPlateClipLength+(isInset?0.5:0),
+                mountPlateThickness/2
+            ]){
+                rotate([90,0,0]){
+                    linear_extrude(mountPlateClipLength+(isInset?1:0)) polygon(points=[[0,0],[0,3],[1,0]]);
+                }
+            }
+            
+            translate([
+                -(mountPlateWidth/2-(mountPlateClipsDiameter/2+mountPlateClipsProtrusionOffset)),
+                -(mountPlateLength/2-mountPlateClipsPositionOffset)-(isInset?0.5:0),
+                mountPlateThickness/2
+            ]){
+                rotate([270,180,0]){
+                    linear_extrude(mountPlateClipLength+(isInset?1:0)) polygon(points=[[0,0],[0,3],[1,0]]);
+                }
+            }
+        }
+        translate([0,0,mountPlateThickness+1.5]) {
+            cuboid([mountPlateWidth, mountPlateLength, 3]);
+        }
     }
 }
 
@@ -730,7 +759,7 @@ if(!hideBox){
                 
                 box_shell();
                 
-                mount_plate_clips();
+                mount_plate_clips(true);
 
                 if(!hideHardWiresAccess){
                     hard_wires_in_port();
@@ -823,17 +852,19 @@ if(!hideBoard){
     
 if(!hideMountPlate){
     // draw the mount plate
+    
     difference(){
 
         union(){
             // attach the clips to the mount plate
             mount_plate();
-            mount_plate_clips();
+            mount_plate_clips(false);
         }
 
         // drill screw holes into the mount plate
         mount_plate_screw_holes();
 
     }
+    
 }
 
