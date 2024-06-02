@@ -106,20 +106,20 @@ terminalReinforcementStopperHeight=6;
 terminalReinforcementStopperOffsetY=8;
 
 // vent holes on the left side
-ventHoleLeftOffsetTop=4;
-ventHoleLeftOffsetBack=8;
-ventHoleLeftRows=5;
-ventHoleLeftColumns=22;
-ventHoleLeftDiameter=1.4;
-ventHoleLeftSpacing=0.8;
+ventHoleLeftOffsetTop=6;
+ventHoleLeftOffsetBack=11;
+ventHoleLeftRows=2;
+ventHoleLeftColumns=9;
+ventHoleLeftDiameter=4.8;
+ventHoleLeftSpacing=0.5;
 
 // vent holes on the right side
-ventHoleRightOffsetTop=4;
-ventHoleRightOffsetBack=8;
-ventHoleRightRows=5;
-ventHoleRightColumns=22;
-ventHoleRightDiameter=1.8;
-ventHoleRightSpacing=0.4;
+ventHoleRightOffsetTop=6;
+ventHoleRightOffsetBack=11;
+ventHoleRightRows=2;
+ventHoleRightColumns=9;
+ventHoleRightDiameter=4.8;
+ventHoleRightSpacing=0.5;
 
 // makes the vent grill thinner than the box thickness by carving from the inside
 ventHoleGrillThickness=1.5;
