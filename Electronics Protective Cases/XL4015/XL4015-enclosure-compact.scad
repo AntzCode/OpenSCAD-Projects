@@ -597,7 +597,7 @@ module etch_label(){
     if(!hideHardWiresAccess){
         // we do not print labels for hard wires if hard wires port is hidden
 
-        // output neg
+        // input pos
         translate([
                 boxOuterWidth/2-5-boxThickness-boardSpacingX,
                 boxOuterLength/2+0.5,
@@ -605,12 +605,12 @@ module etch_label(){
             ]){
                 rotate([90,0,0]){
                     linear_extrude(0.5){
-                        text("-", size=5);
+                        text("+", size=5);
                 }
             }
         }
         
-        // output pos
+        // input neg
         translate([
                 boxOuterWidth/2-hardWiresPortWidth-5-boxThickness-boardSpacingX,
                 boxOuterLength/2+0.5,
@@ -618,12 +618,12 @@ module etch_label(){
             ]){
                 rotate([90,0,0]){
                     linear_extrude(0.5){
-                        text("+", size=5);
+                        text("-", size=5);
                 }
             }   
         }
         
-        // input neg
+        // output pos
         translate([
                 boxOuterWidth/2-boxThickness-2-hardWiresPortOffsetX-boardSpacingX,
                 -boxOuterLength/2,
@@ -631,12 +631,12 @@ module etch_label(){
             ]){
                 rotate([90,0,0]){
                     linear_extrude(0.5){
-                        text("-", size=5);
+                        text("+", size=5);
                 }
             }
         }
         
-        // input pos
+        // output neg
         translate([
                 boxOuterWidth/2-boxThickness-hardWiresPortOffsetX-hardWiresPortWidth-boardSpacingX-2,
                 -boxOuterLength/2,
@@ -644,7 +644,7 @@ module etch_label(){
             ]){
                 rotate([90,0,0]){
                     linear_extrude(0.5){
-                        text("+", size=5);
+                        text("-", size=5);
                 }
             }   
         }
@@ -678,41 +678,41 @@ module etch_label(){
         }
         
         translate([
-            -(boxOuterWidth/2-boardSpacingX-5),
+            -(boxOuterWidth/2-boardSpacingX),
             (boxOuterLength/2-boxThickness-boardSpacingY-5),
-            boxOuterHeight
-        ]){
-            linear_extrude(0.5){
-                text("IN", size=5);
-            }
-        }
-        
-        translate([
-            -boxOuterWidth/2+boardSpacingX+3,
-            (boxOuterLength/2-boxThickness-boardSpacingY-12),
-            boxOuterHeight
-        ]){
-            linear_extrude(0.5){
-                text("4v - 38v", size=5);
-            }
-        }
-        
-        translate([
-            (boxOuterWidth/2-boardSpacingX-14),
-            -(boxOuterLength/2-boxThickness-boardSpacingY-0),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
                 text("OUT", size=5);
             }
         }
+        
         translate([
-            -(boxOuterWidth/2)+boardSpacingX,
-            -(boxOuterLength/2-boxThickness-boardSpacingY-7),
+            -boxOuterWidth/2+boardSpacingX,
+            (boxOuterLength/2-boxThickness-boardSpacingY-12),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
                 text("1.2v - 36v", size=5);
+            }
+        }
+        
+        translate([
+            (boxOuterWidth/2-boardSpacingX-11),
+            -(boxOuterLength/2-boxThickness-boardSpacingY-0),
+            boxOuterHeight
+        ]){
+            linear_extrude(0.5){
+                text("IN", size=5);
+            }
+        }
+        translate([
+            -(boxOuterWidth/2)+boardSpacingX + 3,
+            -(boxOuterLength/2-boxThickness-boardSpacingY-7),
+            boxOuterHeight
+        ]){
+            linear_extrude(0.5){
+                text("4v - 38v", size=5);
             }
         }
         
