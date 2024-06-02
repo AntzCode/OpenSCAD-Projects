@@ -62,10 +62,10 @@ hardWiresPortOffsetX=12;
 hardWiresPortOffsetY=0;
 
 // screwdriver access hole for hard wires
-hardWiresScrewholeDiameter=4;
+hardWiresScrewholeDiameter=5;
 hardWiresScrewholeLength=10;
 hardWiresScrewholeOffsetX=12;
-hardWiresScrewholeOffsetY=1;
+hardWiresScrewholeOffsetY=0.5;
 
 // screwdriver access hole for CCCV adjustments
 voltAdjustHoleDiameter=4.5;
