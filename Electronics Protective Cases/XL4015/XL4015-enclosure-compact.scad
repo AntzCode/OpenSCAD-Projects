@@ -229,7 +229,7 @@ module box_shell(){
             
                 // reinforcement of current pot
             translate([
-                mountPlateWidth/2-boardSpacingX-3-4,
+                mountPlateWidth/2-boardSpacingX-3-1,
                 -(mountPlateLength/2)+1+boardSpacingY+13.8,
                 boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+2
             ]){
@@ -239,8 +239,8 @@ module box_shell(){
                 
             // reinforcement of voltage pot
             translate([
-                mountPlateWidth/2-boardSpacingX-3-4,
-                -(mountPlateLength/2)+boardSpacingY+1+26,
+                mountPlateWidth/2-boardSpacingX-3-1,
+                -(mountPlateLength/2)+boardSpacingY+1+27,
                 boxOuterHeight/2-boxThickness-terminalReinforcementStopperHeight/2+2
             ]){
                 cuboid([6,2,5], align=V_CENTER, chamfer=1, edges=EDGE_BOT_FR);
