@@ -69,10 +69,10 @@ hardWiresScrewholeOffsetY=1;
 
 // screwdriver access hole for CCCV adjustments
 voltAdjustHoleDiameter=4.5;
-voltAdjustHoleOffsetX=7;
+voltAdjustHoleOffsetX=6.5;
 voltAdjustHoleOffsetY=25.2;
 currentAdjustHoleDiameter=4.5;
-currentAdjustHoleOffsetX=7;
+currentAdjustHoleOffsetX=6.5;
 currentAdjustHoleOffsetY=30.5;
 
 
