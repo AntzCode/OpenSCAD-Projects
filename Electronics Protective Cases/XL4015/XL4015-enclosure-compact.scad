@@ -141,25 +141,25 @@ mountPlateScrewHole1OffsetY=15;
 mountPlateScrewHole2OffsetY=-15;
 
 // top-left pin
-mountPlatePin1Length=4;
+mountPlatePin1Length=5;
 mountPlatePin1Diameter=2.2;
 mountPlatePin1OffsetX=0.75;
 mountPlatePin1OffsetY=0.75;
 
 // top-right pin
-mountPlatePin2Length=4;
+mountPlatePin2Length=5;
 mountPlatePin2Diameter=2.2;
 mountPlatePin2OffsetX=0.75;
 mountPlatePin2OffsetY=0.75;
 
 // bottom-right pin
-mountPlatePin3Length=4;
+mountPlatePin3Length=5;
 mountPlatePin3Diameter=2.2;
 mountPlatePin3OffsetX=0.75;
 mountPlatePin3OffsetY=0.75;
 
 // bottom-left pin
-mountPlatePin4Length=4;
+mountPlatePin4Length=5;
 mountPlatePin4Diameter=2.2;
 mountPlatePin4OffsetX=0.75;
 mountPlatePin4OffsetY=0.75;
@@ -250,19 +250,19 @@ module box_shell(){
             translate([
                 -boxOuterWidth/2+boxThickness,
                 -boxOuterLength/2+boxThickness,
-                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2.5
             ]){
-                linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+                linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2.5) polygon(points=[[0,0], [0,5], [5,0]]);
             }
 
             // reinforce box corner near INPUT
             translate([
                 boxOuterWidth/2-boxThickness,
                 -boxOuterLength/2+boxThickness,
-                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2.5
             ]){
                 rotate([0,0,90]){
-                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2.5) polygon(points=[[0,0], [0,5], [5,0]]);
                 }
             }
 
@@ -270,10 +270,10 @@ module box_shell(){
             translate([
                 boxOuterWidth/2-boxThickness,
                 boxOuterLength/2-boxThickness,
-                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2.5
             ]){
                 rotate([0,0,180]){
-                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2.5) polygon(points=[[0,0], [0,5], [5,0]]);
                 }
             }
 
@@ -281,10 +281,10 @@ module box_shell(){
             translate([
                 -boxOuterWidth/2+boxThickness,
                 boxOuterLength/2-boxThickness,
-                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2
+                (0-(boxOuterHeight)/2)+(boardThickness+mountPlateThickness+gapBelowBoard)+2.5
             ]){
                 rotate([0,0,270]){
-                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2) polygon(points=[[0,0], [0,5], [5,0]]);
+                    linear_extrude(boxOuterHeight-boxThickness-mountPlateThickness-boardThickness-2.5) polygon(points=[[0,0], [0,5], [5,0]]);
                 }
             }
 
