@@ -601,7 +601,7 @@ module etch_label(){
         // output neg
         translate([
                 boxOuterWidth/2-5-boxThickness-boardSpacingX,
-                boxOuterLength/2+0.01,
+                boxOuterLength/2+0.5,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
                 rotate([90,0,0]){
@@ -614,7 +614,7 @@ module etch_label(){
         // output pos
         translate([
                 boxOuterWidth/2-hardWiresPortWidth-5-boxThickness-boardSpacingX,
-                boxOuterLength/2+0.01,
+                boxOuterLength/2+0.5,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
                 rotate([90,0,0]){
@@ -627,7 +627,7 @@ module etch_label(){
         // input neg
         translate([
                 boxOuterWidth/2-boxThickness-2-hardWiresPortOffsetX-boardSpacingX,
-                -boxOuterLength/2+0.49,
+                -boxOuterLength/2,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
                 rotate([90,0,0]){
@@ -640,7 +640,7 @@ module etch_label(){
         // input pos
         translate([
                 boxOuterWidth/2-boxThickness-hardWiresPortOffsetX-hardWiresPortWidth-boardSpacingX-2,
-                -boxOuterLength/2+0.49,
+                -boxOuterLength/2,
                 mountPlateThickness+boardThickness+hardWiresPortHeight+2
             ]){
                 rotate([90,0,0]){
@@ -658,21 +658,21 @@ module etch_label(){
 
             translate([
                 -(boxOuterWidth/2-boxThickness-currentAdjustHoleOffsetX-currentAdjustHoleDiameter-boardSpacingX-1),
-                -(boxOuterLength/2-currentAdjustHoleOffsetY-currentAdjustHoleDiameter-boardSpacingY),
+                -(boxOuterLength/2-currentAdjustHoleOffsetY-currentAdjustHoleDiameter-boardSpacingY+1),
                 boxOuterHeight
             ]){
                 linear_extrude(0.5){
-                    text("current limit", size=1.7);
+                    text("Amp", size=5);
                 }
             }
             
             translate([
                 -(boxOuterWidth/2-boxThickness-voltAdjustHoleOffsetX-voltAdjustHoleDiameter-boardSpacingX-1),
-                -(boxOuterLength/2-voltAdjustHoleOffsetY-voltAdjustHoleDiameter-boardSpacingY),
+                -(boxOuterLength/2-voltAdjustHoleOffsetY-voltAdjustHoleDiameter-boardSpacingY+2),
                 boxOuterHeight
             ]){
                 linear_extrude(0.5){
-                    text("voltage", size=1.7);
+                    text("Volt", size=5);
                 }
             }
 
@@ -684,56 +684,46 @@ module etch_label(){
             boxOuterHeight
         ]){
             linear_extrude(0.5){
-                text("IN", size=3);
+                text("IN", size=5);
             }
         }
         
         translate([
-            -boxOuterWidth/2+boardSpacingX+7,
-            (boxOuterLength/2-boxThickness-boardSpacingY-9),
+            -boxOuterWidth/2+boardSpacingX+3,
+            (boxOuterLength/2-boxThickness-boardSpacingY-12),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
-                text("4v - 38v", size=3);
+                text("4v - 38v", size=5);
             }
         }
         
         translate([
-            (boxOuterWidth/2-boardSpacingX-12),
-            -(boxOuterLength/2-boxThickness-boardSpacingY-2),
+            (boxOuterWidth/2-boardSpacingX-14),
+            -(boxOuterLength/2-boxThickness-boardSpacingY-0),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
-                text("OUT", size=3);
+                text("OUT", size=5);
             }
         }
         translate([
-            -(boxOuterWidth/2)+boardSpacingX+6,
+            -(boxOuterWidth/2)+boardSpacingX,
             -(boxOuterLength/2-boxThickness-boardSpacingY-7),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
-                text("1.2v - 36v", size=3);
+                text("1.2v - 36v", size=5);
             }
         }
         
         translate([
-            -(boxOuterWidth/2)+boardSpacingX+3.5,
-            -(boxOuterLength/2-boxThickness-boardSpacingY-17),
+            -(boxOuterWidth/2)+boardSpacingX+1.5,
+            -(boxOuterLength/2-boxThickness-boardSpacingY-15),
             boxOuterHeight
         ]){
             linear_extrude(0.5){
-                text("5A Max", size=5);
-            }
-        }
-        
-        translate([
-            -(boxOuterWidth/2)+boardSpacingX+3,
-            -(boxOuterLength/2-boardSpacingY-boxThickness-13),
-            boxOuterHeight
-        ]){
-            linear_extrude(0.5){
-                text("CCCV DC Buck", size=2.5);
+                text("5A Max", size=6);
             }
         }
         
@@ -771,10 +761,6 @@ if(!hideBox){
                 if(!hideAdjustmentAccess){
                     volt_adjust_hole();
                     current_adjust_hole();
-                }
-                
-                translate([0,0,-0.3]){
-                    etch_label();
                 }
                 
                 // vent holes at left
@@ -827,6 +813,10 @@ if(!hideBox){
             
             }
             
+            translate([0,0,-0.3]){
+                color ("black") etch_label();
+            }
+                
             if(!hideScrewTabs){
                 // only attach screw tabs if not hidden
                 left_screw_tab();
