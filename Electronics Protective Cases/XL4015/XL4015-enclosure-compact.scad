@@ -75,7 +75,6 @@ currentAdjustHoleDiameter=4.5;
 currentAdjustHoleOffsetX=6.5;
 currentAdjustHoleOffsetY=30.5;
 
-
 // screw tab - how wide along the body
 screwTabWidthBase=24;
 screwTabWidthPoint=14;
@@ -144,26 +143,26 @@ mountPlateScrewHole2OffsetY=-15;
 // top-left pin
 mountPlatePin1Length=4;
 mountPlatePin1Diameter=2.2;
-mountPlatePin1OffsetX=0.5;
-mountPlatePin1OffsetY=0.5;
+mountPlatePin1OffsetX=0.75;
+mountPlatePin1OffsetY=0.75;
 
 // top-right pin
 mountPlatePin2Length=4;
 mountPlatePin2Diameter=2.2;
-mountPlatePin2OffsetX=0.5;
-mountPlatePin2OffsetY=0.5;
+mountPlatePin2OffsetX=0.75;
+mountPlatePin2OffsetY=0.75;
 
 // bottom-right pin
 mountPlatePin3Length=4;
 mountPlatePin3Diameter=2.2;
-mountPlatePin3OffsetX=0.5;
-mountPlatePin3OffsetY=0.5;
+mountPlatePin3OffsetX=0.75;
+mountPlatePin3OffsetY=0.75;
 
 // bottom-left pin
 mountPlatePin4Length=4;
 mountPlatePin4Diameter=2.2;
-mountPlatePin4OffsetX=0.5;
-mountPlatePin4OffsetY=0.5;
+mountPlatePin4OffsetX=0.75;
+mountPlatePin4OffsetY=0.75;
 
 // board-support under pins 1-4
 mountPlatePinRiserDiameter=3;
