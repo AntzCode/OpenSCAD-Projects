@@ -9,6 +9,8 @@
 include <BOSL/constants.scad>
 use <BOSL/shapes.scad>
 
+include <Round-Anything/polyround.scad>
+
 // number of facets used to generate an arc
 $fn = 32;
 
@@ -22,17 +24,21 @@ $fn = 32;
 }
 
 // scale factor for translating to a model size
-scale = 8;
+scale = 6;
 
 // nose
 noseWidth = 1200 / scale;
 noseLength = 1090 / scale;
-noseHeight = 1070 / scale;
+noseHeightCenter = 1070 / scale;
+noseHeightSides = 960 / scale;
+noseCornerRadius = 400 / scale;
 
 // cab
-cabHeight = 2280 / scale;
 cabLength = 1730 / scale;
 cabWidth = 2220 / scale;
+cabHeightCenter = 2280 / scale;
+cabHeightSides = 2080 / scale;
+cabCornerRadius = 200 / scale;
 
 rightWindowWidth = 300 / scale;
 rightWindowHeight = 300 / scale;
@@ -46,15 +52,15 @@ chassisLength = 2970 / scale;
 // Wheel holes
 wheelHoleWidth = chassisHeight / 2;
 wheelHoleHeight = chassisHeight / 4;
-backWheelHoleOffset = 600/scale;
-frontWheelHoleOffset = 2100/scale;
+backWheelHoleOffset = 600 / scale;
+frontWheelHoleOffset = 2100 / scale;
 
 wheelColor = "red";
 wheelFlangeColor = "darkRed";
 wheelDiameter = 450 / scale;
-wheelWidth = 30;       // mm in scale
+wheelWidth = 18;       // mm in scale
 wheelFlangeWidth = 3;  // mm in scale
-wheelFlangeHeight = 2; // mm in scale
+wheelFlangeHeight = 5; // mm in scale
 wheelTrackWidth = 184; // mm in scale
 axleDiameter = 20;     // mm in scale
 
@@ -67,8 +73,7 @@ frameTimberColor = "SaddleBrown";
 
 module flangedWheel(diameter, flangeHeight, flangeWidth)
 {
-	color(wheelFlangeColor)
-	    cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
+	color(wheelFlangeColor) cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
 	{
 	}
 	translate([ 0, 0, flangeWidth ])
@@ -79,9 +84,42 @@ module flangedWheel(diameter, flangeHeight, flangeWidth)
 	}
 }
 
-// draw chassis frame
+module cabPolygon()
+{
+	archHeight = (cabHeightCenter - (cabHeightSides - cabCornerRadius));
+	cabCenterRadius = (((cabWidth / 2) * (cabWidth / 2)) / archHeight) + archHeight;
+	echo(cabCenterRadius);
+	polygon(polyRound(
+	    [
+		    [ 0, 0, 0 ],                                              // left bottom
+		    [ cabWidth, 0, 0 ],                                       // right bottom
+		    [ cabWidth, cabHeightSides, cabCornerRadius ],            // right side top
+		    [ (cabWidth / 4) * 3, cabHeightCenter, cabCenterRadius ], // roof center
+		    [ (cabWidth / 4), cabHeightCenter, cabCenterRadius ],     // roof center
+		    [ 0, cabHeightSides, cabCornerRadius ]                    // left side top
+	    ],
+	    10));
+}
 
-union()
+module nosePolygon()
+{
+	archHeight = (noseHeightCenter - (noseHeightSides - noseCornerRadius));
+	noseCenterRadius = (((noseWidth / 2) * (noseWidth / 2)) / archHeight) + archHeight;
+	echo(noseCenterRadius);
+	polygon(polyRound(
+	    [
+		    [ 0, 0, 0 ],                                              // left bottom
+		    [ noseWidth, 0, 0 ],                                       // right bottom
+		    [ noseWidth, noseHeightSides, noseCornerRadius ],            // right side top
+		    [ (noseWidth / 4) * 3, noseHeightCenter, noseCenterRadius ], // nose center
+		    [ (noseWidth / 4), noseHeightCenter, noseCenterRadius ],     // nose center
+		    [ 0, noseHeightSides, noseCornerRadius ]                    // left side top
+	    ],
+	    10));
+}
+
+// draw chassis frame
+*union()
 {
 	// left frame
 	translate([ 0, 0, 0 ])
@@ -116,9 +154,9 @@ union()
 	}
 }
 
+// draw chassis
 difference()
 {
-	// draw chassis
 	color("black") cube([ chassisWidth, chassisLength, chassisHeight ])
 	{
 	}
@@ -141,47 +179,54 @@ difference()
 }
 
 // draw cab frame
-
-// left front frame
-translate(
-    [ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), cabLength - frameTimberWidth, chassisHeight ])
+*union()
 {
-	color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeight ])
+	// left front frame
+	translate(
+	    [ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), cabLength - frameTimberWidth, chassisHeight ])
 	{
+		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
+		{
+		}
 	}
-}
 
-// right front frame
-translate([ -(cabWidth - chassisWidth) / 2, cabLength - frameTimberWidth, chassisHeight ])
-{
-	color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeight ])
+	// right front frame
+	translate([ -(cabWidth - chassisWidth) / 2, cabLength - frameTimberWidth, chassisHeight ])
 	{
+		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
+		{
+		}
 	}
-}
 
-// left rear frame
-translate([ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), 0, chassisHeight ])
-{
-	color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeight ])
+	// left rear frame
+	translate([ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), 0, chassisHeight ])
 	{
+		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
+		{
+		}
 	}
-}
 
-// right rear frame
-translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ])
-{
-	color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeight ])
-	{
-	}
-}
-
-difference()
-{
-	// draw cab
+	// right rear frame
 	translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ])
 	{
-		cuboid([ cabWidth, cabLength, cabHeight ], center = false, fillet = 10, edges = EDGES_Y_TOP)
+		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
 		{
+		}
+	}
+}
+
+// draw cab
+difference()
+{
+
+	translate([ -(cabWidth - chassisWidth) / 2, cabLength, chassisHeight ])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			linear_extrude(height = cabLength)
+			{
+				cabPolygon();
+			}
 		}
 	}
 
@@ -194,96 +239,113 @@ difference()
 	}
 }
 
-// draw nose
-translate([ (chassisWidth - noseWidth) / 2, cabLength, chassisHeight ])
+// asterisk hides it
+// this is used to check the curvature of the cab roof
+*translate([ -((cabWidth - chassisWidth) / 2), 0, chassisHeight + cabHeightCenter ])
 {
-	cube([ noseWidth, noseLength, noseHeight ])
+	color("red") cube([ cabWidth, cabLength, 10 ]);
+}
+
+// draw nose
+union()
+{
+	translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
 	{
+		rotate([ 90, 0, 0 ])
+		{
+			linear_extrude(height = noseLength)
+			{
+				nosePolygon();
+			}
+		}
 	}
 }
 
 // draw wheels
-
-// rear axle
-translate([
-	(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
-	(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
+union()
 {
-	rotate([ 0, 90, 0 ])
+
+	// rear axle
+	translate([
+		(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
+		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		cylinder(wheelTrackWidth - wheelFlangeWidth * 2, d = axleDiameter, center = false)
+		rotate([ 0, 90, 0 ])
 		{
+			cylinder(wheelTrackWidth - wheelFlangeWidth * 2, d = axleDiameter, center = false)
+			{
+			}
 		}
 	}
-}
 
-// rear left wheel
-translate([
-	((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
-	(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
-{
-	rotate([ 0, -90, 0 ])
+	// rear left wheel
+	translate([
+		((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
+		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+		rotate([ 0, -90, 0 ])
 		{
+			flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+			{
+			}
 		}
 	}
-}
 
-// rear right wheel
-translate([
-	((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
-	(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
-{
-	rotate([ 0, 90, 0 ])
+	// rear right wheel
+	translate([
+		((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
+		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+		rotate([ 0, 90, 0 ])
 		{
+			flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+			{
+			}
 		}
 	}
-}
 
-// front axle
-translate([
-	(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
-	(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
-{
-	rotate([ 0, 90, 0 ])
+	// front axle
+	translate([
+		(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
+		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		cylinder(wheelTrackWidth - wheelFlangeWidth * 2, d = axleDiameter, center = false)
+		rotate([ 0, 90, 0 ])
 		{
+			cylinder(wheelTrackWidth - wheelFlangeWidth * 2, d = axleDiameter, center = false)
+			{
+			}
 		}
 	}
-}
 
-// front left wheel
-translate([
-	((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
-	(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
-{
-	rotate([ 0, -90, 0 ])
+	// front left wheel
+	translate([
+		((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
+		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+		rotate([ 0, -90, 0 ])
 		{
+			flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+			{
+			}
 		}
 	}
-}
 
-// front right wheel
-translate([
-	((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
-	(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-])
-{
-	rotate([ 0, 90, 0 ])
+	// front right wheel
+	translate([
+		((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
+		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+	])
 	{
-		flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+		rotate([ 0, 90, 0 ])
 		{
+			flangedWheel(wheelDiameter, wheelFlangeHeight, wheelFlangeWidth)
+			{
+			}
 		}
 	}
 }
