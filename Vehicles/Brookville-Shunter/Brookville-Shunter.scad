@@ -38,6 +38,16 @@ noseSteelThickness = 3 / scale;
 noseFrontWindowWidth = noseWidth - 20 / scale;
 noseFrontWindowHeight = noseHeightCenter - 330 / scale;
 
+noseDoorHeight = 730 / scale;
+noseDoorWidth = 540 / scale;
+noseDoorOffsetFront = 5 / scale;
+noseDoorFrameWidth = 40 / scale;
+noseDoorColor = "DarkOrange";
+
+noseDoorWindowWidth = 300 / scale;
+noseDoorWindowHeight = 300 / scale;
+noseDoorWindowOffsetBottom = 200 / scale;
+
 noseExhaustDiameter = 65 / scale;
 noseExhaustThickness = 3 / scale;
 noseExhaustLength = 50 / scale;
@@ -660,8 +670,8 @@ union()
 
 			// create exhaust
 			translate([
-				(chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft,
-				cabLength + noseExhaustOffsetBack, noseHeightCenter + chassisHeight - 200
+				(chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
+				noseHeightCenter + chassisHeight - 200
 			])
 			{
 				rotate([ 0, 0, 0 ])
@@ -708,8 +718,147 @@ union()
 			{
 			}
 		}
+
+		// cut left engine bay hole
+		translate([
+			(chassisWidth - noseWidth) / 2 - noseSteelThickness,
+			(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+			noseDoorFrameWidth
+		])
+		{
+			rotate([ 90, 0, 90 ])
+			{
+				color(noseDoorColor) cuboid(
+				    [
+					    noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
+					    noseSteelThickness + 2
+				    ],
+				    center = false)
+				{
+				}
+			}
+		}
+
+		// cut right engine bay hole
+		translate([
+			noseWidth + (chassisWidth - noseWidth) / 2 - noseSteelThickness - 1,
+			(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+			noseDoorFrameWidth
+		])
+		{
+			rotate([ 90, 0, 90 ])
+			{
+				color(noseDoorColor) cuboid(
+				    [
+					    noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
+					    noseSteelThickness + 2
+				    ],
+				    center = false)
+				{
+				}
+			}
+		}
 	}
-}
+
+	// draw the left front door
+	translate([
+		(chassisWidth - noseWidth) / 2 - noseSteelThickness,
+		(cabLength + noseLength - noseDoorWidth - noseDoorOffsetFront),
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 90 ])
+		{
+			difference()
+			{
+				color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness ], center = false)
+				{
+				}
+
+				translate([ (noseDoorWidth - noseDoorWindowWidth) / 2, noseDoorWindowOffsetBottom, -1 ])
+				{
+					cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness + 2 ], center = false)
+					{
+					}
+				}
+			}
+		}
+	}
+
+	// draw the left rear door
+	translate([
+		(chassisWidth - noseWidth) / 2 - noseSteelThickness,
+		(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2),
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 90 ])
+		{
+			difference()
+			{
+				color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness ], center = false)
+				{
+				}
+
+				translate([ (noseDoorWidth - noseDoorWindowWidth) / 2, noseDoorWindowOffsetBottom, -1 ])
+				{
+					cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness + 2 ], center = false)
+					{
+					}
+				}
+			}
+		}
+	}
+
+	// draw the right front door
+	translate([
+		noseWidth + (chassisWidth - noseWidth) / 2, (cabLength + noseLength - noseDoorWidth - noseDoorOffsetFront),
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 90 ])
+		{
+			difference()
+			{
+				color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness ], center = false)
+				{
+				}
+
+				translate([ (noseDoorWidth - noseDoorWindowWidth) / 2, noseDoorWindowOffsetBottom, -1 ])
+				{
+					cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness + 2 ], center = false)
+					{
+					}
+				}
+			}
+		}
+	}
+
+	// draw the right rear door
+	translate([
+		noseWidth + (chassisWidth - noseWidth) / 2,
+		(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2),
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 90 ])
+		{
+			difference()
+			{
+				color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness ], center = false)
+				{
+				}
+				translate([ (noseDoorWidth - noseDoorWindowWidth) / 2, noseDoorWindowOffsetBottom, -1 ])
+				{
+					cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness + 2 ], center = false)
+					{
+					}
+				}
+			}
+		}
+	}
+
+} // end of nose union
 
 // draw wheels
 union()
