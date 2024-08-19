@@ -32,6 +32,10 @@ noseLength = 1090 / scale;
 noseHeightCenter = 1070 / scale;
 noseHeightSides = 960 / scale;
 noseCornerRadius = 400 / scale;
+noseSteelThickness = 3 / scale;
+
+noseFrontWindowWidth = noseWidth - 20 / scale;
+noseFrontWindowHeight = noseHeightCenter - 330 / scale;
 
 // cab
 cabLength = 1730 / scale;
@@ -39,21 +43,32 @@ cabWidth = 2220 / scale;
 cabHeightCenter = 2280 / scale;
 cabHeightSides = 2080 / scale;
 cabCornerRadius = 200 / scale;
+cabSteelThickness = 3 / scale;
 
-rightWindowWidth = 300 / scale;
-rightWindowHeight = 300 / scale;
-rightWindowCabOffset = 1600 / scale;
+// cab side windows
+leftWindowWidth = 980 / scale;
+leftWindowHeight = 720 / scale;
+leftWindowOffsetBottom = 1310 / scale;
+leftWindowOffsetFront = 150 / scale;
+
+rightWindowWidth = 980 / scale;
+rightWindowHeight = 720 / scale;
+rightWindowOffsetBottom = 1310 / scale;
+rightWindowOffsetFront = 150 / scale;
 
 // chassis
 chassisWidth = 1600 / scale;
 chassisHeight = 470 / scale;
 chassisLength = 2970 / scale;
+chassisSteelThickness = 8 / scale;
 
 // Wheel holes
-wheelHoleWidth = chassisHeight / 2;
-wheelHoleHeight = chassisHeight / 4;
-backWheelHoleOffset = 600 / scale;
-frontWheelHoleOffset = 2100 / scale;
+wheelHoleWidth = 380 / scale;
+wheelHoleHeight = 110 / scale;
+
+// axles
+rearAxleOffset = (730 + (380 / 2)) / scale;
+frontAxleOffset = chassisLength - ((650 + 380 / 2) / scale);
 
 wheelColor = "red";
 wheelFlangeColor = "darkRed";
@@ -66,9 +81,9 @@ axleDiameter = 20;     // mm in scale
 
 // building materials
 
-// frame timber = 3x2 dressed
-frameTimberWidth = 55;
-frameTimberHeight = 75;
+// frame timber = 2x2 dressed
+frameTimberWidth = 45;
+frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
 
 module flangedWheel(diameter, flangeHeight, flangeWidth)
@@ -88,7 +103,6 @@ module cabPolygon()
 {
 	archHeight = (cabHeightCenter - (cabHeightSides - cabCornerRadius));
 	cabCenterRadius = (((cabWidth / 2) * (cabWidth / 2)) / archHeight) + archHeight;
-	echo(cabCenterRadius);
 	polygon(polyRound(
 	    [
 		    [ 0, 0, 0 ],                                              // left bottom
@@ -108,12 +122,12 @@ module nosePolygon()
 	echo(noseCenterRadius);
 	polygon(polyRound(
 	    [
-		    [ 0, 0, 0 ],                                              // left bottom
-		    [ noseWidth, 0, 0 ],                                       // right bottom
+		    [ 0, 0, 0 ],                                                 // left bottom
+		    [ noseWidth, 0, 0 ],                                         // right bottom
 		    [ noseWidth, noseHeightSides, noseCornerRadius ],            // right side top
 		    [ (noseWidth / 4) * 3, noseHeightCenter, noseCenterRadius ], // nose center
 		    [ (noseWidth / 4), noseHeightCenter, noseCenterRadius ],     // nose center
-		    [ 0, noseHeightSides, noseCornerRadius ]                    // left side top
+		    [ 0, noseHeightSides, noseCornerRadius ]                     // left side top
 	    ],
 	    10));
 }
@@ -122,33 +136,36 @@ module nosePolygon()
 *union()
 {
 	// left frame
-	translate([ 0, 0, 0 ])
+	translate([ chassisSteelThickness, chassisSteelThickness, 0 ])
 	{
-		color(frameTimberColor) cube([ frameTimberHeight, chassisLength, frameTimberWidth ])
+		color(frameTimberColor) cube([ frameTimberHeight, chassisLength - chassisSteelThickness * 2, frameTimberWidth ])
 		{
 		}
 	}
 
 	// right frame
-	translate([ chassisWidth - frameTimberHeight, 0, 0 ])
+	translate([ chassisWidth - frameTimberHeight - chassisSteelThickness, chassisSteelThickness, 0 ])
 	{
-		color(frameTimberColor) cube([ frameTimberHeight, chassisLength, frameTimberWidth ])
+		color(frameTimberColor) cube([ frameTimberHeight, chassisLength - chassisSteelThickness * 2, frameTimberWidth ])
 		{
 		}
 	}
 
 	// rear frame
-	translate([ frameTimberHeight, 0, 0 ])
+	translate([ frameTimberHeight + chassisSteelThickness, chassisSteelThickness, 0 ])
 	{
-		color(frameTimberColor) cube([ chassisWidth - frameTimberHeight * 2, frameTimberHeight, frameTimberWidth ])
+		color(frameTimberColor) cube(
+		    [ chassisWidth - frameTimberHeight * 2 - chassisSteelThickness * 2, frameTimberHeight, frameTimberWidth ])
 		{
 		}
 	}
 
 	// front frame
-	translate([ frameTimberHeight, chassisLength - frameTimberHeight, 0 ])
+	translate(
+	    [ frameTimberHeight + chassisSteelThickness, chassisLength - frameTimberHeight - chassisSteelThickness, 0 ])
 	{
-		color(frameTimberColor) cube([ chassisWidth - frameTimberHeight * 2, frameTimberHeight, frameTimberWidth ])
+		color(frameTimberColor) cube(
+		    [ chassisWidth - frameTimberHeight * 2 - chassisSteelThickness * 2, frameTimberHeight, frameTimberWidth ])
 		{
 		}
 	}
@@ -157,22 +174,22 @@ module nosePolygon()
 // draw chassis
 difference()
 {
-	color("black") cube([ chassisWidth, chassisLength, chassisHeight ])
+	color("black", alpha = 1) cube([ chassisWidth, chassisLength, chassisHeight ])
 	{
 	}
 
 	// draw wheel holes
-	translate([ -1, backWheelHoleOffset, -1 ])
+	translate([ -1, rearAxleOffset - wheelHoleWidth / 2, -1 ])
 	{
-		color("red") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
+		color("black") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
 		{
 		}
 	}
 
 	// draw wheel holes
-	translate([ -1, frontWheelHoleOffset, -1 ])
+	translate([ -1, frontAxleOffset - wheelHoleWidth / 2, -1 ])
 	{
-		color("red") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
+		color("black") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
 		{
 		}
 	}
@@ -181,25 +198,23 @@ difference()
 // draw cab frame
 *union()
 {
-	// left front frame
-	translate(
-	    [ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), cabLength - frameTimberWidth, chassisHeight ])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
-		{
-		}
-	}
-
 	// right front frame
-	translate([ -(cabWidth - chassisWidth) / 2, cabLength - frameTimberWidth, chassisHeight ])
+	translate([
+		cabWidth - cabSteelThickness - (frameTimberHeight + (cabWidth - chassisWidth) / 2),
+		cabLength - frameTimberWidth - cabSteelThickness,
+		chassisHeight
+	])
 	{
 		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
 		{
 		}
 	}
 
-	// left rear frame
-	translate([ cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2), 0, chassisHeight ])
+	// left front frame
+	translate([
+		-(cabWidth - chassisWidth) / 2 + cabSteelThickness, cabLength - frameTimberWidth - cabSteelThickness,
+		chassisHeight
+	])
 	{
 		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
 		{
@@ -207,7 +222,18 @@ difference()
 	}
 
 	// right rear frame
-	translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ])
+	translate([
+		cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2) + -cabSteelThickness, cabSteelThickness,
+		chassisHeight
+	])
+	{
+		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
+		{
+		}
+	}
+
+	// left rear frame
+	translate([ -(cabWidth - chassisWidth) / 2 + cabSteelThickness, cabSteelThickness, chassisHeight ])
 	{
 		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ])
 		{
@@ -230,10 +256,38 @@ difference()
 		}
 	}
 
-	// draw right window
-	translate([ cabWidth / 2, cabLength / 2, rightWindowCabOffset + chassisHeight ])
+	// hollow-out the cab
+	translate([ -(cabWidth - chassisWidth) / 2, cabLength - cabSteelThickness, chassisHeight ])
 	{
-		color("red") cube([ cabWidth / 2 + 2, rightWindowWidth, rightWindowHeight + 1 ])
+		rotate([ 90, 0, 0 ])
+		{
+			linear_extrude(height = cabLength - cabSteelThickness * 2)
+			{
+				offset(delta = -cabSteelThickness * 2) cabPolygon();
+			}
+		}
+	}
+
+	// draw left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 + cabSteelThickness), cabLength - (leftWindowOffsetFront + leftWindowWidth),
+		leftWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		cube([ cabSteelThickness + 2, leftWindowWidth, leftWindowHeight + 1 ])
+		{
+		}
+	}
+
+	// draw right window
+	translate([
+		cabWidth - ((cabWidth - chassisWidth) / 2 + cabSteelThickness + 1),
+		cabLength - (rightWindowOffsetFront + rightWindowWidth), rightWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		cube([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ])
 		{
 		}
 	}
@@ -249,13 +303,39 @@ difference()
 // draw nose
 union()
 {
-	translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
+	difference()
 	{
-		rotate([ 90, 0, 0 ])
+		translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
 		{
-			linear_extrude(height = noseLength)
+			rotate([ 90, 0, 0 ])
 			{
-				nosePolygon();
+				linear_extrude(height = noseLength)
+				{
+					nosePolygon();
+				}
+			}
+		}
+
+		// hollow-out the nose
+		translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength - noseSteelThickness, chassisHeight ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				linear_extrude(height = noseLength - noseSteelThickness * 2)
+				{
+					offset(delta = -noseSteelThickness * 2) nosePolygon();
+				}
+			}
+		}
+
+		// draw front cage on nose
+		translate([
+			((chassisWidth - noseWidth) / 2) + (noseWidth - noseFrontWindowWidth) / 2, noseLength + cabLength - 3,
+			chassisHeight
+		])
+		{
+			cube([ noseFrontWindowWidth - 2, 6, noseFrontWindowHeight - 3 ])
+			{
 			}
 		}
 	}
@@ -266,10 +346,7 @@ union()
 {
 
 	// rear axle
-	translate([
-		(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
-		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-	])
+	translate([ (chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2, rearAxleOffset, 0 ])
 	{
 		rotate([ 0, 90, 0 ])
 		{
@@ -280,10 +357,7 @@ union()
 	}
 
 	// rear left wheel
-	translate([
-		((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
-		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-	])
+	translate([ ((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth, rearAxleOffset, 0 ])
 	{
 		rotate([ 0, -90, 0 ])
 		{
@@ -296,7 +370,7 @@ union()
 	// rear right wheel
 	translate([
 		((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
-		(backWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+		rearAxleOffset, 0
 	])
 	{
 		rotate([ 0, 90, 0 ])
@@ -308,10 +382,7 @@ union()
 	}
 
 	// front axle
-	translate([
-		(chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2,
-		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-	])
+	translate([ (chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2, frontAxleOffset, 0 ])
 	{
 		rotate([ 0, 90, 0 ])
 		{
@@ -322,10 +393,7 @@ union()
 	}
 
 	// front left wheel
-	translate([
-		((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth,
-		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
-	])
+	translate([ ((chassisWidth - wheelTrackWidth) / 2) + wheelFlangeWidth, frontAxleOffset, 0 ])
 	{
 		rotate([ 0, -90, 0 ])
 		{
@@ -338,7 +406,7 @@ union()
 	// front right wheel
 	translate([
 		((chassisWidth - wheelTrackWidth) / 2 - wheelFlangeWidth * 2) + wheelTrackWidth + wheelFlangeWidth,
-		(frontWheelHoleOffset - wheelHoleWidth / 2) + (wheelDiameter / 2 + wheelFlangeHeight), 0
+		frontAxleOffset, 0
 	])
 	{
 		rotate([ 0, 90, 0 ])
