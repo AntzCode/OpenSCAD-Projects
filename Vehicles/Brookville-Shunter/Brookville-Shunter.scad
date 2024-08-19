@@ -48,13 +48,28 @@ cabSteelThickness = 3 / scale;
 // cab side windows
 leftWindowWidth = 980 / scale;
 leftWindowHeight = 720 / scale;
-leftWindowOffsetBottom = 1310 / scale;
+leftWindowOffsetBottom = (100 + 1070) / scale;
 leftWindowOffsetFront = 150 / scale;
+leftWindowCornerRadius = 70 / scale;
 
 rightWindowWidth = 980 / scale;
 rightWindowHeight = 720 / scale;
-rightWindowOffsetBottom = 1310 / scale;
+rightWindowOffsetBottom = (100 + 1070) / scale;
 rightWindowOffsetFront = 150 / scale;
+rightWindowCornerRadius = 70 / scale;
+
+// cab front windows
+frontSideWindowWidth = 500 / scale;
+frontSideWindowHeightLong = 610 / scale;
+frontSideWindowHeightShort = 540 / scale;
+frontSideWindowOffsetBottom = (510 + 1070) / scale;
+frontSideWindowCornerRadius = 70 / scale;
+frontSideWindowOffsetSide = 120 / scale;
+
+frontCenterWindowWidth = 430 / scale;
+frontCenterWindowHeight = 430 / scale;
+frontCenterWindowOffsetBottom = (430 + 1070) / scale;
+frontCenterWindowCornerRadius = 70 / scale;
 
 // chassis
 chassisWidth = 1600 / scale;
@@ -119,7 +134,6 @@ module nosePolygon()
 {
 	archHeight = (noseHeightCenter - (noseHeightSides - noseCornerRadius));
 	noseCenterRadius = (((noseWidth / 2) * (noseWidth / 2)) / archHeight) + archHeight;
-	echo(noseCenterRadius);
 	polygon(polyRound(
 	    [
 		    [ 0, 0, 0 ],                                                 // left bottom
@@ -275,7 +289,7 @@ difference()
 		chassisHeight
 	])
 	{
-		cube([ cabSteelThickness + 2, leftWindowWidth, leftWindowHeight + 1 ])
+		cuboid([ cabSteelThickness + 2, leftWindowWidth, leftWindowHeight + 1 ], center=false, fillet=leftWindowCornerRadius, edges=EDGES_X_ALL)
 		{
 		}
 	}
@@ -287,8 +301,126 @@ difference()
 		chassisHeight
 	])
 	{
-		cube([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ])
+		cuboid([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ], center=false, fillet=rightWindowCornerRadius, edges=EDGES_X_ALL)
 		{
+		}
+	}
+
+	// draw front windows
+
+	// front centre window
+	translate([
+		cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, cabLength + 1,
+		frontCenterWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			color("red") cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ],
+			                    center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
+			{
+			}
+		}
+	}
+
+	// front left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), cabLength + 1,
+		chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			radiiPoints = [
+				[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+				[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+				[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+			];
+			color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
+		}
+	}
+
+	// front right window
+	translate([
+		cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, cabLength + 1,
+		(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+
+		mirror([ 1, 0, 0 ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(
+				    [
+					    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+					    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+					    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+				    ],
+				    30));
+			}
+		}
+	}
+
+	// draw rear windows
+
+	// rear centre window
+	translate([
+		cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, chassisSteelThickness + 1,
+		frontCenterWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			color("red") cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ],
+			                    center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
+			{
+			}
+		}
+	}
+
+	// rear left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), chassisSteelThickness + 1,
+		chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			radiiPoints = [
+				[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+				[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+				[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+			];
+			color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
+		}
+	}
+
+	// rear right window
+	translate([
+		cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, chassisSteelThickness + 1,
+		(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+
+		mirror([ 1, 0, 0 ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(
+				    [
+					    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+					    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+					    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+				    ],
+				    30));
+			}
 		}
 	}
 }
