@@ -77,6 +77,8 @@ cabHeightCenter = 2280 / scale;
 cabHeightSides = 2080 / scale;
 cabCornerRadius = 200 / scale;
 cabSteelThickness = 3 / scale;
+cabRoofOverhangFront = 190 / scale;
+cabRoofOverhangBack = 80 / scale;
 
 // cab side windows
 leftWindowWidth = 980 / scale;
@@ -304,190 +306,254 @@ difference()
 }
 
 // draw cab
-union(){difference(){
+union(){
 
-    translate([ -(cabWidth - chassisWidth) / 2, cabLength, chassisHeight ]){
-        rotate([ 90, 0, 0 ]){linear_extrude(height = cabLength){cabPolygon();
+    // draw the back of the cab roof overhang
+    union(){
+        difference(){difference(){// draw the cab with some extra length for the roof overhang
+                                  translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ]){
+                                      rotate([ 90, 0, 0 ]){linear_extrude(height = cabRoofOverhangBack){cabPolygon();
 }
 }
 }
 
-// hollow-out the cab
-translate([ -(cabWidth - chassisWidth) / 2, cabLength - cabSteelThickness, chassisHeight ])
+// carve-back the front part of the cab that does not have the roof
+translate([ -(cabWidth - chassisWidth) / 2 - 1, 1, chassisHeight - 1 ])
 {
 	rotate([ 90, 0, 0 ])
 	{
-		linear_extrude(height = cabLength - cabSteelThickness * 2)
+		cuboid([ cabWidth + 2, cabHeightSides - cabCornerRadius / 2 + 1, cabRoofOverhangBack + 2 ], center = false);
+	}
+}
+
+// carve-back the front part of the roof
+translate([ -(cabWidth - chassisWidth) / 2 - 1, 1, chassisHeight ])
+{
+	rotate([ 90, 0, 0 ])
+	{
+		linear_extrude(height = cabRoofOverhangBack + 2)
 		{
 			offset(delta = -cabSteelThickness * 2) cabPolygon();
 		}
 	}
 }
-
-// draw left window
-translate([
-	-((cabWidth - chassisWidth) / 2 + cabSteelThickness), cabLength - (leftWindowOffsetFront + leftWindowWidth),
-	leftWindowOffsetBottom +
-	chassisHeight
-])
-{
-	cuboid([ cabSteelThickness + 2, leftWindowWidth, leftWindowHeight + 1 ], center = false,
-	       fillet = leftWindowCornerRadius, edges = EDGES_X_ALL)
-	{
-	}
+}
+}
 }
 
-// cut left door hole
-translate([ -(cabWidth - chassisWidth) / 2 - 1, doorOffsetBack, chassisHeight ])
+difference()
 {
-	rotate([ 90, 0, 90 ])
-	{
-		cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
+	difference()
+	{ // draw the cab with some extra length for the front roof overhang
+		translate([ -(cabWidth - chassisWidth) / 2, cabLength + cabRoofOverhangFront, chassisHeight ])
 		{
+			rotate([ 90, 0, 0 ])
+			{
+				linear_extrude(height = cabLength + cabRoofOverhangFront)
+				{
+					cabPolygon();
+				}
+			}
+		}
+
+		// carve-back the front part of the cab that does not have the roof
+		translate([ -(cabWidth - chassisWidth) / 2 - 1, cabLength + cabRoofOverhangFront + 1, chassisHeight -1 ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				cuboid([ cabWidth + 2, cabHeightSides - cabCornerRadius / 2 + 1, cabRoofOverhangFront + 1 ],
+				       center = false);
+			}
+		}
+
+		// carve-back the front part of the roof
+		translate([ -(cabWidth - chassisWidth) / 2 - 1, cabLength + cabRoofOverhangFront + 1, chassisHeight ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				linear_extrude(height = cabRoofOverhangFront + 1)
+				{
+					offset(delta = -cabSteelThickness * 2) cabPolygon();
+				}
+			}
 		}
 	}
-}
-
-// draw right window
-translate([
-	cabWidth - ((cabWidth - chassisWidth) / 2 + cabSteelThickness + 1),
-	cabLength - (rightWindowOffsetFront + rightWindowWidth), rightWindowOffsetBottom +
-	chassisHeight
-])
-{
-	cuboid([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ], center = false,
-	       fillet = rightWindowCornerRadius, edges = EDGES_X_ALL)
-	{
-	}
-}
-
-// cut right door hole
-translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 1, doorOffsetBack, chassisHeight ])
-{
-	rotate([ 90, 0, 90 ])
-	{
-		cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
-		{
-		}
-	}
-}
-// draw front windows
-
-// front centre window
-translate([
-	cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, cabLength + 1,
-	frontCenterWindowOffsetBottom +
-	chassisHeight
-])
-{
-	rotate([ 90, 0, 0 ])
-	{
-		color("red") cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ], center = false,
-		                    fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
-		{
-		}
-	}
-}
-
-// front left window
-translate([
-	-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), cabLength + 1,
-	chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
-	frontSideWindowHeightLong
-])
-{
-	rotate([ 90, 0, 0 ])
-	{
-		radiiPoints = [
-			[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-			[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-			[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-		];
-		color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
-	}
-}
-
-// front right window
-translate([
-	cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, cabLength + 1,
-	(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
-	frontSideWindowHeightLong
-])
-{
-
-	mirror([ 1, 0, 0 ])
+	// hollow-out the cab
+	translate([ -(cabWidth - chassisWidth) / 2, cabLength - cabSteelThickness, chassisHeight ])
 	{
 		rotate([ 90, 0, 0 ])
 		{
-			color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(
-			    [
-				    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-				    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-				    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-			    ],
-			    30));
+			linear_extrude(height = cabLength - cabSteelThickness * 2)
+			{
+				offset(delta = -cabSteelThickness * 2) cabPolygon();
+			}
 		}
 	}
-}
 
-// draw rear windows
-
-// rear centre window
-translate([
-	cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, chassisSteelThickness + 1,
-	frontCenterWindowOffsetBottom +
-	chassisHeight
-])
-{
-	rotate([ 90, 0, 0 ])
+	// draw left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 + cabSteelThickness), cabLength - (leftWindowOffsetFront + leftWindowWidth),
+		leftWindowOffsetBottom +
+		chassisHeight
+	])
 	{
-		color("red") cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ], center = false,
-		                    fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
+		cuboid([ cabSteelThickness + 2, leftWindowWidth, leftWindowHeight + 1 ], center = false,
+		       fillet = leftWindowCornerRadius, edges = EDGES_X_ALL)
 		{
 		}
 	}
-}
 
-// rear left window
-translate([
-	-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), chassisSteelThickness + 1,
-	chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
-	frontSideWindowHeightLong
-])
-{
-	rotate([ 90, 0, 0 ])
+	// cut left door hole
+	translate([ -(cabWidth - chassisWidth) / 2 - 1, doorOffsetBack, chassisHeight ])
 	{
-		radiiPoints = [
-			[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-			[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-			[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-		];
-		color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
+		rotate([ 90, 0, 90 ])
+		{
+			cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
+			{
+			}
+		}
 	}
-}
 
-// rear right window
-translate([
-	cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, chassisSteelThickness + 1,
-	(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
-	frontSideWindowHeightLong
-])
-{
+	// draw right window
+	translate([
+		cabWidth - ((cabWidth - chassisWidth) / 2 + cabSteelThickness + 1),
+		cabLength - (rightWindowOffsetFront + rightWindowWidth), rightWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		cuboid([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ], center = false,
+		       fillet = rightWindowCornerRadius, edges = EDGES_X_ALL)
+		{
+		}
+	}
 
-	mirror([ 1, 0, 0 ])
+	// cut right door hole
+	translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 1, doorOffsetBack, chassisHeight ])
+	{
+		rotate([ 90, 0, 90 ])
+		{
+			cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
+			{
+			}
+		}
+	}
+	// draw front windows
+
+	// front centre window
+	translate([
+		cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, cabLength + 1,
+		frontCenterWindowOffsetBottom +
+		chassisHeight
+	])
 	{
 		rotate([ 90, 0, 0 ])
 		{
-			color("red") linear_extrude(cabSteelThickness + 2) polygon(polyRound(
-			    [
-				    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-				    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-				    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-			    ],
-			    30));
+			cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ],
+			                    center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
+			{
+			}
 		}
 	}
-}
+
+	// front left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), cabLength + 1,
+		chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			radiiPoints = [
+				[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+				[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+				[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+			];
+			linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
+		}
+	}
+
+	// front right window
+	translate([
+		cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, cabLength + 1,
+		(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+
+		mirror([ 1, 0, 0 ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				linear_extrude(cabSteelThickness + 2) polygon(polyRound(
+				    [
+					    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+					    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+					    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+				    ],
+				    30));
+			}
+		}
+	}
+
+	// draw rear windows
+
+	// rear centre window
+	translate([
+		cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, chassisSteelThickness + 1,
+		frontCenterWindowOffsetBottom +
+		chassisHeight
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness + 2 ],
+			                    center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL)
+			{
+			}
+		}
+	}
+
+	// rear left window
+	translate([
+		-((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), chassisSteelThickness + 1,
+		chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			radiiPoints = [
+				[ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+				[ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+				[ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+			];
+			linear_extrude(cabSteelThickness + 2) polygon(polyRound(radiiPoints, 30));
+		}
+	}
+
+	// rear right window
+	translate([
+		cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, chassisSteelThickness + 1,
+		(chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+		frontSideWindowHeightLong
+	])
+	{
+
+		mirror([ 1, 0, 0 ])
+		{
+			rotate([ 90, 0, 0 ])
+			{
+				linear_extrude(cabSteelThickness + 2) polygon(polyRound(
+				    [
+					    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+					    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+					    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+				    ],
+				    30));
+			}
+		}
+	}
 }
 
 // draw the left door
