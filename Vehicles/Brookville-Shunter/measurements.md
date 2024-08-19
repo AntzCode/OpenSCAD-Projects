@@ -1,7 +1,12 @@
+# Measurements of Original Locomotive
 
-Timber for frame 45 x 45mm
+Brookville Shunter located at Te Aroha, New Zealand
+Decommissioned, Ornamental
+Measured 19th August 2024
 
-Chassis
+Measurements in millimeters (mm)
+
+## Chassis
 470 high chassis
 1600 wide chassis
 650 Wheel to front gap
@@ -13,7 +18,7 @@ Chassis
 120 high brookville sign
 1020 distance brookville sign to front edge
 
-Nose
+## Nose
 1090 long nose
 1200 wide nose
 1070 high nose apex
@@ -27,12 +32,12 @@ Nose side windows 30 * 30
 730 door height
 540 door width
 
-Nose chassis front overhang 30 mm
-Nose window top gap 330mm to center
-240mm at sides inside radius arch
-Radius 120mm
+Nose chassis front overhang 30 
+Nose window top gap 330 to center
+240 at sides inside radius arch
+Radius 120
 
-Hitch
+## Hitch
 720 overall wide
 290 block long
 400 extend long
@@ -42,39 +47,39 @@ Hitch
 460 overall height
 200 offset top block edge to chassis top
 
-Cab
+## Cab
 2220 wide cab
 1730 long cab
 2080 high cab side
 2280 high cab apex
-Cab top edge radius 170mm
+Cab top edge radius 170
 
 Roof overhang
-190mm length
-3mm thickness
+190 length
+3 thickness
 
 Light
-50mm x 50mm angle iron
-130mm length
-200mm gap to roof
+50 x 50 angle iron
+130 length
+200 gap to roof
 
 Doors
-460mm wide door
-Door window width 320mm
-1800mm high door
+460 wide door
+Door window width 320
+1800 high door
 
 Door handles
-28mm diameter pipe 
-1330mm long
-80mm curve radius
+28 diameter pipe 
+1330 long
+80 curve radius
 
 Steps
-420mm high steps
-490mm wide steps
-50mm square top step
-120mm deep bottom step
-200mm gap top step
-155mm gap bottom step
+420 high steps
+490 wide steps
+50 square top step
+120 deep bottom step
+200 gap top step
+155 gap bottom step
 
 Windows - sides
 980 wide side window
@@ -82,20 +87,20 @@ Windows - sides
 
 Windows - front & rear
 500 wide side front window
-610 to 540mm high side front window
-70mm radius front side window corner
-430mm wide and tall front center window
-70mm radius front center window
-120mm gap side to front side window
-280mm gap front side window to front center window
-510mm gap below front center window to bonnet apex
-390mm gap front side window to bonnet apex level
+610 to 540 high side front window
+70 radius front side window corner
+430 wide and tall front center window
+70 radius front center window
+120 gap side to front side window
+280 gap front side window to front center window
+510 gap below front center window to bonnet apex
+390 gap front side window to bonnet apex level
 
 Exhaust:
-310mm gap nose rear vent to center
-90mm gap nose rear vent to cab
-65mm diameter nose rear vent
-50mm height
+310 gap nose rear vent to center
+90 gap nose rear vent to cab
+65 diameter nose rear vent
+50 height
 
 Air intake:
 860 gap to cab

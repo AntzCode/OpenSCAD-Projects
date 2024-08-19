@@ -1,0 +1,98 @@
+Computed Measurements for Brookville Shunter Model
+
+Scale Factor:
+1:6
+Overall Height:
+495.833
+Overall Width:
+370
+Overall Length:
+475
+Chassis Width:
+266.667
+Chassis Length:
+475
+Chassis Height:
+78.3333
+Cab Width:
+370
+Cab Length:
+288.333
+Cab Height Centre:
+380
+Nose Width:
+200
+Nose Length:
+181.667
+Nose Height Center:
+178.333
+Nose Air Intake Offset Front:
+25
+Nose Air Intake Offset Right:
+73.3333
+Nose Air Intake External Diameter:
+13.3333
+Nose Air Intake Internal Diameter:
+12.3333
+Nose Air Intake Thickness:
+0.5
+Nose Air Intake Length:
+16.6667
+Nose Air Intake Filter Housing Diameter:
+27.5
+Nose Air Intake Filter Housing Thickness:
+3.33333
+Nose Air Intake Filter Housing Offset Bottom:
+10
+Nose Fuel Input Offset Front:
+26.6667
+Nose Fuel Input Offset Right:
+31.6667
+Nose Fuel Input External Diameter:
+11.6667
+Nose Fuel Input Internal Diameter:
+10.6667
+Nose Fuel Input Thickness:
+0.5
+Nose Fuel Input Length:
+0
+Nose Exhaust Offset Back:
+15
+Nose Exhaust Offset Left:
+59.1667
+Nose Exhaust External Diameter:
+10.8333
+Nose Exhaust Internal Diameter:
+9.83333
+Nose Exhaust Thickness:
+0.5
+Nose Exhaust Length:
+8.33333
+Wheel Diameter:
+75
+Wheel Width:
+18
+Wheel Flange Height:
+5
+Wheel Flange Width:
+3
+Wheel Overall Width:
+21
+Wheel Overall Diameter:
+85
+Rear Axle Offset (from chassis rear edge):
+153.333
+Front Axle Offset (from chassis rear edge):
+335
+Wheelbase (center to center):
+181.667
+Rear Wheel Hole Offset Back:
+121.667
+Front Wheel Hole Offset Back:
+303.333
+Cab Roof Length with Overhangs:
+333.333
+Cab Roof Overhang Back:
+13.3333
+Cab Roof Overhang Front:
+31.6667

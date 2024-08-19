@@ -23,6 +23,15 @@ $fn = 32;
 	}
 }
 
+showReportSizes = true;
+showCab = true;
+showNose = true;
+showChassis = true;
+showWheels = true;
+showCabFrame = false;
+showNoseFrame = false;
+showChassisFrame = false;
+
 // scale factor for translating to a model size
 scale = 6;
 
@@ -34,6 +43,7 @@ noseHeightSides = 960 / scale;
 noseCornerRadius = 120 / scale;
 noseApexRadius = 120 / scale;
 noseSteelThickness = 3 / scale;
+noseColor = "Yellow";
 
 noseFrontWindowWidth = noseWidth - 20 / scale;
 noseFrontWindowHeight = noseHeightCenter - 330 / scale;
@@ -42,7 +52,7 @@ noseDoorHeight = 730 / scale;
 noseDoorWidth = 540 / scale;
 noseDoorOffsetFront = 5 / scale;
 noseDoorFrameWidth = 40 / scale;
-noseDoorColor = "DarkOrange";
+noseDoorColor = "Gold";
 
 noseDoorWindowWidth = 300 / scale;
 noseDoorWindowHeight = 300 / scale;
@@ -53,6 +63,7 @@ noseExhaustThickness = 3 / scale;
 noseExhaustLength = 50 / scale;
 noseExhaustOffsetBack = 90 / scale;
 noseExhaustOffsetLeft = ((1200 / 2 - 310) + 65) / scale;
+noseExhaustColor = "Gold";
 
 noseAirIntakeDiameter = 80 / scale;
 noseAirIntakeThickness = 3 / scale;
@@ -63,12 +74,14 @@ noseAirIntakeOffsetRight = ((1200 / 2 - 80) - 80) / scale;
 noseAirIntakeFilterHousingDiameter = 165 / scale;
 noseAirIntakeFilterHousingThickness = 20 / scale;
 noseAirIntakeFilterHousingOffsetBottom = 60 / scale;
+noseAirIntakeColor = "Gold";
 
 noseFuelInputDiameter = 70 / scale;
 noseFuelInputThickness = 3 / scale;
 noseFuelInputLength = 0 / scale;
 noseFuelInputOffsetFront = 160 / scale;
 noseFuelInputOffsetRight = ((1200 / 2 - 70) - 340) / scale;
+noseFuelInputColor = "Gold";
 
 // cab
 cabLength = 1730 / scale;
@@ -79,6 +92,7 @@ cabCornerRadius = 200 / scale;
 cabSteelThickness = 3 / scale;
 cabRoofOverhangFront = 190 / scale;
 cabRoofOverhangBack = 80 / scale;
+cabColor = "Yellow";
 
 // cab side windows
 leftWindowWidth = 980 / scale;
@@ -110,7 +124,7 @@ frontCenterWindowCornerRadius = 70 / scale;
 doorWidth = 460 / scale;
 doorHeight = 1800 / scale;
 doorOffsetBack = 100 / scale;
-doorColor = "DarkOrange";
+doorColor = "Gold";
 
 doorWindowWidth = 320 / scale;
 doorWindowHeight = 720 / scale;
@@ -120,30 +134,31 @@ doorHandleDiameter = 40 / scale;
 doorHandleLength = 30 / scale;
 doorHandleOffsetBack = 400 / scale;
 doorHandleOffsetBottom = (50 + 1070) / scale;
-doorHandleColor = "Black";
+doorHandleColor = "DarkSlateGray";
 
 // chassis
 chassisWidth = 1600 / scale;
 chassisHeight = 470 / scale;
 chassisLength = cabLength + noseLength + (30 / scale);
 chassisSteelThickness = 8 / scale;
+chassisColor = "Black";
 
-// Wheel holes
+// wheel holes
 wheelHoleWidth = 380 / scale;
 wheelHoleHeight = 110 / scale;
 
 // axles
+axleDiameter = 20;     // mm in scale
 rearAxleOffset = (730 + (380 / 2)) / scale;
 frontAxleOffset = chassisLength - ((650 + 380 / 2) / scale);
 
-wheelColor = "red";
-wheelFlangeColor = "darkRed";
+wheelColor = "Red";
+wheelFlangeColor = "DarkRed";
 wheelDiameter = 450 / scale;
 wheelWidth = 18;       // mm in scale
 wheelFlangeWidth = 3;  // mm in scale
 wheelFlangeHeight = 5; // mm in scale
 wheelTrackWidth = 184; // mm in scale
-axleDiameter = 20;     // mm in scale
 
 // building materials
 
@@ -152,6 +167,66 @@ frameTimberWidth = 45;
 frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
 
+reportSize("Scale Factor 1:x", scale);
+reportSize("Overall Height", wheelDiameter/2+chassisHeight+cabHeightCenter);
+reportSize("Overall Width", cabWidth);
+reportSize("Overall Length", chassisLength);
+
+reportSize("Chassis Width", chassisWidth);
+reportSize("Chassis Length", chassisLength);
+reportSize("Chassis Height", chassisHeight);
+
+reportSize("Cab Width", cabWidth);
+reportSize("Cab Length", cabLength);
+reportSize("Cab Height Centre", cabHeightCenter);
+
+reportSize("Nose Width", noseWidth);
+reportSize("Nose Length", noseLength);
+reportSize("Nose Height Center", noseHeightCenter);
+
+reportSize("Nose Air Intake Offset Front", noseAirIntakeOffsetFront);
+reportSize("Nose Air Intake Offset Right", noseAirIntakeOffsetRight);
+reportSize("Nose Air Intake External Diameter", noseAirIntakeDiameter);
+reportSize("Nose Air Intake Internal Diameter", noseAirIntakeDiameter-noseAirIntakeThickness*2);
+reportSize("Nose Air Intake Thickness", noseAirIntakeThickness);
+reportSize("Nose Air Intake Length", noseAirIntakeLength);
+reportSize("Nose Air Intake Filter Housing Diameter", noseAirIntakeFilterHousingDiameter);
+reportSize("Nose Air Intake Filter Housing Thickness", noseAirIntakeFilterHousingThickness);
+reportSize("Nose Air Intake Filter Housing Offset Bottom", noseAirIntakeFilterHousingOffsetBottom);
+
+reportSize("Nose Fuel Input Offset Front", noseFuelInputOffsetFront);
+reportSize("Nose Fuel Input Offset Right", noseFuelInputOffsetRight);
+reportSize("Nose Fuel Input External Diameter", noseFuelInputDiameter);
+reportSize("Nose Fuel Input Internal Diameter", noseFuelInputDiameter- noseFuelInputThickness*2);
+reportSize("Nose Fuel Input Thickness", noseFuelInputThickness);
+reportSize("Nose Fuel Input Length", noseFuelInputLength);
+
+reportSize("Nose Exhaust Offset Back", noseExhaustOffsetBack);
+reportSize("Nose Exhaust Offset Left", noseExhaustOffsetLeft);
+reportSize("Nose Exhaust External Diameter", noseExhaustDiameter);
+reportSize("Nose Exhaust Internal Diameter", noseExhaustDiameter-noseExhaustThickness*2);
+reportSize("Nose Exhaust Thickness", noseExhaustThickness);
+reportSize("Nose Exhaust Length", noseExhaustLength);
+
+reportSize("Wheel Diameter", wheelDiameter);
+reportSize("Wheel Width", wheelWidth);
+reportSize("Wheel Flange Height", wheelFlangeHeight);
+reportSize("Wheel Flange Width", wheelFlangeWidth);
+reportSize("Wheel Overall Width", wheelWidth + wheelFlangeWidth);
+reportSize("Wheel Overall Diameter", wheelDiameter+wheelFlangeHeight*2);
+reportSize("Rear Axle Offset (from chassis rear edge)", rearAxleOffset);
+reportSize("Front Axle Offset (from chassis rear edge)", frontAxleOffset);
+
+reportSize("Wheelbase (center to center)", frontAxleOffset - rearAxleOffset);
+
+// print the computed size to the console
+module reportSize(title, value){
+    if(showReportSizes){
+        echo(concat(title, value));
+    }
+}
+
+// draw a flanged wheel
 module flangedWheel(diameter, flangeHeight, flangeWidth)
 {
 	color(wheelFlangeColor) cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
@@ -165,6 +240,7 @@ module flangedWheel(diameter, flangeHeight, flangeWidth)
 	}
 }
 
+// draw the outline shape of the cab when looking front-on
 module cabPolygon()
 {
 	archHeight = (cabHeightCenter - (cabHeightSides - cabCornerRadius));
@@ -181,6 +257,7 @@ module cabPolygon()
 	    10));
 }
 
+// draw the outline shape of the nose when looking front-on
 module nosePolygon()
 {
 	archHeight = (noseHeightCenter - (noseHeightSides - noseCornerRadius));
@@ -197,18 +274,22 @@ module nosePolygon()
 }
 
 // draw chassis frame
-*union()
+if (showChassisFrame) union()
 {
 	// left frame
+    chassisLeftFrameLength = chassisLength - chassisSteelThickness * 2;
+    reportSize("Chassis Left Frame Length", chassisLeftFrameLength);
 	translate([ chassisSteelThickness, chassisSteelThickness, 0 ])
 	{
-		color(frameTimberColor) cube([ frameTimberHeight, chassisLength - chassisSteelThickness * 2, frameTimberWidth ])
+		color(frameTimberColor) cube([ frameTimberHeight, chassisLeftFrameLength, frameTimberWidth ])
 		{
 		}
 	}
 
 	// right frame
-	translate([ chassisWidth - frameTimberHeight - chassisSteelThickness, chassisSteelThickness, 0 ])
+    chassisRightFrameLength = chassisWidth - frameTimberHeight - chassisSteelThickness;
+    reportSize("Chassis Right Frame Length", chassisRightFrameLength);
+	translate([chassisRightFrameLength, chassisSteelThickness, 0 ])
 	{
 		color(frameTimberColor) cube([ frameTimberHeight, chassisLength - chassisSteelThickness * 2, frameTimberWidth ])
 		{
@@ -216,7 +297,9 @@ module nosePolygon()
 	}
 
 	// rear frame
-	translate([ frameTimberHeight + chassisSteelThickness, chassisSteelThickness, 0 ])
+    chassisRearFrameLength = frameTimberHeight + chassisSteelThickness;
+    reportSize("Chassis Rear Frame Length", chassisRearFrameLength);
+	translate([ chassisRearFrameLength, chassisSteelThickness, 0 ])
 	{
 		color(frameTimberColor) cube(
 		    [ chassisWidth - frameTimberHeight * 2 - chassisSteelThickness * 2, frameTimberHeight, frameTimberWidth ])
@@ -225,42 +308,49 @@ module nosePolygon()
 	}
 
 	// front frame
+    chassisFrontFrameLength = chassisWidth - frameTimberHeight * 2 - chassisSteelThickness * 2;
+    reportSize("Chassis Front Frame Length", chassisFrontFrameLength);
 	translate(
 	    [ frameTimberHeight + chassisSteelThickness, chassisLength - frameTimberHeight - chassisSteelThickness, 0 ])
 	{
 		color(frameTimberColor) cube(
-		    [ chassisWidth - frameTimberHeight * 2 - chassisSteelThickness * 2, frameTimberHeight, frameTimberWidth ])
+		    [chassisFrontFrameLength, frameTimberHeight, frameTimberWidth ])
 		{
 		}
 	}
+    
 }
 
 // draw chassis
-difference()
+if(showChassis) difference()
 {
-	color("black", alpha = 1) cube([ chassisWidth, chassisLength, chassisHeight ])
+	color(chassisColor, alpha = 1) cube([ chassisWidth, chassisLength, chassisHeight ])
 	{
 	}
 
 	// draw wheel holes
-	translate([ -1, rearAxleOffset - wheelHoleWidth / 2, -1 ])
+	rearWheelHoleOffsetBack = rearAxleOffset - wheelHoleWidth / 2;
+    reportSize("Rear Wheel Hole Offset Back", rearWheelHoleOffsetBack);
+    translate([ -1, rearWheelHoleOffsetBack, -1 ])
 	{
-		color("black") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
+		cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
 		{
 		}
 	}
 
 	// draw wheel holes
-	translate([ -1, frontAxleOffset - wheelHoleWidth / 2, -1 ])
+    frontWheelHoleOffsetBack = frontAxleOffset - wheelHoleWidth / 2;
+    reportSize("Front Wheel Hole Offset Back", frontWheelHoleOffsetBack);
+	translate([ -1, frontWheelHoleOffsetBack, -1 ])
 	{
-		color("black") cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
+		cube([ chassisWidth + 2, wheelHoleWidth, wheelHoleHeight + 1 ])
 		{
 		}
 	}
 }
 
 // draw cab frame
-*union()
+if(showCabFrame) union()
 {
 	// right front frame
 	translate([
@@ -306,8 +396,12 @@ difference()
 }
 
 // draw cab
-union(){
+if(showCab) union(){
 
+    reportSize("Cab Roof Length with Overhangs", cabLength+cabRoofOverhangBack+cabRoofOverhangFront);
+    reportSize("Cab Roof Overhang Back", cabRoofOverhangBack);
+    reportSize("Cab Roof Overhang Front", cabRoofOverhangFront);
+    
     // draw the back of the cab roof overhang
     union(){
         difference(){
@@ -315,7 +409,7 @@ union(){
                 // draw the cab with some extra length for the roof overhang
                 translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ]){
                     rotate([ 90, 0, 0 ]){
-                        linear_extrude(height = cabRoofOverhangBack){
+                        color(cabColor) linear_extrude(height = cabRoofOverhangBack){
                             cabPolygon();
                         }
                     }
@@ -352,7 +446,7 @@ union(){
             {
                 rotate([ 90, 0, 0 ])
                 {
-                    linear_extrude(height = cabLength + cabRoofOverhangFront)
+                    color(cabColor) linear_extrude(height = cabLength + cabRoofOverhangFront)
                     {
                         cabPolygon();
                     }
@@ -652,7 +746,7 @@ union(){
 } // end of cab union
 
 // draw nose
-union() {
+if(showNose) union() {
 
 	difference() {
 		// create nose & fittings
@@ -664,7 +758,7 @@ union() {
 			{
 				rotate([ 90, 0, 0 ])
 				{
-					linear_extrude(height = noseLength)
+					color(noseColor) linear_extrude(height = noseLength)
 					{
 						nosePolygon();
 					}
@@ -674,20 +768,20 @@ union() {
 			// create air intake
 			translate([
 				(chassisWidth - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
-				noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 200
+				noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 100
 			])
 			{
 				rotate([ 0, 0, 0 ])
 				{
 					difference()
 					{
-						union()
+						color(noseAirIntakeColor) union()
 						{
-							cylinder(noseAirIntakeLength + 200, d = noseAirIntakeDiameter, center = false)
+							cylinder(noseAirIntakeLength + 100, d = noseAirIntakeDiameter, center = false)
 							{
 							}
 							// air intake housing (that the air intake filter sits onto)
-							translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 200 ])
+							translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 100 ])
 							{
 								cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter,
 								         center = false)
@@ -709,7 +803,7 @@ union() {
 			// create gas input
 			translate([
 				(chassisWidth - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
-				noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 200
+				noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 100
 			])
 			{
 				rotate([ 0, 0, 0 ])
@@ -718,13 +812,13 @@ union() {
 					{
 						union()
 						{
-							cylinder(noseFuelInputLength + 200, d = noseFuelInputDiameter, center = false)
+							color(noseFuelInputColor) cylinder(noseFuelInputLength + 100, d = noseFuelInputDiameter, center = false)
 							{
 							}
 						}
 						translate([ 0, 0, -1 ])
 						{
-							cylinder(noseFuelInputLength + 202, d = noseFuelInputDiameter - noseFuelInputThickness * 2,
+							cylinder(noseFuelInputLength + 102, d = noseFuelInputDiameter - noseFuelInputThickness * 2,
 							         center = false)
 							{
 							}
@@ -736,22 +830,22 @@ union() {
 			// create exhaust
 			translate([
 				(chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
-				noseHeightCenter + chassisHeight - 200
+				noseHeightCenter + chassisHeight - 100
 			])
 			{
 				rotate([ 0, 0, 0 ])
 				{
 					difference()
 					{
-						union()
+						color(noseExhaustColor) union()
 						{
-							cylinder(noseExhaustLength + 200, d = noseExhaustDiameter, center = false)
+							cylinder(noseExhaustLength + 100, d = noseExhaustDiameter, center = false)
 							{
 							}
 						}
 						translate([ 0, 0, -1 ])
 						{
-							cylinder(noseExhaustLength + 202, d = noseExhaustDiameter - noseExhaustThickness * 2,
+							cylinder(noseExhaustLength + 102, d = noseExhaustDiameter - noseExhaustThickness * 2,
 							         center = false)
 							{
 							}
@@ -926,7 +1020,7 @@ union() {
 } // end of draw nose union
 
 // draw wheels
-union() {
+if(showWheels) union() {
 
 	// rear axle
 	translate([ (chassisWidth - (wheelTrackWidth - wheelFlangeWidth * 2)) / 2, rearAxleOffset, 0 ])
