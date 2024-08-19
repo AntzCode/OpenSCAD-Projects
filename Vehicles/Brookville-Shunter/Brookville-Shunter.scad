@@ -31,11 +31,34 @@ noseWidth = 1200 / scale;
 noseLength = 1090 / scale;
 noseHeightCenter = 1070 / scale;
 noseHeightSides = 960 / scale;
-noseCornerRadius = 400 / scale;
+noseCornerRadius = 120 / scale;
+noseApexRadius = 120 / scale;
 noseSteelThickness = 3 / scale;
 
 noseFrontWindowWidth = noseWidth - 20 / scale;
 noseFrontWindowHeight = noseHeightCenter - 330 / scale;
+
+noseExhaustDiameter = 65 / scale;
+noseExhaustThickness = 3 / scale;
+noseExhaustLength = 50 / scale;
+noseExhaustOffsetBack = 90 / scale;
+noseExhaustOffsetLeft = ((1200 / 2 - 310) + 65) / scale;
+
+noseAirIntakeDiameter = 80 / scale;
+noseAirIntakeThickness = 3 / scale;
+noseAirIntakeLength = 100 / scale;
+noseAirIntakeOffsetFront = 150 / scale;
+noseAirIntakeOffsetRight = ((1200 / 2 - 80) - 80) / scale;
+
+noseAirIntakeFilterHousingDiameter = 165 / scale;
+noseAirIntakeFilterHousingThickness = 20 / scale;
+noseAirIntakeFilterHousingOffsetBottom = 60 / scale;
+
+noseFuelInputDiameter = 70 / scale;
+noseFuelInputThickness = 3 / scale;
+noseFuelInputLength = 0 / scale;
+noseFuelInputOffsetFront = 160 / scale;
+noseFuelInputOffsetRight = ((1200 / 2 - 70) - 340) / scale;
 
 // cab
 cabLength = 1730 / scale;
@@ -71,10 +94,26 @@ frontCenterWindowHeight = 430 / scale;
 frontCenterWindowOffsetBottom = (430 + 1070) / scale;
 frontCenterWindowCornerRadius = 70 / scale;
 
+// cab doors
+doorWidth = 460 / scale;
+doorHeight = 1800 / scale;
+doorOffsetBack = 100 / scale;
+doorColor = "DarkOrange";
+
+doorWindowWidth = 320 / scale;
+doorWindowHeight = 720 / scale;
+doorWindowOffsetBottom = (100 + 1070) / scale;
+doorWindowCornerRadius = 70 / scale;
+doorHandleDiameter = 40 / scale;
+doorHandleLength = 30 / scale;
+doorHandleOffsetBack = 400 / scale;
+doorHandleOffsetBottom = (50 + 1070) / scale;
+doorHandleColor = "Black";
+
 // chassis
 chassisWidth = 1600 / scale;
 chassisHeight = 470 / scale;
-chassisLength = 2970 / scale;
+chassisLength = cabLength + noseLength + (30 / scale);
 chassisSteelThickness = 8 / scale;
 
 // Wheel holes
@@ -100,21 +139,6 @@ axleDiameter = 20;     // mm in scale
 frameTimberWidth = 45;
 frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
-
-doorWidth = 460 / scale;
-doorHeight = 1800 / scale;
-doorOffsetBack = 100 / scale;
-doorColor = "DarkOrange";
-
-doorWindowWidth = 320 / scale;
-doorWindowHeight = 720 / scale;
-doorWindowOffsetBottom = (100 + 1070) / scale;
-doorWindowCornerRadius = 70 / scale;
-doorHandleDiameter=40/scale;
-doorHandleLength=30/scale;
-doorHandleOffsetBack = 400 / scale;
-doorHandleOffsetBottom = (50 + 1070)/scale;
-doorHandleColor = "Black";
 
 module flangedWheel(diameter, flangeHeight, flangeWidth)
 {
@@ -151,12 +175,11 @@ module nosePolygon()
 	noseCenterRadius = (((noseWidth / 2) * (noseWidth / 2)) / archHeight) + archHeight;
 	polygon(polyRound(
 	    [
-		    [ 0, 0, 0 ],                                                 // left bottom
-		    [ noseWidth, 0, 0 ],                                         // right bottom
-		    [ noseWidth, noseHeightSides, noseCornerRadius ],            // right side top
-		    [ (noseWidth / 4) * 3, noseHeightCenter, noseCenterRadius ], // nose center
-		    [ (noseWidth / 4), noseHeightCenter, noseCenterRadius ],     // nose center
-		    [ 0, noseHeightSides, noseCornerRadius ]                     // left side top
+		    [ 0, 0, 0 ],                                           // left bottom
+		    [ noseWidth, 0, 0 ],                                   // right bottom
+		    [ noseWidth, noseHeightSides, noseCornerRadius ],      // right side top
+		    [ (noseWidth / 2), noseHeightCenter, noseApexRadius ], // nose center
+		    [ 0, noseHeightSides, noseCornerRadius ]               // left side top
 	    ],
 	    10));
 }
@@ -487,18 +510,17 @@ union()
 			}
 		}
 	}
-    // draw the door handle
-	translate([-(cabWidth - chassisWidth) / 2 - doorHandleLength,
-			doorOffsetBack+doorHandleOffsetBack, 
-            chassisHeight +
-			doorHandleOffsetBottom])
+	// draw the door handle
+	translate([
+		-(cabWidth - chassisWidth) / 2 - doorHandleLength, doorOffsetBack + doorHandleOffsetBack, chassisHeight +
+		doorHandleOffsetBottom
+	])
 	{
 		rotate([ 90, 0, 90 ])
 		{
-			color(doorHandleColor) cylinder(doorHandleLength,d=doorHandleDiameter,center=false);
+			color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
 		}
 	}
-	
 }
 
 // draw the right door
@@ -506,7 +528,7 @@ union()
 {
 	difference()
 	{
-		translate([ cabWidth - (cabWidth-chassisWidth)/2 - cabSteelThickness*2, doorOffsetBack, chassisHeight ])
+		translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness * 2, doorOffsetBack, chassisHeight ])
 		{
 			rotate([ 90, 0, 90 ])
 			{
@@ -517,7 +539,7 @@ union()
 		}
 		// cut the door window
 		translate([
-			cabWidth - (cabWidth-chassisWidth)/2 - cabSteelThickness*2-1,
+			cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness * 2 - 1,
 			(doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight +
 			doorWindowOffsetBottom
 		])
@@ -531,22 +553,21 @@ union()
 			}
 		}
 	}
-    // draw the door handle
-	translate([cabWidth - (cabWidth-chassisWidth)/2 - cabSteelThickness*2,
-			doorOffsetBack+doorHandleOffsetBack, 
-            chassisHeight +
-			doorHandleOffsetBottom])
+	// draw the door handle
+	translate([
+		cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness * 2, doorOffsetBack + doorHandleOffsetBack,
+		chassisHeight +
+		doorHandleOffsetBottom
+	])
 	{
 		rotate([ 90, 0, 90 ])
 		{
-			color(doorHandleColor) cylinder(doorHandleLength,d=doorHandleDiameter,center=false);
+			color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
 		}
 	}
-	
 }
 
 } // end of cab union
-
 
 // asterisk hides it
 // this is used to check the curvature of the cab roof
@@ -560,13 +581,107 @@ union()
 {
 	difference()
 	{
-		translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
+		// create nose & fittings
+		union()
 		{
-			rotate([ 90, 0, 0 ])
+			// nose
+			translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
 			{
-				linear_extrude(height = noseLength)
+				rotate([ 90, 0, 0 ])
 				{
-					nosePolygon();
+					linear_extrude(height = noseLength)
+					{
+						nosePolygon();
+					}
+				}
+			}
+
+			// create air intake
+			translate([
+				(chassisWidth - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
+				noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 200
+			])
+			{
+				rotate([ 0, 0, 0 ])
+				{
+					difference()
+					{
+						union()
+						{
+							cylinder(noseAirIntakeLength + 200, d = noseAirIntakeDiameter, center = false)
+							{
+							}
+							// air intake housing (that the air intake filter sits onto)
+							translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 200 ])
+							{
+								cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter,
+								         center = false)
+								{
+								}
+							}
+						}
+						translate([ 0, 0, -1 ])
+						{
+							cylinder(noseAirIntakeLength + 202, d = noseAirIntakeDiameter - noseAirIntakeThickness * 2,
+							         center = false)
+							{
+							}
+						}
+					}
+				}
+			}
+
+			// create gas input
+			translate([
+				(chassisWidth - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
+				noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 200
+			])
+			{
+				rotate([ 0, 0, 0 ])
+				{
+					difference()
+					{
+						union()
+						{
+							cylinder(noseFuelInputLength + 200, d = noseFuelInputDiameter, center = false)
+							{
+							}
+						}
+						translate([ 0, 0, -1 ])
+						{
+							cylinder(noseFuelInputLength + 202, d = noseFuelInputDiameter - noseFuelInputThickness * 2,
+							         center = false)
+							{
+							}
+						}
+					}
+				}
+			}
+
+			// create exhaust
+			translate([
+				(chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft,
+				cabLength + noseExhaustOffsetBack, noseHeightCenter + chassisHeight - 200
+			])
+			{
+				rotate([ 0, 0, 0 ])
+				{
+					difference()
+					{
+						union()
+						{
+							cylinder(noseExhaustLength + 200, d = noseExhaustDiameter, center = false)
+							{
+							}
+						}
+						translate([ 0, 0, -1 ])
+						{
+							cylinder(noseExhaustLength + 202, d = noseExhaustDiameter - noseExhaustThickness * 2,
+							         center = false)
+							{
+							}
+						}
+					}
 				}
 			}
 		}
