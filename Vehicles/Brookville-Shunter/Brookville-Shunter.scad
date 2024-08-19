@@ -47,6 +47,16 @@ noseColor = "Yellow";
 
 noseFrontWindowWidth = noseWidth - 20 / scale;
 noseFrontWindowHeight = noseHeightCenter - 330 / scale;
+noseFrontGrilleLouvreDistance = 30 / scale;
+noseFrontGrilleLouvreThickness = 4 / scale;
+noseFrontGrilleLouvreWidth = 50 / scale;
+noseFrontGrilleLouvreAngle = -70;
+noseFrontGrilleWidth = noseFrontWindowWidth;
+noseFrontGrilleHeight = noseFrontWindowHeight;
+noseFrontGrilleThickness = 50 / scale;
+noseFrontGrilleProtrusionFront = 3 / scale;
+noseFrontGrilleColor = "Silver";
+noseFrontGrilleBorderWidth = 60 / scale;
 
 noseDoorHeight = 730 / scale;
 noseDoorWidth = 540 / scale;
@@ -223,6 +233,18 @@ reportSize("Wheelbase (center to center)", frontAxleOffset - rearAxleOffset);
 module reportSize(title, value){
     if(showReportSizes){
         echo(concat(title, value));
+    }
+}
+
+module louvreGrill(width, height, louvreWidth, louvreThickness, louvreDistance, louvreAngle)
+{
+    numberOfLouvres = ceil(height / louvreDistance) - 1;
+    for(i=[0:numberOfLouvres]){
+        translate([louvreDistance*i, 0, 0]){
+            rotate([0,0,louvreAngle]){
+                cuboid([louvreThickness, louvreWidth, width]);
+            }
+        }
     }
 }
 
@@ -918,6 +940,35 @@ if(showNose) union() {
 			}
 		}
 	}
+
+    // draw the front grille
+    color(noseFrontGrilleColor) union(){
+        // draw grille border
+        translate([
+            ((chassisWidth-noseWidth)/2 + (noseWidth-noseFrontGrilleWidth)/2),
+            cabLength+noseLength - noseFrontGrilleThickness + noseFrontGrilleProtrusionFront,
+            chassisHeight
+        ]){
+            difference(){
+                cuboid([noseFrontGrilleWidth, noseFrontGrilleThickness, noseFrontGrilleHeight], center=false);
+                translate([noseFrontGrilleBorderWidth,-1,noseFrontGrilleBorderWidth]){
+                    cuboid([noseFrontGrilleWidth - noseFrontGrilleBorderWidth*2, noseFrontGrilleThickness+2, noseFrontGrilleHeight - noseFrontGrilleBorderWidth*2], center=false);
+                }
+            }
+        }
+        
+        // draw louvre grille
+        translate([
+            (chassisWidth-noseWidth)/2 + noseFrontGrilleWidth/2 + (noseWidth-noseFrontGrilleWidth)/2, 
+            cabLength+noseLength - noseFrontGrilleLouvreWidth/2, 
+            chassisHeight + noseFrontGrilleLouvreWidth/2
+        ]){
+            rotate([0, -90, 0]){
+                louvreGrill(noseFrontWindowWidth, noseFrontGrilleHeight-noseFrontGrilleLouvreWidth, noseFrontGrilleLouvreThickness, noseFrontGrilleLouvreWidth, noseFrontGrilleLouvreDistance, noseFrontGrilleLouvreAngle);
+            }
+        }
+
+    }
 
 	// draw the left front door
 	translate([
