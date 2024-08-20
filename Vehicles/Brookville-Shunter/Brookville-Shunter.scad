@@ -173,7 +173,7 @@ hitchBlockHeight = 260 / scale;
 hitchBlockLength = 290 / scale;
 hitchBlockCornerRadius = 5 / scale;
 hitchMountPlateWidth = 720 / scale;
-hitchMountPlateThickness = 12 / scale;
+hitchMountPlateThickness = 20 / scale;
 hitchMountPlateHeight = 460 / scale;
 hitchMountPlateCornerRadius = 2 / scale;
 hitchPointDiameterBig = 280 / scale;
@@ -181,6 +181,15 @@ hitchPointDiameterSmall = 120 / scale;
 hitchPointLength = 300 / scale;
 hitchChainTagWidth = 50 / scale;
 hitchChainTagLength = 90 / scale;
+hitchChainColor = "Black";
+hitchChainLength = 160 / scale;
+hitchChainWidth = 90 / scale;
+hitchChainThickness = 35 / scale;
+hitchChainNumberOfLinks = 3;
+hitchChainHookLength = 295 / scale;
+hitchChainHookWidth = 150 / scale;
+hitchChainHookThickness = 45 / scale;
+
 hitchNotchWidth = 80 / scale;
 hitchNotchLength = 260 / scale;
 hitchNotchDepth = 140 / scale;
@@ -262,6 +271,78 @@ reportSize("Front Axle Offset (from chassis rear edge)", frontAxleOffset);
 
 reportSize("Wheelbase (center to center)", frontAxleOffset - rearAxleOffset);
 
+// draw a donut
+module donut(width, height) {
+    rotate_extrude(convexity = 10) {
+        translate([width/2 - height/2, 0, 0]) circle(r = height/2);
+    }
+}
+
+// draw a half-donut
+module half_donut(width, height) {
+    difference() {
+        union() {
+            donut(width, height);
+        }
+        union() {
+            translate([-width/2, 0, -height/2 -0.1]) {
+                cube([width, width/2, height + 0.2]);
+            }
+        }
+    }
+}
+
+// draw a chain link
+module chain_link(length, width, height) {
+    union() {
+        translate([0, -length/2 + width/2, 0]) half_donut(width, height);
+        translate([0, length/2 - width/2, 0]) rotate([180, 0, 0]) half_donut(width, height);
+        translate([-width/2 + height/2, (length-width)/2 + 0.1, 0]) rotate([90, 0, 0]) cylinder( r = height/2, h = length -width +0.2);
+        translate([width/2 - height/2, (length-width)/2 + 0.1, 0]) rotate([90, 0, 0]) cylinder( r = height/2, h = length -width +0.2);
+    }
+}
+
+// draw the hook for the end of a chain
+module chain_hook(length, width, height, degrees){
+    translate([-width/2+height/2, -height, -height/8]){
+        minkowski(){
+            rotate([90, 0, 0]) cylinder(0.1,height/4);
+            linear_extrude(height/4) polygon(polyRound([
+                [width * 0, length * 0, width],
+                [width * 0.15, length * 0.3, length/2],
+                [width * -0.5, length * 0.9, length/2],
+                [width * 0.5, length * 0.95, width/2],
+                [width * 0.85, length * 0.8, length/2],
+                [width * 0.8, length * 0.6, width/2],
+                [width * 0.95, length * 0.3, 0],
+                [width * 0.5, length * 0.75, height],
+                [width * 0.2, length * 0.65, height],
+                [width * 0.1, length * 0.6, height],
+                [width * 0.6, length * 0.2, height],
+                [width * 0.75, length * 0, width],
+            ]));
+        }
+    }
+}
+
+// draw a chain
+module chain(numberOfLinks, linkWidth, linkLength, linkThickness, hookWidth, hookLength, hookThickness){
+    translate([0, linkLength/2, 0]){
+        for(i = [0:numberOfLinks]){
+            translate([0, (linkLength*i) - ((i > 0) ? linkThickness*2 * i : 0 ), 0]){
+                rotate([0, (i%2 > 0) ? 0 : 90, 0]){
+                    chain_link(linkLength, linkWidth, linkThickness);
+                }
+            }
+        }
+        translate([0, (linkLength * numberOfLinks) - ((numberOfLinks > 0) ? linkThickness*2 * numberOfLinks : 0 ) + linkThickness*2, 0]){
+            rotate([0, ((numberOfLinks-1)%2 > 0) ? 0 : 90, 0]){
+                chain_hook(hookLength, hookWidth, hookThickness);
+            }
+        }
+    }
+}
+
 // print the computed size to the console
 module reportSize(title, value){
     if(showReportSizes){
@@ -269,6 +350,7 @@ module reportSize(title, value){
     }
 }
 
+// draw a louvre grille
 module louvreGrill(width, height, louvreWidth, louvreThickness, louvreDistance, louvreAngle)
 {
     numberOfLouvres = ceil(height / louvreDistance) - 1;
@@ -383,14 +465,13 @@ module hitchBlock(){
 
         // draw the mounting plate
         translate([hitchChainTagWidth, 0, 0]){
-            cuboid([hitchMountPlateWidth, hitchMountPlateThickness, hitchMountPlateHeight], center=false, fillet=hitchMountPlateCornerRadius);
-            
+            color(hitchBlockColor) cuboid([hitchMountPlateWidth, hitchMountPlateThickness, hitchMountPlateHeight], center=false, fillet=hitchMountPlateCornerRadius);
         }
 
-        // right hitch
+        // hitch-block brace plate
         translate([hitchMountPlateWidth + hitchChainTagWidth*2, hitchBlockLength + hitchMountPlateThickness, hitchMountPlateHeight]){
             rotate([0,180,90]){
-                minkowski(){
+                color(hitchBlockColor) minkowski(){
                     sphere(hitchMountPlateCornerRadius*2);
                     linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
                         [0, 0, 0],                                                                                                                                                                              // zero, corner
@@ -408,13 +489,13 @@ module hitchBlock(){
 
         // draw the block
         translate([((hitchMountPlateWidth + hitchChainTagWidth*2) - hitchBlockWidth) / 2, hitchMountPlateThickness, hitchMountPlateHeight - hitchBlockHeight/2]){
-            cuboid([hitchBlockWidth, hitchBlockLength, hitchBlockHeight], center=false, fillet=hitchBlockCornerRadius);
+            color(hitchBlockColor) cuboid([hitchBlockWidth, hitchBlockLength, hitchBlockHeight], center=false, fillet=hitchBlockCornerRadius);
         }
 
         // left angle support
         translate([hitchChainTagWidth + hitchMountPlateWidth/2 - hitchBlockWidth/2 + hitchMountPlateCornerRadius*2, hitchMountPlateThickness, 0]){
             rotate([90, 0, 90]){
-                minkowski(){
+                color(hitchBlockColor) minkowski(){
                     sphere(hitchMountPlateCornerRadius*2);
                     linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
                         [0, 0, 0], // zero, corner
@@ -428,7 +509,7 @@ module hitchBlock(){
         // right angle support
         translate([hitchChainTagWidth + hitchMountPlateWidth/2 + hitchBlockWidth/2 - hitchMountPlateThickness, hitchMountPlateThickness, 0]){
             rotate([90, 0, 90]){
-                minkowski(){
+                color(hitchBlockColor) minkowski(){
                     sphere(hitchMountPlateCornerRadius*2);
                     linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
                         [0, 0, 0], // zero, corner
@@ -450,7 +531,7 @@ module hitchBlock(){
 
         translate([hitchMountPlateWidth/2 + hitchChainTagWidth, hitchBlockLength, hitchMountPlateHeight]){
             rotate([-90, 0, 0]){
-                difference(){
+                color(hitchBlockColor) difference(){
                     // draw the solid hitch point
                     rotate_extrude(angle=360){
                         rotate([0, 0, 90]){
@@ -470,6 +551,20 @@ module hitchBlock(){
                         cuboid([hitchNotchWidth, hitchNotchDepth+10, hitchNotchLength+20], center=false, fillet=hitchNotchCornerRadius);
                     }
                 }
+            }
+        }
+
+        // draw the left chain
+        translate([0, hitchBlockLength - hitchChainTagLength / 4, hitchChainNumberOfLinks*hitchChainLength]){
+            rotate([-90, 0, (hitchChainNumberOfLinks%2 > 0) ? 90 : 0 ]){
+                color(hitchChainColor) chain(hitchChainNumberOfLinks, hitchChainWidth, hitchChainLength, hitchChainThickness, hitchChainHookWidth, hitchChainHookLength, hitchChainHookThickness);
+            }
+        }
+
+        // draw the right chain
+        translate([hitchMountPlateWidth + hitchChainTagWidth * 2, hitchBlockLength - hitchChainTagLength / 4, hitchChainNumberOfLinks * hitchChainLength]){
+            rotate([-90, 0, (hitchChainNumberOfLinks%2 > 0) ? -90 : 0 ]){
+                color(hitchChainColor) chain(hitchChainNumberOfLinks, hitchChainWidth, hitchChainLength, hitchChainThickness, hitchChainHookWidth, hitchChainHookLength, hitchChainHookThickness);
             }
         }
     }
@@ -555,7 +650,7 @@ if(showChassis) difference()
 if(showFrontHitch) union(){
     translate([chassisWidth/2 - hitchMountPlateWidth/2 - hitchChainTagWidth, chassisLength, 0]){
         rotate([0, 0, 0]){
-            color(hitchBlockColor) hitchBlock();
+            hitchBlock();
         }
     }
 }
@@ -564,7 +659,7 @@ if(showFrontHitch) union(){
 if(showRearHitch) union(){
      translate([chassisWidth/2 + hitchMountPlateWidth/2 + hitchChainTagWidth, 0, 0]){
         rotate([0, 0, 180]){
-            color(hitchBlockColor) hitchBlock();
+            hitchBlock();
         }
     }
 }
