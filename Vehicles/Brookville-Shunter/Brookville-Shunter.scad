@@ -159,6 +159,7 @@ doorHandleColor = "Black";
 chassisWidth = 1600 / scale;
 chassisHeight = 470 / scale;
 chassisLength = cabLength + noseLength + (30 / scale);
+chassisCornerRadius = 100 / scale;
 chassisSteelThickness = 8 / scale;
 chassisColor = "Black";
 
@@ -404,7 +405,7 @@ if (showChassisFrame) union()
 // draw chassis
 if(showChassis) difference()
 {
-	color(chassisColor, alpha = 1) cube([ chassisWidth, chassisLength, chassisHeight ])
+	color(chassisColor, alpha = 1) cuboid([ chassisWidth, chassisLength, chassisHeight ], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL)
 	{
 	}
 
