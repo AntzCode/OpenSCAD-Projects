@@ -31,6 +31,8 @@ showWheels = true;
 showCabFrame = false;
 showNoseFrame = false;
 showChassisFrame = false;
+showFrontHitch = true;
+showRearHitch = true;
 
 // scale factor for translating to a model size
 scale = 6;
@@ -162,6 +164,26 @@ chassisLength = cabLength + noseLength + (30 / scale);
 chassisCornerRadius = 100 / scale;
 chassisSteelThickness = 8 / scale;
 chassisColor = "Black";
+
+// hitch block
+hitchBlockColor = "DarkSlateGray";
+hitchBlockWidth = 290 / scale;
+hitchBlockHeight = 260 / scale;
+hitchBlockLength = 290 / scale;
+hitchBlockCornerRadius = 5 / scale;
+hitchMountPlateWidth = 720 / scale;
+hitchMountPlateThickness = 12 / scale;
+hitchMountPlateHeight = 460 / scale;
+hitchMountPlateCornerRadius = 2 / scale;
+hitchPointDiameterBig = 280 / scale;
+hitchPointDiameterSmall = 120 / scale;
+hitchPointLength = 400 / scale;
+hitchChainTagWidth = 50 / scale;
+hitchChainTagLength = 90 / scale;
+hitchNotchWidth = 80 / scale;
+hitchNotchLength = 300 / scale;
+hitchNotchDepth = 140 / scale;
+hitchNotchCornerRadius = 30 / scale;
 
 // wheel holes
 wheelHoleWidth = 380 / scale;
@@ -354,6 +376,104 @@ module noseDoor(side)
     }
 }
 
+module hitchBlock(){
+
+    union(){
+
+        // draw the mounting plate
+        translate([hitchChainTagWidth, 0, 0]){
+            cuboid([hitchMountPlateWidth, hitchMountPlateThickness, hitchMountPlateHeight], center=false, fillet=hitchMountPlateCornerRadius);
+            
+        }
+
+        // right hitch
+        translate([hitchMountPlateWidth + hitchChainTagWidth*2, hitchBlockLength + hitchMountPlateThickness, hitchMountPlateHeight]){
+            rotate([0,180,90]){
+                minkowski(){
+                    sphere(hitchMountPlateCornerRadius*2);
+                    linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
+                        [0, 0, 0],                                                                                                                                                                              // zero, corner
+                        [0, hitchChainTagWidth*2 + hitchMountPlateWidth - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],                                                                          // front right corner
+                        [hitchChainTagLength/2, hitchChainTagWidth*2 + hitchMountPlateWidth - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],                                                      // half the tag, begin diag
+                        [hitchChainTagLength, hitchChainTagWidth + hitchMountPlateWidth - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],                                                          // end diag, begin straight right edge
+                        [hitchBlockLength + hitchMountPlateThickness - hitchMountPlateCornerRadius*2, hitchChainTagWidth + hitchMountPlateWidth - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],  // rear-right corner
+                        [hitchBlockLength + hitchMountPlateThickness - hitchMountPlateCornerRadius*2, hitchChainTagWidth - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],                         // rear-left corner
+                        [hitchChainTagLength, hitchChainTagWidth + hitchMountPlateThickness - hitchMountPlateCornerRadius*2, hitchMountPlateCornerRadius],                                                      // left side begin diag
+                        [hitchChainTagLength/2, 0, hitchMountPlateCornerRadius]                                                                                                                                 // left-most tag
+                    ]));
+                }
+            }
+        }
+
+        // draw the block
+        translate([((hitchMountPlateWidth + hitchChainTagWidth*2) - hitchBlockWidth) / 2, hitchMountPlateThickness, hitchMountPlateHeight - hitchBlockHeight/2]){
+            cuboid([hitchBlockWidth, hitchBlockLength, hitchBlockHeight], center=false, fillet=hitchBlockCornerRadius);
+        }
+
+        // left angle support
+        translate([hitchChainTagWidth + hitchMountPlateWidth/2 - hitchBlockWidth/2 + hitchMountPlateCornerRadius*2, hitchMountPlateThickness, 0]){
+            rotate([90, 0, 90]){
+                minkowski(){
+                    sphere(hitchMountPlateCornerRadius*2);
+                    linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
+                        [0, 0, 0], // zero, corner
+                        [0, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2, 0],
+                        [hitchBlockLength - hitchMountPlateCornerRadius*2, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2, 0]
+                    ]));
+                }
+            }
+        }
+
+        // right angle support
+        translate([hitchChainTagWidth + hitchMountPlateWidth/2 + hitchBlockWidth/2 - hitchMountPlateThickness, hitchMountPlateThickness, 0]){
+            rotate([90, 0, 90]){
+                minkowski(){
+                    sphere(hitchMountPlateCornerRadius*2);
+                    linear_extrude(hitchMountPlateThickness - hitchMountPlateCornerRadius*2) polygon(polyRound([
+                        [0, 0, 0], // zero, corner
+                        [0, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2, 0],
+                        [hitchBlockLength - hitchMountPlateCornerRadius*2, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2, 0]
+                    ]));
+                }
+            }
+        }
+
+        // draw the hitch
+
+        // calculate the height of the arch for the spherical shape of the hitch point contact face
+        // where chord diameter = spherical radius and the chord diameter is known as hitchPointDiameterBig
+        c = hitchPointDiameterBig;
+        a = hitchPointDiameterBig / 2;
+        b = sqrt(c * c - a * a);
+        archHeight = (hitchPointDiameterBig - b);
+
+        translate([hitchMountPlateWidth/2 + hitchChainTagWidth, hitchBlockLength, hitchMountPlateHeight]){
+            rotate([-90, 0, 0]){
+                difference(){
+                    // draw the solid hitch point
+                    rotate_extrude(angle=360){
+                        rotate([0, 0, 90]){
+                            polygon(polyRound([
+                                [0, 0, 0],
+                                [0, hitchPointDiameterSmall/2, 0],
+                                // create a curvature in the cylinder:
+                                [hitchPointLength/4 * 3, hitchPointDiameterSmall/2 + hitchPointDiameterBig/2 / 4, 200],
+                                [hitchPointLength, hitchPointDiameterBig/2, 5],
+                                [hitchPointLength + archHeight, 0, hitchNotchCornerRadius],
+                                [hitchPointLength + archHeight-1, 0, 0]
+                            ]));
+                        }
+                    }
+                    // cut the slot
+                    translate([-hitchNotchWidth/2, -hitchNotchDepth-10, hitchPointLength-hitchNotchLength]){
+                        cuboid([hitchNotchWidth, hitchNotchDepth+10, hitchNotchLength+20], center=false, fillet=hitchNotchCornerRadius);
+                    }
+                }
+            }
+        }
+    }
+}
+
 // draw chassis frame
 if (showChassisFrame) union()
 {
@@ -428,6 +548,24 @@ if(showChassis) difference()
 		{
 		}
 	}
+}
+
+// draw front hitch
+if(showFrontHitch) union(){
+    translate([chassisWidth/2 - hitchMountPlateWidth/2 - hitchChainTagWidth, chassisLength, 0]){
+        rotate([0, 0, 0]){
+            color(hitchBlockColor) hitchBlock();
+        }
+    }
+}
+
+// draw rear hitch
+if(showRearHitch) union(){
+     translate([chassisWidth/2 + hitchMountPlateWidth/2 + hitchChainTagWidth, 0, 0]){
+        rotate([0, 0, 180]){
+            color(hitchBlockColor) hitchBlock();
+        }
+    }
 }
 
 // draw cab frame
