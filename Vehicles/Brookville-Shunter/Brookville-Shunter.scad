@@ -57,7 +57,7 @@ noseFrontGrilleWidth = noseFrontWindowWidth;
 noseFrontGrilleHeight = noseFrontWindowHeight;
 noseFrontGrilleThickness = 50 / scale;
 noseFrontGrilleProtrusionFront = 3 / scale;
-noseFrontGrilleColor = "Black";
+noseFrontGrilleColor = "Yellow";
 noseFrontGrilleBorderWidth = 60 / scale;
 
 noseDoorHeight = 730 / scale;
@@ -76,7 +76,7 @@ noseDoorWindowLouvreWidth = 20 / scale;
 noseDoorWindowLouvreAngle = -50;
 noseDoorWindowThickness = 10 / scale;
 noseDoorWindowProtrusionFront = 3 / scale;
-noseDoorWindowColor = "Black";
+noseDoorWindowColor = "Yellow";
 noseDoorWindowBorderWidth = 20 / scale;
 
 noseExhaustDiameter = 65 / scale;
@@ -109,22 +109,22 @@ cabLength = 1730 / scale;
 cabWidth = 2220 / scale;
 cabHeightCenter = 2280 / scale;
 cabHeightSides = 2080 / scale;
-cabCornerRadius = 200 / scale;
+cabCornerRadius = 50 / scale;
 cabSteelThickness = 3 / scale;
-cabRoofOverhangFront = 190 / scale;
-cabRoofOverhangBack = 80 / scale;
+cabRoofOverhangFront = 19 / scale;
+cabRoofOverhangBack = 19 / scale;
 cabColor = "Yellow";
 
 // cab side windows
 leftWindowWidth = 980 / scale;
 leftWindowHeight = 720 / scale;
-leftWindowOffsetBottom = (100 + 1070) / scale;
-leftWindowOffsetFront = 100 / scale;
+leftWindowOffsetBottom = 1220 / scale;
+leftWindowOffsetFront = 60 / scale;
 leftWindowCornerRadius = 70 / scale;
 
 rightWindowWidth = 980 / scale;
 rightWindowHeight = 720 / scale;
-rightWindowOffsetBottom = (100 + 1070) / scale;
+rightWindowOffsetBottom = 1220 / scale;
 rightWindowOffsetFront = 100 / scale;
 rightWindowCornerRadius = 70 / scale;
 
@@ -144,12 +144,13 @@ frontCenterWindowCornerRadius = 70 / scale;
 // cab doors
 doorWidth = 460 / scale;
 doorHeight = 1800 / scale;
-doorOffsetBack = 100 / scale;
+doorOffsetBack = 120 / scale;
+doorOffsetBottom = 230 / scale;
 doorColor = "Gold";
 
 doorWindowWidth = 320 / scale;
 doorWindowHeight = 720 / scale;
-doorWindowOffsetBottom = (100 + 1070) / scale;
+doorWindowOffsetBottom = 1220 / scale;
 doorWindowCornerRadius = 70 / scale;
 doorHandleDiameter = 40 / scale;
 doorHandleLength = 30 / scale;
@@ -177,11 +178,11 @@ hitchMountPlateHeight = 460 / scale;
 hitchMountPlateCornerRadius = 2 / scale;
 hitchPointDiameterBig = 280 / scale;
 hitchPointDiameterSmall = 120 / scale;
-hitchPointLength = 400 / scale;
+hitchPointLength = 300 / scale;
 hitchChainTagWidth = 50 / scale;
 hitchChainTagLength = 90 / scale;
 hitchNotchWidth = 80 / scale;
-hitchNotchLength = 300 / scale;
+hitchNotchLength = 260 / scale;
 hitchNotchDepth = 140 / scale;
 hitchNotchCornerRadius = 30 / scale;
 
@@ -721,7 +722,7 @@ if(showCab) union(){
         }
 
         // cut left door hole
-        translate([ -(cabWidth - chassisWidth) / 2 - 1, doorOffsetBack, chassisHeight ])
+        translate([ -(cabWidth - chassisWidth) / 2 - 1, doorOffsetBack, chassisHeight + doorOffsetBottom ])
         {
             rotate([ 90, 0, 90 ])
             {
@@ -745,7 +746,7 @@ if(showCab) union(){
         }
 
         // cut right door hole
-        translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 1, doorOffsetBack, chassisHeight ])
+        translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 1, doorOffsetBack, chassisHeight + doorOffsetBottom ])
         {
             rotate([ 90, 0, 90 ])
             {
@@ -879,7 +880,7 @@ if(showCab) union(){
     {
         difference()
         {
-            translate([ -(cabWidth - chassisWidth) / 2 + cabSteelThickness, doorOffsetBack, chassisHeight ])
+            translate([ -(cabWidth - chassisWidth) / 2 + cabSteelThickness, doorOffsetBack, chassisHeight + doorOffsetBottom ])
             {
                 rotate([ 90, 0, 90 ])
                 {
@@ -923,7 +924,7 @@ if(showCab) union(){
     {
         difference()
         {
-            translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness * 2, doorOffsetBack, chassisHeight ])
+            translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness * 2, doorOffsetBack, chassisHeight + doorOffsetBottom ])
             {
                 rotate([ 90, 0, 90 ])
                 {
