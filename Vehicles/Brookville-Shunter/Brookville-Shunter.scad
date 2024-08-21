@@ -113,6 +113,7 @@ cabCornerRadius = 50 / scale;
 cabSteelThickness = 3 / scale;
 cabRoofOverhangFront = 19 / scale;
 cabRoofOverhangBack = 19 / scale;
+cabRoofOverhangSide = 19 / scale;
 cabColor = "Yellow";
 
 // cab side windows
@@ -392,6 +393,52 @@ module cabPolygon()
 		    [ 0, cabHeightSides, cabCornerRadius ]                    // left side top
 	    ],
 	    10));
+}
+
+// draw the outline shape of the cab roof when looking front-on
+module cabRoofPolygon()
+{
+	archHeight = (cabHeightCenter - (cabHeightSides - cabCornerRadius));
+	cabCenterRadius = (((cabWidth / 2) * (cabWidth / 2)) / archHeight) + archHeight;
+    translate([-cabRoofOverhangSide, -cabHeightSides, 0]) union(){
+        difference(){
+            // create the cab shape with overhang sides width added
+            polygon(polyRound(
+                [
+                    [ 0, 0, 0 ],                                              // left bottom
+                    [ cabWidth+cabRoofOverhangSide*2, 0, 0 ],                 // right bottom
+                    [ cabWidth+cabRoofOverhangSide*2, cabHeightSides, cabCornerRadius*3 ], // right side top
+                    [ (cabWidth / 4) * 3, cabHeightCenter, cabCenterRadius ], // roof center
+                    [ (cabWidth / 4), cabHeightCenter, cabCenterRadius ],     // roof center
+                    [ 0, cabHeightSides, cabCornerRadius*3 ]                  // left side top
+                ],
+                10));
+            
+            // carve out the shape to the cab steel thickness
+            offset(delta = -cabSteelThickness * 2) polygon(polyRound(
+                [
+                    [ 0, 0, 0 ],                                              // left bottom
+                    [ cabWidth+cabRoofOverhangSide*2, 0, 0 ],                 // right bottom
+                    [ cabWidth+cabRoofOverhangSide*2, cabHeightSides, cabCornerRadius*3 ], // right side top
+                    [ (cabWidth / 4) * 3, cabHeightCenter, cabCenterRadius ], // roof center
+                    [ (cabWidth / 4), cabHeightCenter, cabCenterRadius ],     // roof center
+                    [ 0, cabHeightSides, cabCornerRadius*3 ]                  // left side top
+                ],
+                10));
+
+            // cut out the non-roof cab shape
+         
+            translate([-cabRoofOverhangSide, -1, 0]){
+                    polygon(polyRound([
+                        [0, 0, 0],
+                        [cabWidth + cabRoofOverhangSide * 4, 0, 0],
+                        [cabWidth + cabRoofOverhangSide * 4, cabHeightSides - cabCornerRadius, 0],
+                        [0, cabHeightSides - cabCornerRadius, 0]
+                    ]));
+                // square([cabWidth + cabRoofOverhangSide*2 + cabSteelThickness*4, cabHeightSides - cabCornerRadius + 1], false);
+            }   
+        }
+    }
 }
 
 // draw the outline shape of the nose when looking front-on
@@ -716,79 +763,30 @@ if(showCab) union(){
     reportSize("Cab Roof Length with Overhangs", cabLength + cabRoofOverhangBack + cabRoofOverhangFront);
     reportSize("Cab Roof Overhang Back", cabRoofOverhangBack);
     reportSize("Cab Roof Overhang Front", cabRoofOverhangFront);
-    
-    // draw the back of the cab roof overhang
-    union(){
-        difference(){
-            difference(){
-                // draw the cab with some extra length for the roof overhang
-                translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ]){
-                    rotate([ 90, 0, 0 ]){
-                        color(cabColor) linear_extrude(height = cabRoofOverhangBack){
-                            cabPolygon();
-                        }
-                    }
-                }
 
-                // carve-back the front part of the cab that does not have the roof
-                translate([ -(cabWidth - chassisWidth) / 2 - 1, 1, chassisHeight - 1 ])
-                {
-                    rotate([ 90, 0, 0 ])
-                    {
-                        cuboid([ cabWidth + 2, cabHeightSides - cabCornerRadius / 2 + 1, cabRoofOverhangBack + 2 ], center = false);
-                    }
-                }
-
-                // carve-back the front part of the roof
-                translate([ -(cabWidth - chassisWidth) / 2 - 1, 1, chassisHeight ])
-                {
-                    rotate([ 90, 0, 0 ])
-                    {
-                        linear_extrude(height = cabRoofOverhangBack + 2)
-                        {
-                            offset(delta = -cabSteelThickness * 2) cabPolygon();
-                        }
-                    }
-                }
+    // draw the cab roof overhang
+    translate([ -(cabWidth - chassisWidth) / 2, cabLength + cabRoofOverhangFront, chassisHeight + cabHeightSides ]){
+        rotate([ 90, 0, 0 ]){
+            color(cabColor) linear_extrude(height = cabLength + cabRoofOverhangBack + cabRoofOverhangFront){
+                cabRoofPolygon();
             }
         }
-    } // end union drawing back of cab roof overhang
-
+    }
+    
     difference() {
         difference() {
             // draw the cab with some extra length for the front roof overhang
-            translate([ -(cabWidth - chassisWidth) / 2, cabLength + cabRoofOverhangFront, chassisHeight ])
+            translate([ -(cabWidth - chassisWidth) / 2, cabLength, chassisHeight ])
             {
                 rotate([ 90, 0, 0 ])
                 {
-                    color(cabColor) linear_extrude(height = cabLength + cabRoofOverhangFront)
+                    color(cabColor) linear_extrude(height = cabLength)
                     {
                         cabPolygon();
                     }
                 }
             }
 
-            // carve-back the front part of the cab that does not have the roof
-            translate([ -(cabWidth - chassisWidth) / 2 - 1, cabLength + cabRoofOverhangFront + 1, chassisHeight -1 ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    cuboid([ cabWidth + 2, cabHeightSides - cabCornerRadius / 2 + 1, cabRoofOverhangFront + 1 ],
-                        center = false);
-                }
-            }
-
-            // carve-back the front part of the roof
-            translate([ -(cabWidth - chassisWidth) / 2 - 1, cabLength + cabRoofOverhangFront + 1, chassisHeight ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    linear_extrude(height = cabRoofOverhangFront + 1)
-                    {
-                        offset(delta = -cabSteelThickness * 2) cabPolygon();
-                    }
-                }
-            }
         } // end drawing the solid cab & roof overhang 
 
         // hollow-out the cab
