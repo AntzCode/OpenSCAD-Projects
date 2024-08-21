@@ -1,98 +1,283 @@
 Computed Measurements for Brookville Shunter Model
 
-Scale Factor:
+Scale Factor
 1:6
-Overall Height:
-495.833
-Overall Width:
-370
-Overall Length:
-475
-Chassis Width:
+
+Overall Height
+505.833
+
+Overall Width
+376.333
+
+Overall Length
+678.333
+
+Chassis Width
 266.667
-Chassis Length:
+
+Chassis Length
 475
-Chassis Height:
+
+Chassis Height
 78.3333
-Cab Width:
-370
-Cab Length:
-288.333
-Cab Height Centre:
-380
-Nose Width:
-200
-Nose Length:
-181.667
-Nose Height Center:
-178.333
-Nose Air Intake Offset Front:
-25
-Nose Air Intake Offset Right:
-73.3333
-Nose Air Intake External Diameter:
-13.3333
-Nose Air Intake Internal Diameter:
-12.3333
-Nose Air Intake Thickness:
-0.5
-Nose Air Intake Length:
-16.6667
-Nose Air Intake Filter Housing Diameter:
-27.5
-Nose Air Intake Filter Housing Thickness:
+
+Chassis Clearance
+37.5
+
+Chassis Steel Thickness
+1.2
+
+Chassis Wheel Hole Height
+18.3333
+
+Chassis Wheel Hole Width
+63.3333
+
+Hitch Overall Length
+101.667
+
+Hitch Block Length
+48.3333
+
+Hitch Block Width
+48.3333
+
+Hitch Block Height
+43.3333
+
+Hitch Point Length
+50
+
+Hitch Point Thin Diameter
+20
+
+Hitch Point Wide Diameter
+46.6667
+
+Hitch Block Mount Plate Thickness
 3.33333
-Nose Air Intake Filter Housing Offset Bottom:
-10
-Nose Fuel Input Offset Front:
-26.6667
-Nose Fuel Input Offset Right:
-31.6667
-Nose Fuel Input External Diameter:
+
+Hitch Block Mount Plate Width
+120
+
+Hitch Block Mount Plate Height
+76.6667
+
+Cab Width
+370
+
+Cab Length
+288.333
+
+Cab Height Centre
+380
+
+Cab Height Sides
+346.667
+
+Cab Steel Thickness
+1.2
+
+Cab Door Width
+76.6667
+
+Cab Door Height
+300
+
+Cab Door Offset Back
+20
+
+Cab Door Offset Bottom
+38.3333
+
+Cab Door Window Width
+53.3333
+
+Cab Door Window Height
+120
+
+Cab Door Window Offset Bottom
+203.333
+
+Cab Door Window Corner Radius
 11.6667
-Nose Fuel Input Internal Diameter:
-10.6667
-Nose Fuel Input Thickness:
-0.5
-Nose Fuel Input Length:
-0
-Nose Exhaust Offset Back:
-15
-Nose Exhaust Offset Left:
-59.1667
-Nose Exhaust External Diameter:
-10.8333
-Nose Exhaust Internal Diameter:
-9.83333
-Nose Exhaust Thickness:
-0.5
-Nose Exhaust Length:
-8.33333
-Wheel Diameter:
-75
-Wheel Width:
-18
-Wheel Flange Height:
-5
-Wheel Flange Width:
-3
-Wheel Overall Width:
-21
-Wheel Overall Diameter:
-85
-Rear Axle Offset (from chassis rear edge):
-153.333
-Front Axle Offset (from chassis rear edge):
-335
-Wheelbase (center to center):
+
+Cab Side Window Width
+163.333
+
+Cab Side Window Height
+120
+
+Cab Side Window Offset Bottom
+203.333
+
+Cab Side Window Offset Front
+10
+
+Cab Side Window Corner Radius
+11.6667
+
+Cab Front-Side Window Width
+83.3333
+
+Cab Front-Side Window Height Short Edge
+90
+
+Cab Front-Side Window Height Long Edge
+101.667
+
+Cab Front-Side Window Offset Side
+20
+
+Cab Front-Side Window Offset Bottom
+263.333
+
+Cab Front-Side Window Corner Radius
+11.6667
+
+Cab Front-Centre Window Width
+71.6667
+
+Cab Front-Centre Window Height
+71.6667
+
+Cab Front-Centre Window Offset Bottom
+250
+
+Cab Front-Centre Window Corner Radius
+11.6667
+
+Nose Width
+200
+
+Nose Length
 181.667
-Rear Wheel Hole Offset Back:
+
+Nose Height Center
+178.333
+
+Nose Height Sides
+160
+
+Nose Steel Thickness
+1.2
+
+Nose Door Width
+90
+
+Nose Door Height
 121.667
-Front Wheel Hole Offset Back:
-303.333
-Cab Roof Length with Overhangs:
-333.333
-Cab Roof Overhang Back:
+
+Nose Door Window Width
+50
+
+Nose Door Window Height
+50
+
+Nose Door Window Offset Bottom
+33.3333
+
+Nose Air Intake Offset Front
+25
+
+Nose Air Intake Offset Right
+73.3333
+
+Nose Air Intake External Diameter
 13.3333
-Cab Roof Overhang Front:
+
+Nose Air Intake Internal Diameter
+12.3333
+
+Nose Air Intake Thickness
+0.5
+
+Nose Air Intake Length
+16.6667
+
+Nose Air Intake Filter Housing Diameter
+27.5
+
+Nose Air Intake Filter Housing Thickness
+3.33333
+
+Nose Air Intake Filter Housing Offset Bottom
+10
+
+Nose Fuel Input Offset Front
+26.6667
+
+Nose Fuel Input Offset Right
 31.6667
+
+Nose Fuel Input External Diameter
+11.6667
+
+Nose Fuel Input Internal Diameter
+10.6667
+
+Nose Fuel Input Thickness
+0.5
+
+Nose Fuel Input Length
+0
+
+Nose Exhaust Offset Back
+15
+
+Nose Exhaust Offset Left
+59.1667
+
+Nose Exhaust External Diameter
+10.8333
+
+Nose Exhaust Internal Diameter
+9.83333
+
+Nose Exhaust Thickness
+0.5
+
+Nose Exhaust Length
+8.33333
+
+Wheel Diameter
+75
+
+Wheel Width
+18
+
+Wheel Flange Height
+5
+
+Wheel Flange Width
+3
+
+Wheel Overall Width
+21
+
+Wheel Overall Diameter
+85
+
+Rear Axle Offset (from chassis rear edge)
+153.333
+
+Front Axle Offset (from chassis rear edge)
+335
+
+Wheelbase (center to center)
+181.667
+
+Rear Wheel Hole Offset Back
+121.667
+
+Front Wheel Hole Offset Back
+303.333
+
+Cab Roof Length with Overhangs
+294.667
+
+Cab Roof Overhang Back
+3.16667
+
+Cab Roof Overhang Front
+3.16667]

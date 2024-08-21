@@ -44,7 +44,7 @@ noseHeightCenter = 1070 / scale;
 noseHeightSides = 960 / scale;
 noseCornerRadius = 120 / scale;
 noseApexRadius = 120 / scale;
-noseSteelThickness = 3 / scale;
+// noseSteelThickness = 3 / scale;
 noseColor = "Yellow";
 
 noseFrontWindowWidth = noseWidth - 20 / scale;
@@ -110,7 +110,7 @@ cabWidth = 2220 / scale;
 cabHeightCenter = 2280 / scale;
 cabHeightSides = 2080 / scale;
 cabCornerRadius = 50 / scale;
-cabSteelThickness = 3 / scale;
+// cabSteelThickness = 3 / scale;
 cabRoofOverhangFront = 19 / scale;
 cabRoofOverhangBack = 19 / scale;
 cabRoofOverhangSide = 19 / scale;
@@ -159,12 +159,19 @@ doorHandleOffsetBack = 400 / scale;
 doorHandleOffsetBottom = (50 + 1070) / scale;
 doorHandleColor = "Black";
 
+// cab steps
+stepsHeight = 40 / scale;
+stepsWidth = 40 / scale;
+stepsThickness = 20 / scale;
+step1Thickness = 20 / scale;
+step1OffsetBottom = 40 / scale;
+
 // chassis
 chassisWidth = 1600 / scale;
 chassisHeight = 470 / scale;
 chassisLength = cabLength + noseLength + (30 / scale);
 chassisCornerRadius = 100 / scale;
-chassisSteelThickness = 8 / scale;
+// chassisSteelThickness = 8 / scale;
 chassisColor = "Black";
 
 // hitch block
@@ -220,27 +227,83 @@ frameTimberWidth = 45;
 frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
 
+noseSteelThickness = 1.2;
+cabSteelThickness = 1.2;
+chassisSteelThickness = 1.2;
+
 reportSize("Scale Factor 1:x", scale);
-reportSize("Overall Height", wheelDiameter/2+chassisHeight+cabHeightCenter);
-reportSize("Overall Width", cabWidth);
-reportSize("Overall Length", chassisLength);
+reportSize("Overall Height", wheelDiameter/2 + wheelFlangeHeight*2 + chassisHeight + cabHeightCenter);
+reportSize("Overall Width", cabWidth + cabRoofOverhangSide * 2);
+reportSize("Overall Length", chassisLength + hitchBlockLength * 2 + hitchPointLength * 2 + hitchMountPlateThickness * 2);
 
 reportSize("Chassis Width", chassisWidth);
 reportSize("Chassis Length", chassisLength);
 reportSize("Chassis Height", chassisHeight);
+reportSize("Chassis Clearance", wheelDiameter / 2);
+reportSize("Chassis Steel Thickness", chassisSteelThickness);
+
+reportSize("Chassis Wheel Hole Height", wheelHoleHeight);
+reportSize("Chassis Wheel Hole Width", wheelHoleWidth);
+
+reportSize("Hitch Overall Length", hitchBlockLength + hitchPointLength + hitchMountPlateThickness);
+reportSize("Hitch Block Length", hitchBlockLength);
+reportSize("Hitch Block Width", hitchBlockWidth);
+reportSize("Hitch Block Height", hitchBlockHeight);
+reportSize("Hitch Point Length", hitchPointLength);
+reportSize("Hitch Point Thin Diameter", hitchPointDiameterSmall);
+reportSize("Hitch Point Wide Diameter", hitchPointDiameterBig);
+reportSize("Hitch Block Mount Plate Thickness", hitchMountPlateThickness);
+reportSize("Hitch Block Mount Plate Width", hitchMountPlateWidth);
+reportSize("Hitch Block Mount Plate Height", hitchMountPlateHeight);
 
 reportSize("Cab Width", cabWidth);
 reportSize("Cab Length", cabLength);
 reportSize("Cab Height Centre", cabHeightCenter);
+reportSize("Cab Height Sides", cabHeightSides);
+reportSize("Cab Steel Thickness", cabSteelThickness);
+
+reportSize("Cab Door Width", doorWidth);
+reportSize("Cab Door Height", doorHeight);
+reportSize("Cab Door Offset Back", doorOffsetBack);
+reportSize("Cab Door Offset Bottom", doorOffsetBottom);
+reportSize("Cab Door Window Width", doorWindowWidth);
+reportSize("Cab Door Window Height", doorWindowHeight);
+reportSize("Cab Door Window Offset Bottom", doorWindowOffsetBottom);
+reportSize("Cab Door Window Corner Radius", doorWindowCornerRadius);
+
+reportSize("Cab Side Window Width", leftWindowWidth);
+reportSize("Cab Side Window Height", leftWindowHeight);
+reportSize("Cab Side Window Offset Bottom", leftWindowOffsetBottom);
+reportSize("Cab Side Window Offset Front", leftWindowOffsetFront);
+reportSize("Cab Side Window Corner Radius", leftWindowCornerRadius);
+
+reportSize("Cab Front-Side Window Width", frontSideWindowWidth);
+reportSize("Cab Front-Side Window Height Short Edge", frontSideWindowHeightShort);
+reportSize("Cab Front-Side Window Height Long Edge", frontSideWindowHeightLong);
+reportSize("Cab Front-Side Window Offset Side", frontSideWindowOffsetSide);
+reportSize("Cab Front-Side Window Offset Bottom", frontSideWindowOffsetBottom);
+reportSize("Cab Front-Side Window Corner Radius", frontSideWindowCornerRadius);
+reportSize("Cab Front-Centre Window Width", frontCenterWindowWidth);
+reportSize("Cab Front-Centre Window Height", frontCenterWindowHeight);
+reportSize("Cab Front-Centre Window Offset Bottom", frontCenterWindowOffsetBottom);
+reportSize("Cab Front-Centre Window Corner Radius", frontCenterWindowCornerRadius);
 
 reportSize("Nose Width", noseWidth);
 reportSize("Nose Length", noseLength);
 reportSize("Nose Height Center", noseHeightCenter);
+reportSize("Nose Height Sides", noseHeightSides);
+reportSize("Nose Steel Thickness", noseSteelThickness);
+
+reportSize("Nose Door Width", noseDoorWidth);
+reportSize("Nose Door Height", noseDoorHeight);
+reportSize("Nose Door Window Width", noseDoorWindowHeight);
+reportSize("Nose Door Window Height", noseDoorWindowHeight);
+reportSize("Nose Door Window Offset Bottom", noseDoorWindowOffsetBottom);
 
 reportSize("Nose Air Intake Offset Front", noseAirIntakeOffsetFront);
 reportSize("Nose Air Intake Offset Right", noseAirIntakeOffsetRight);
 reportSize("Nose Air Intake External Diameter", noseAirIntakeDiameter);
-reportSize("Nose Air Intake Internal Diameter", noseAirIntakeDiameter-noseAirIntakeThickness*2);
+reportSize("Nose Air Intake Internal Diameter", noseAirIntakeDiameter - noseAirIntakeThickness*2);
 reportSize("Nose Air Intake Thickness", noseAirIntakeThickness);
 reportSize("Nose Air Intake Length", noseAirIntakeLength);
 reportSize("Nose Air Intake Filter Housing Diameter", noseAirIntakeFilterHousingDiameter);
@@ -257,7 +320,7 @@ reportSize("Nose Fuel Input Length", noseFuelInputLength);
 reportSize("Nose Exhaust Offset Back", noseExhaustOffsetBack);
 reportSize("Nose Exhaust Offset Left", noseExhaustOffsetLeft);
 reportSize("Nose Exhaust External Diameter", noseExhaustDiameter);
-reportSize("Nose Exhaust Internal Diameter", noseExhaustDiameter-noseExhaustThickness*2);
+reportSize("Nose Exhaust Internal Diameter", noseExhaustDiameter - noseExhaustThickness*2);
 reportSize("Nose Exhaust Thickness", noseExhaustThickness);
 reportSize("Nose Exhaust Length", noseExhaustLength);
 
@@ -803,7 +866,7 @@ if(showCab) union(){
 
         // draw left window
         translate([
-            -((cabWidth - chassisWidth) / 2 + cabSteelThickness), cabLength - (leftWindowOffsetFront + leftWindowWidth),
+            -((cabWidth - chassisWidth) / 2 + cabSteelThickness -1), cabLength - (leftWindowOffsetFront + leftWindowWidth),
             leftWindowOffsetBottom +
             chassisHeight
         ])
@@ -815,11 +878,11 @@ if(showCab) union(){
         }
 
         // cut left door hole
-        translate([ -(cabWidth - chassisWidth) / 2 - 1, doorOffsetBack, chassisHeight + doorOffsetBottom ])
+        translate([ -(cabWidth - chassisWidth) / 2 - 2, doorOffsetBack, chassisHeight + doorOffsetBottom ])
         {
             rotate([ 90, 0, 90 ])
             {
-                cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
+                cuboid([ doorWidth, doorHeight, cabSteelThickness + 4 ], center = false)
                 {
                 }
             }
@@ -827,23 +890,23 @@ if(showCab) union(){
 
         // draw right window
         translate([
-            cabWidth - ((cabWidth - chassisWidth) / 2 + cabSteelThickness + 1),
+            -(cabWidth - chassisWidth) / 2 + cabWidth - cabSteelThickness - 2,
             cabLength - (rightWindowOffsetFront + rightWindowWidth), rightWindowOffsetBottom +
             chassisHeight
         ])
         {
-            cuboid([ cabSteelThickness + 2, rightWindowWidth, rightWindowHeight + 1 ], center = false,
+            cuboid([ cabSteelThickness + 4, rightWindowWidth, rightWindowHeight + 1 ], center = false,
                 fillet = rightWindowCornerRadius, edges = EDGES_X_ALL)
             {
             }
         }
 
         // cut right door hole
-        translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 1, doorOffsetBack, chassisHeight + doorOffsetBottom ])
+        translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness - 2, doorOffsetBack, chassisHeight + doorOffsetBottom ])
         {
             rotate([ 90, 0, 90 ])
             {
-                cuboid([ doorWidth, doorHeight, cabSteelThickness + 2 ], center = false)
+                cuboid([ doorWidth, doorHeight, cabSteelThickness + 4 ], center = false)
                 {
                 }
             }
@@ -984,14 +1047,14 @@ if(showCab) union(){
             }
             // cut the door window
             translate([
-                -(cabWidth - chassisWidth) / 2 + cabSteelThickness * 2 - 1,
+                -(cabWidth - chassisWidth) / 2 + cabSteelThickness - 1,
                 (doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight +
                 doorWindowOffsetBottom
             ])
             {
                 rotate([ 90, 0, 90 ])
                 {
-                    cuboid([ doorWindowWidth, doorWindowHeight, cabSteelThickness + 2 ], center = false,
+                    cuboid([ doorWindowWidth, doorWindowHeight, cabSteelThickness * 2 ], center = false,
                         fillet = doorWindowCornerRadius, edges = EDGES_Z_ALL)
                     {
                     }
@@ -1389,3 +1452,4 @@ if(showWheels) union() {
 		}
 	}
 }
+
