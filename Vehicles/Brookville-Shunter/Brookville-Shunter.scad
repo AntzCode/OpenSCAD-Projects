@@ -22,12 +22,20 @@ $fn = 32;
 }
 
 // constants for configuration
+SCALE_FULL = "";
 SCALE_7_INCH = 0;
 SCALE_3D_PRINT = 1;
 
-// run-time configuration
-modelSize = SCALE_7_INCH;
+// choose a scale size
+
+// 1:4.5 (7.25 inch gauge mini rail)
+// modelSize = SCALE_7_INCH;
+
+// 1:50 (3D print small shelf model)
 // modelSize = SCALE_3D_PRINT;
+
+// 1:1 (real-life full size model)
+modelSize = SCALE_FULL;
 
 // prints calculated sizes to the console
 showReportSizes = true;
@@ -41,7 +49,7 @@ showNoseFrame = false;
 showChassisFrame = false;
 showFrontHitch = true;
 showRearHitch = true;
-showHitchChains = false;
+showHitchChains = true;
 
 // set the nose to be solid or hollow
 hollowNose = true;

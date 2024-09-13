@@ -1,5 +1,5 @@
 // scale factor for translating to a model size
-function scale() = (modelSize == SCALE_7_INCH ? 4.5 : 50);
+function scale() = (modelSize == SCALE_7_INCH ? 4.5 : modelSize == SCALE_3D_PRINT ? 50 : 1);
 
 // nose
 noseWidth = 1200 / scale();
@@ -171,55 +171,51 @@ wheelHoleHeight = 110 / scale();
 wheelColor = "Red";
 wheelFlangeColor = "DarkRed";
 
-   
-   
-// Mini-Rail (7.25" gauge)
-
 function noseSteelThickness() = 
     modelSize == SCALE_7_INCH ? 3 / scale() :
     modelSize == SCALE_3D_PRINT ? 1 :
-    3 / scale();
+    3;
 
 function cabSteelThickness() = 
     modelSize == SCALE_7_INCH ? 3 / scale() :
     modelSize == SCALE_3D_PRINT ? 1 :
-    3 / scale();
+    3;
 
 function chassisSteelThickness() = 
     modelSize == SCALE_7_INCH ? 8 / scale() :
     modelSize == SCALE_3D_PRINT ?  2 :
-    8 / scale();
+    8;
 
 // axles
 function axleDiameter() = 
     modelSize == SCALE_7_INCH ? 20 :
     modelSize == SCALE_3D_PRINT ? 150 / scale() :
-    20;
+    85;
 
 function rearAxleOffset() = 
     modelSize == SCALE_7_INCH ? (730 + 380/2) / scale() :
     modelSize == SCALE_3D_PRINT ? (730 + (380 / 2)) / scale() :   
-    (730 + 380/2) / scale();
+    (730 + 380/2);
 
 function frontAxleOffset() = 
     modelSize == SCALE_7_INCH ? chassisLength - ((650 + 380/2) / scale()) :
     modelSize == SCALE_3D_PRINT ? chassisLength - ((650 + 380 / 2) / scale()) :
-    chassisLength - ((650 + 380/2) / scale());
+    chassisLength - (650 + 380/2);
 
 function wheelDiameter() = 
     modelSize == SCALE_7_INCH ? 450 /scale() :
     modelSize == SCALE_3D_PRINT ? 450 / scale() :
-    450 / scale();
+    450;
 
 function wheelWidth() = 
     modelSize == SCALE_7_INCH ? 18 :
     modelSize == SCALE_3D_PRINT ? 160 / scale() :
-    18;
+    50;
 
 function wheelFlangeWidth() = 
     modelSize == SCALE_7_INCH ? 3 :
     modelSize == SCALE_3D_PRINT ? 60 / scale() :
-    3;
+    12;
 
 function wheelFlangeHeight() = 
     modelSize == SCALE_7_INCH ? 5 :
@@ -228,5 +224,5 @@ function wheelFlangeHeight() =
 
 function wheelTrackWidth() = 
     modelSize == SCALE_7_INCH ? 184 : 
-    modelSize == SCALE_3D_PRINT ? 1100 / scale() : 
-    160;
+    modelSize == SCALE_3D_PRINT ? 1067 / scale() : 
+    1067;
