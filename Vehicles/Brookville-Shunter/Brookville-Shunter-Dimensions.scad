@@ -207,13 +207,13 @@ function axleDiameter() =
     85;
 
 function axleLength() = 
-    showWheelBearings 
+    showHotBoxes
         ? chassisWidth - (bearingHousingBlockProtrusion*2 + bearingHousingBlockThickness)
         : wheelTrackWidth() - wheelFlangeWidth() * 2
         ;
 
 function axleOffsetLeft() =
-    showWheelBearings
+    showHotBoxes
         ? bearingHousingBlockProtrusion + bearingHousingBlockThickness/2
         : (chassisWidth - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2
         ;

@@ -45,8 +45,8 @@ showNose = true;
 showChassis = true;
 showWheels = true;
 showAxles = true;
-showWheelBearings = true;
-attachAxlesToWheelBearings = false;
+showHotBoxes = true;
+attachAxlesToHotBox = true;
 showCabFrame = false;
 showNoseFrame = false;
 showChassisFrame = false;
@@ -605,7 +605,7 @@ module bearingHousing(){
             }
         }
         
-        if(!attachAxlesToWheelBearings){
+        if(!attachAxlesToHotBox){
             // drill a hole for the axle in the wheel bearing
             translate([0, bearingHousingBlockWidth/2, bearingHousingBlockHeight/2]){
                 rotate([0, 90, 0]){
@@ -678,7 +678,7 @@ if(showChassis) {
 
 }
 
-if(showWheelBearings){
+if(showHotBoxes){
 
     // draw front-left bearing housing
     translate([bearingHousingBlockProtrusion, (frontWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
