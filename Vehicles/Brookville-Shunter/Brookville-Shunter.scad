@@ -57,6 +57,11 @@ showWheels_LF = true;
 showWheels_LR = true;
 showWheels_RF = true;
 showWheels_RR = true;
+showHotBox_LF = true;
+showHotBox_LR = true;
+showHotBox_RF = true;
+showHotBox_RR = true;
+
 
 // set the nose to be solid or hollow
 hollowNose = false;
@@ -680,27 +685,35 @@ if(showChassis) {
 
 if(showHotBoxes){
 
-    // draw front-left bearing housing
-    translate([bearingHousingBlockProtrusion, (frontWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
-        bearingHousing();
-    }
-
-    // draw rear-left bearing housing
-    translate([bearingHousingBlockProtrusion, (rearWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
-        bearingHousing();
-    }
-
-    // draw front-right bearing housing
-    translate([chassisWidth-bearingHousingBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
-        rotate([0, 0, 180]){
+    if(showHotBox_LF){
+        // draw front-left bearing housing
+        translate([bearingHousingBlockProtrusion, (frontWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
             bearingHousing();
         }
     }
 
-    // draw rear-right bearing housing
-    translate([chassisWidth-bearingHousingBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
-        rotate([0, 0, 180]){
+    if(showHotBox_LR){
+        // draw rear-left bearing housing
+        translate([bearingHousingBlockProtrusion, (rearWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
             bearingHousing();
+        }
+    }
+
+    if(showHotBox_RF){
+        // draw front-right bearing housing
+        translate([chassisWidth-bearingHousingBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+            rotate([0, 0, 180]){
+                bearingHousing();
+            }
+        }
+    }
+
+    if(showHotBox_RR){
+        // draw rear-right bearing housing
+        translate([chassisWidth-bearingHousingBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+            rotate([0, 0, 180]){
+                bearingHousing();
+            }
         }
     }
 
