@@ -166,7 +166,21 @@ hitchNotchCornerRadius = 30 / scale();
 
 // wheel holes
 wheelHoleWidth = 380 / scale();
-wheelHoleHeight = 110 / scale();
+wheelHoleHeight = 150 / scale();
+
+// bearing housing
+bearingHousingBlockThickness = 160 / scale();
+bearingHousingBlockWidth = 380 / scale();
+bearingHousingBlockHeight = 300 / scale();
+bearingHousingBlockProtrusion = 30 / scale();
+bearingHousingDiameter = 160 / scale();
+bearingHousingProtrusion = 28 / scale();
+bearingHousingPlateDiameter = 280 / scale();
+bearingHousingPlateThickness = 18 / scale();
+bearingHousingCornerRadius = 5 / scale();
+bearingHousingBoltSize = 22 / scale();
+bearingHousingBoltProtrusion = 14 / scale();
+wheelBearingGap = 0.1;
 
 wheelColor = "Red";
 wheelFlangeColor = "DarkRed";
@@ -189,8 +203,20 @@ function chassisSteelThickness() =
 // axles
 function axleDiameter() = 
     modelSize == SCALE_7_INCH ? 20 :
-    modelSize == SCALE_3D_PRINT ? 150 / scale() :
+    modelSize == SCALE_3D_PRINT ? 2 :
     85;
+
+function axleLength() = 
+    showWheelBearings 
+        ? chassisWidth - (bearingHousingBlockProtrusion*2 + bearingHousingBlockThickness)
+        : wheelTrackWidth() - wheelFlangeWidth() * 2
+        ;
+
+function axleOffsetLeft() =
+    showWheelBearings
+        ? bearingHousingBlockProtrusion + bearingHousingBlockThickness/2
+        : (chassisWidth - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2
+        ;
 
 function rearAxleOffset() = 
     modelSize == SCALE_7_INCH ? (730 + 380/2) / scale() :
@@ -224,5 +250,5 @@ function wheelFlangeHeight() =
 
 function wheelTrackWidth() = 
     modelSize == SCALE_7_INCH ? 184 : 
-    modelSize == SCALE_3D_PRINT ? 1067 / scale() : 
+    modelSize == SCALE_3D_PRINT ? chassisWidth - wheelWidth()*2 - bearingHousingBlockThickness - bearingHousingBlockProtrusion - axleDiameter() : 
     1067;

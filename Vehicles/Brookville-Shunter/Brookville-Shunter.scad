@@ -12,7 +12,7 @@ use <./libraries/BOSL/shapes.scad>
 include <./libraries/Round-Anything/polyround.scad>
 
 // number of facets used to generate an arc
-$fn = 32;
+$fn = 120;
 
 // asterisk hides it
 // this is used to compare the model to a known size (eg: 300mm)
@@ -32,10 +32,10 @@ SCALE_3D_PRINT = 1;
 // modelSize = SCALE_7_INCH;
 
 // 1:50 (3D print small shelf model)
-// modelSize = SCALE_3D_PRINT;
+modelSize = SCALE_3D_PRINT;
 
 // 1:1 (real-life full size model)
-modelSize = SCALE_FULL;
+// modelSize = SCALE_FULL;
 
 // prints calculated sizes to the console
 showReportSizes = true;
@@ -44,15 +44,22 @@ showCab = true;
 showNose = true;
 showChassis = true;
 showWheels = true;
+showAxles = true;
+showWheelBearings = true;
+attachAxlesToWheelBearings = false;
 showCabFrame = false;
 showNoseFrame = false;
 showChassisFrame = false;
 showFrontHitch = true;
 showRearHitch = true;
 showHitchChains = true;
+showWheels_LF = true;
+showWheels_LR = true;
+showWheels_RF = true;
+showWheels_RR = true;
 
 // set the nose to be solid or hollow
-hollowNose = true;
+hollowNose = false;
 hollowCab = true;
 solidNosePipes = false;
 
@@ -79,6 +86,11 @@ reportSize("Chassis Steel Thickness", chassisSteelThickness());
 
 reportSize("Chassis Wheel Hole Height", wheelHoleHeight);
 reportSize("Chassis Wheel Hole Width", wheelHoleWidth);
+
+rearWheelHoleOffsetBack = rearAxleOffset() - wheelHoleWidth / 2;
+frontWheelHoleOffsetBack = frontAxleOffset() - wheelHoleWidth / 2;
+reportSize("Rear Wheel Hole Offset Back", rearWheelHoleOffsetBack);
+reportSize("Front Wheel Hole Offset Back", frontWheelHoleOffsetBack);
 
 reportSize("Hitch Overall Length", hitchBlockLength + hitchPointLength + hitchMountPlateThickness);
 reportSize("Hitch Block Length", hitchBlockLength);
@@ -165,6 +177,7 @@ reportSize("Wheel Flange Height", wheelFlangeHeight());
 reportSize("Wheel Flange Width", wheelFlangeWidth());
 reportSize("Wheel Overall Width", wheelWidth() + wheelFlangeWidth());
 reportSize("Wheel Overall Diameter", wheelDiameter() + wheelFlangeHeight()*2);
+reportSize("Axle Diameter", axleDiameter());
 reportSize("Rear Axle Offset (from chassis rear edge)", rearAxleOffset());
 reportSize("Front Axle Offset (from chassis rear edge)", frontAxleOffset());
 
@@ -471,7 +484,7 @@ module hitchBlock(){
 
         translate([hitchMountPlateWidth/2 + hitchChainTagWidth, hitchBlockLength, hitchMountPlateHeight]){
             rotate([-90, 0, 0]){
-                difference(){
+                color(hitchBlockColor) difference(){
                     // draw the solid hitch point
                     rotate_extrude(angle=360){
                         rotate([0, 0, 90]){
@@ -512,6 +525,98 @@ module hitchBlock(){
     }
 }
 
+
+module klam_fillet_cylinder(
+    cylinder_height=2,
+    cylinder_radius=1,
+    fillet_radius_bottom=1,
+    fillet_radius_top=0,
+    nfaces=50
+) {
+    /* created by Kevin Lam on Dec 3, 2016 */
+    union() {      
+        cylinder(cylinder_height, r=cylinder_radius, $fn=nfaces, false);
+        
+        if (fillet_radius_bottom > 0) {
+            difference() {
+                cylinder(fillet_radius_bottom, r=cylinder_radius+fillet_radius_bottom, $fn=nfaces, false);
+                translate([0, 0, fillet_radius_bottom])
+                rotate_extrude($fn=nfaces)
+                translate([cylinder_radius+fillet_radius_bottom, 0, 0])
+                circle(fillet_radius_bottom, $fn=nfaces);
+            }
+        }
+        
+        if (fillet_radius_top>0) {
+            difference() {
+                translate([0,0,cylinder_height-fillet_radius_top])
+                cylinder(fillet_radius_top, r=cylinder_radius+fillet_radius_top, $fn=nfaces, false);
+                
+                translate([0, 0, cylinder_height-fillet_radius_top])
+                rotate_extrude($fn=nfaces)
+                translate([cylinder_radius+fillet_radius_top, 0, 0])
+                circle(fillet_radius_top, $fn=nfaces);
+            }
+        }
+    }
+}
+
+module bearingHousing(){
+    difference(){
+        
+        color(hitchBlockColor) translate([-0, 0, 0]){
+            rotate([90,0,90]){
+                cuboid([bearingHousingBlockWidth, bearingHousingBlockHeight, bearingHousingBlockThickness],  center=false, fillet=bearingHousingCornerRadius, edges=EDGES_ALL);
+                translate([((bearingHousingBlockWidth-bearingHousingDiameter)/2 + bearingHousingDiameter/2), ((bearingHousingBlockHeight-bearingHousingDiameter)/2 + bearingHousingDiameter/2), -bearingHousingProtrusion+bearingHousingCornerRadius]){
+                    hull(){
+                        color("red") cylinder(bearingHousingBlockThickness + bearingHousingProtrusion - bearingHousingCornerRadius, d=bearingHousingDiameter, center=false);
+                        color("green") translate([0, 0, bearingHousingCornerRadius]){
+                            
+                            rotate([0, 0, 0]){
+                                rotate_extrude(angle=360) translate([bearingHousingDiameter/2 - bearingHousingCornerRadius, -bearingHousingCornerRadius, 0]) circle(r=bearingHousingCornerRadius);
+                            }
+                            
+                        }
+                    }
+                }
+                translate([(bearingHousingPlateDiameter/2) + (bearingHousingBlockWidth-bearingHousingPlateDiameter)/2, (bearingHousingPlateDiameter/2)+(bearingHousingBlockHeight-bearingHousingPlateDiameter)/2, -bearingHousingPlateThickness]){
+                    // cuboid([bearingHousingPlateDiameter, bearingHousingPlateDiameter, bearingHousingPlateThickness], center=false, fillet=bearingHousingCornerRadius, edges=EDGES_ALL);
+                    cylinder(bearingHousingPlateThickness, d=bearingHousingPlateDiameter, center=false);
+                }
+
+                // draw the bolts
+                translate([bearingHousingBlockWidth/2, bearingHousingBlockHeight/2, 0]){
+                for(i=[0:60:360]){
+                    rotate(i, [0, 0, 1]){
+                        translate([-((bearingHousingPlateDiameter-bearingHousingDiameter)-bearingHousingBoltSize/2), 0, 0]){
+                            // draw a bolt
+                            translate([
+                                0, 
+                                0,
+                                -(bearingHousingBoltProtrusion + bearingHousingPlateThickness)
+                            ]){
+                                cylinder(r=bearingHousingBoltSize, h=bearingHousingBoltProtrusion, $fn=6, center=false);
+                            }
+                        }
+                    }
+                }// end for
+                }
+                
+            }
+        }
+        
+        if(!attachAxlesToWheelBearings){
+            // drill a hole for the axle in the wheel bearing
+            translate([0, bearingHousingBlockWidth/2, bearingHousingBlockHeight/2]){
+                rotate([0, 90, 0]){
+                    cylinder(bearingHousingBlockThickness + 1, d=axleDiameter() + wheelBearingGap*2);
+                }
+            }
+        }
+    }
+}
+
+
 // draw chassis frame
 if (showChassisFrame) union()
 {
@@ -551,25 +656,54 @@ if (showChassisFrame) union()
 }
 
 // draw chassis
-if(showChassis) difference()
-{
-	color(chassisColor, alpha = 1) cuboid([ chassisWidth, chassisLength, chassisHeight ], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL);
+if(showChassis) {
+    
+    difference()
+    {
+        color(chassisColor, alpha = 1) cuboid([ chassisWidth, chassisLength, chassisHeight ], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL);
 
-	// draw wheel holes
-	rearWheelHoleOffsetBack = rearAxleOffset() - wheelHoleWidth / 2;
-    reportSize("Rear Wheel Hole Offset Back", rearWheelHoleOffsetBack);
-    translate([ 0, rearWheelHoleOffsetBack, 0 ])
-	{
-		cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
-	}
+        // draw wheel holes
+        color(chassisColor, alpha = 1) translate([ 0, rearWheelHoleOffsetBack, 0 ])
+        {
+            cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
+        }
 
-	// draw wheel holes
-    frontWheelHoleOffsetBack = frontAxleOffset() - wheelHoleWidth / 2;
-    reportSize("Front Wheel Hole Offset Back", frontWheelHoleOffsetBack);
-	translate([ 0, frontWheelHoleOffsetBack, 0 ])
-	{
-		cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
-	}
+        // draw wheel holes
+        color(chassisColor, alpha = 1) translate([ 0, frontWheelHoleOffsetBack, 0 ])
+        {
+            cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
+        }
+
+    }
+
+}
+
+if(showWheelBearings){
+
+    // draw front-left bearing housing
+    translate([bearingHousingBlockProtrusion, (frontWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
+        bearingHousing();
+    }
+
+    // draw rear-left bearing housing
+    translate([bearingHousingBlockProtrusion, (rearWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
+        bearingHousing();
+    }
+
+    // draw front-right bearing housing
+    translate([chassisWidth-bearingHousingBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+        rotate([0, 0, 180]){
+            bearingHousing();
+        }
+    }
+
+    // draw rear-right bearing housing
+    translate([chassisWidth-bearingHousingBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+        rotate([0, 0, 180]){
+            bearingHousing();
+        }
+    }
+
 }
 
 // draw front hitch
@@ -880,9 +1014,10 @@ if(showCab) union(){
                 }
             }
         }
+
         // draw the door handle
         translate([
-            -(cabWidth - chassisWidth) / 2 - doorHandleLength, doorOffsetBack + doorHandleOffsetBack, chassisHeight +
+            -(cabWidth - chassisWidth) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight +
             doorHandleOffsetBottom
         ])
         {
@@ -920,9 +1055,10 @@ if(showCab) union(){
                 }
             }
         }
+
         // draw the door handle
         translate([
-            cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness() * 2, doorOffsetBack + doorHandleOffsetBack,
+            cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
             chassisHeight +
             doorHandleOffsetBottom
         ])
@@ -1046,53 +1182,58 @@ if(showNose) union() {
 					}
 				}
 			}
-		}
 
-		// cut front engine bay hole
-		translate([
-			((chassisWidth - noseWidth) / 2) + ((noseWidth - noseFrontWindowWidth) / 2), (noseLength + cabLength) - (noseSteelThickness()),
-			chassisHeight
-		])
-		{
-			cube([ noseFrontWindowWidth, noseSteelThickness(), noseFrontWindowHeight ]);
-		}
+        }
 
-		// cut left engine bay hole
-		translate([
-			(chassisWidth - noseWidth) / 2,
-			(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
-			noseDoorFrameWidth
-		])
-		{
-			rotate([ 90, 0, 90 ])
-			{
-				color(noseDoorColor) cuboid(
-				    [
-					    noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
-					    noseSteelThickness()
-				    ],
-				    center = false);
-			}
-		}
+        // cut front engine bay hole
+        translate([
+            ((chassisWidth - noseWidth) / 2) + ((noseWidth - noseFrontWindowWidth) / 2), (noseLength + cabLength) - (noseSteelThickness()),
+            chassisHeight
+        ])
+        {
+            cube([ noseFrontWindowWidth, noseSteelThickness(), noseFrontWindowHeight ]);
+        }
 
-		// cut right engine bay hole
-		translate([
-			((chassisWidth - noseWidth) / 2) + (noseWidth - noseSteelThickness()),
-			(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
-			noseDoorFrameWidth
-		])
-		{
-			rotate([ 90, 0, 90 ])
-			{
-				color(noseDoorColor) cuboid(
-				    [
-					    noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
-					    noseSteelThickness() 
-				    ],
-				    center = false);
-			}
-		}
-	}
+		if(hollowNose){
+            // cut left engine bay hole
+            translate([
+                (chassisWidth - noseWidth) / 2,
+                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+                noseDoorFrameWidth
+            ])
+            {
+                rotate([ 90, 0, 90 ])
+                {
+                    color(noseDoorColor) cuboid(
+                        [
+                            noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
+                            noseSteelThickness()
+                        ],
+                        center = false);
+                }
+            }
+
+            // cut right engine bay hole
+            translate([
+                ((chassisWidth - noseWidth) / 2) + (noseWidth - noseSteelThickness()),
+                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+                noseDoorFrameWidth
+            ])
+            {
+                rotate([ 90, 0, 90 ])
+                {
+                    color(noseDoorColor) cuboid(
+                        [
+                            noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
+                            noseSteelThickness() 
+                        ],
+                        center = false);
+                }
+            }
+
+        }
+
+    }
 
     // draw the front grille
     color(noseFrontGrilleColor) union(){
@@ -1113,7 +1254,7 @@ if(showNose) union() {
         // draw louvre grille
         translate([
             (chassisWidth-noseWidth)/2 + noseFrontGrilleWidth/2 + (noseWidth-noseFrontGrilleWidth)/2, 
-            cabLength+noseLength - noseFrontGrilleLouvreWidth/2, 
+            cabLength+noseLength - noseFrontGrilleProtrusionFront - noseFrontGrilleLouvreWidth/2, 
             chassisHeight + noseFrontGrilleLouvreWidth/2 + noseFrontGrilleBorderWidth
         ]){
             rotate([0, -90, 0]){
@@ -1177,66 +1318,79 @@ if(showNose) union() {
 } // end of draw nose union
 
 // draw wheels
-if(showWheels) union() {
+union() {
 
-	// rear axle
-	translate([ (chassisWidth - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2, rearAxleOffset(), 0 ])
-	{
-		rotate([ 0, 90, 0 ])
-		{
-			cylinder(wheelTrackWidth() - wheelFlangeWidth() * 2, d = axleDiameter(), center = false);
-		}
-	}
 
-	// rear left wheel
-	translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), rearAxleOffset(), 0 ])
-	{
-		rotate([ 0, -90, 0 ])
-		{
-			flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
-		}
-	}
+    if(showAxles){
+        // rear axle
+        translate([ axleOffsetLeft(), rearAxleOffset(), 0 ])
+        {
+            rotate([ 0, 90, 0 ])
+            {
+                cylinder(axleLength(), d = axleDiameter(), center = false);
+            }
+        }
+    }
 
-	// rear right wheel
-	translate([
-		((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
-		rearAxleOffset(), 0
-	])
-	{
-		rotate([ 0, 90, 0 ])
-		{
-			flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
-		}
-	}
+    if(showWheels && showWheels_LR){
+        // rear left wheel
+        translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), rearAxleOffset(), 0 ])
+        {
+            rotate([ 0, -90, 0 ])
+            {
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+            }
+        }
+    }
 
-	// front axle
-	translate([ (chassisWidth - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2, frontAxleOffset(), 0 ])
-	{
-		rotate([ 0, 90, 0 ])
-		{
-			cylinder(wheelTrackWidth() - wheelFlangeWidth() * 2, d = axleDiameter(), center = false);
-		}
-	}
+    if(showWheels && showWheels_RR){
+        // rear right wheel
+        translate([
+            ((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
+            rearAxleOffset(), 0
+        ])
+        {
+            rotate([ 0, 90, 0 ])
+            {
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+            }
+        }
+    }
 
-	// front left wheel
-	translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), frontAxleOffset(), 0 ])
-	{
-		rotate([ 0, -90, 0 ])
-		{
-			flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
-		}
-	}
+    if(showAxles){
+        // front axle
+        translate([ axleOffsetLeft(), frontAxleOffset(), 0 ])
+        {
+            rotate([ 0, 90, 0 ])
+            {
+                cylinder(axleLength(), d = axleDiameter(), center = false);
+            }
+        }
+    }
 
-	// front right wheel
-	translate([
-		((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
-		frontAxleOffset(), 0
-	])
-	{
-		rotate([ 0, 90, 0 ])
-		{
-			flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
-		}
-	}
+    if(showWheels && showWheels_LF){
+        // front left wheel
+        translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), frontAxleOffset(), 0 ])
+        {
+            rotate([ 0, -90, 0 ])
+            {
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+            }
+        }
+    }
+
+    if(showWheels && showWheels_RF){
+        // front right wheel
+        translate([
+            ((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
+            frontAxleOffset(), 0
+        ])
+        {
+            rotate([ 0, 90, 0 ])
+            {
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+            }
+        }
+    }
 }
 
