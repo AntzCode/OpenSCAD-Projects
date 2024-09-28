@@ -66,7 +66,7 @@ showHotBox_RR = true;
 // set the nose to be solid or hollow
 hollowNose = false;
 hollowCab = true;
-solidNosePipes = false;
+solidNosePipes = true;
 
 include <./Brookville-Shunter-Dimensions.scad>
 use <./Brookville-Shunter-Dimensions.scad>
@@ -1033,15 +1033,17 @@ if(showCab) union(){
             }
         }
 
-        // draw the door handle
-        translate([
-            -(cabWidth - chassisWidth) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight +
-            doorHandleOffsetBottom
-        ])
-        {
-            rotate([ 90, 0, 90 ])
+        if(modelSize != SCALE_3D_PRINT){
+            // draw the door handle
+            translate([
+                -(cabWidth - chassisWidth) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight +
+                doorHandleOffsetBottom
+            ])
             {
-                color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
+                rotate([ 90, 0, 90 ])
+                {
+                    color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
+                }
             }
         }
 
@@ -1074,16 +1076,18 @@ if(showCab) union(){
             }
         }
 
-        // draw the door handle
-        translate([
-            cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
-            chassisHeight +
-            doorHandleOffsetBottom
-        ])
-        {
-            rotate([ 90, 0, 90 ])
+        if(modelSize != SCALE_3D_PRINT){ 
+            // draw the door handle
+            translate([
+                cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
+                chassisHeight +
+                doorHandleOffsetBottom
+            ])
             {
-                color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
+                rotate([ 90, 0, 90 ])
+                {
+                    color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
+                }
             }
         }
     } // end draw right door
@@ -1128,6 +1132,14 @@ if(showNose) union() {
 							{
 								cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter, center = false);
 							}
+                            if(modelSize == SCALE_3D_PRINT){
+                                // support of air intake housing (that the air intake filter sits onto)
+                                translate([ 0, 0, (noseAirIntakeFilterHousingOffsetBottom + 20) - noseAirIntakeFilterHousingThickness ])
+                                {
+                                    cylinder(noseAirIntakeFilterHousingThickness, d1=noseAirIntakeDiameter, d2 = noseAirIntakeFilterHousingDiameter, center = false);
+                                }
+                            }
+
 						}
 						translate([ 0, 0, -1 ])
 						{
