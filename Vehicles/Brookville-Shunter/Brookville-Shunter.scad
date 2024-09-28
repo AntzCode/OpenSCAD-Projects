@@ -281,15 +281,20 @@ module louvreGrill(width, height, louvreWidth, louvreThickness, louvreDistance, 
 }
 
 // draw a flanged wheel
-module flangedWheel(diameter, flangeHeight, flangeWidth)
+module flangedWheel(diameter, flangeHeight, flangeWidth, centerHoleDiameter)
 {
-	color(wheelFlangeColor) cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
-	{
-	}
-	translate([ 0, 0, flangeWidth ])
-	{
-		color(wheelColor) cylinder(wheelWidth() - flangeWidth, d = diameter, center = false);
-	}
+    difference(){
+        union(){
+            color(wheelFlangeColor) cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
+            {
+            }
+            translate([ 0, 0, flangeWidth ])
+            {
+                color(wheelColor) cylinder(wheelWidth() - flangeWidth, d = diameter, center = false);
+            }
+        }
+        color(wheelColor) cylinder(wheelWidth(), d = centerHoleDiameter, center = false);
+    }
 }
 
 // draw the 2D outline shape of the cab when looking front-on
@@ -1351,7 +1356,7 @@ union() {
         {
             rotate([ 0, -90, 0 ])
             {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
             }
         }
     }
@@ -1365,7 +1370,7 @@ union() {
         {
             rotate([ 0, 90, 0 ])
             {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
             }
         }
     }
@@ -1387,7 +1392,7 @@ union() {
         {
             rotate([ 0, -90, 0 ])
             {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
             }
         }
     }
@@ -1401,7 +1406,7 @@ union() {
         {
             rotate([ 0, 90, 0 ])
             {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth());
+                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
             }
         }
     }
