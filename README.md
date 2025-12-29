@@ -27,3 +27,17 @@ range of input voltage. 5v at 3A max output.
 - DC Output: 5V / 3A (MAX)(With Identification resistance for Apple)
 
 
+## XTR-Street 2 LED Mount
+
+Custom mount for rear-facing LED lights on Blade-Z XTR Street II e-scooter
+[Read More >>](./Vehicles/BladeZ/XTR-Street2/README.md)
+
+![Photo: LED Mounting Bracket for Blade-Z XTR Street II](./Vehicles/BladeZ/XTR-Street2/Renders/bladez-rear-side-lamp-mount-with-lamp.png)
+
+This OpenSCAD design provides a mount that offsets the LED light from the chassis and straightens its alignment, fitting seamlessly with the scooter's wheel guard.
+
+- Compatible with Blade-Z XTR Street II
+- Reuses existing M6 holes from wheel guard
+- Customizable for left or right side mounting
+
+
