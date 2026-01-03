@@ -1,0 +1,283 @@
+Scale Factor 1:50
+
+Overall Height
+61.5
+
+Overall Width
+45.16
+
+Overall Length
+81.4
+
+Chassis Width
+32
+
+Chassis Length
+57
+
+Chassis Height
+9.4
+
+Chassis Clearance
+4.5
+
+Chassis Steel Thickness
+2
+
+Chassis Wheel Hole Height
+3
+
+Chassis Wheel Hole Width
+7.6
+
+Rear Wheel Hole Offset Back
+14.6
+
+Front Wheel Hole Offset Back
+36.4
+
+Hitch Overall Length
+12.2
+
+Hitch Block Length
+5.8
+
+Hitch Block Width
+5.8
+
+Hitch Block Height
+5.2
+
+Hitch Point Length
+6
+
+Hitch Point Thin Diameter
+2.4
+
+Hitch Point Wide Diameter
+5.6
+
+Hitch Block Mount Plate Thickness
+0.4
+
+Hitch Block Mount Plate Width
+14.4
+
+Hitch Block Mount Plate Height
+9.2
+
+Cab Width
+44.4
+
+Cab Length
+34.6
+
+Cab Height Centre
+45.6
+
+Cab Height Sides
+41.6
+
+Cab Steel Thickness
+1
+
+Cab Door Width
+9.2
+
+Cab Door Height
+36
+
+Cab Door Offset Back
+2.4
+
+Cab Door Offset Bottom
+4.6
+
+Cab Door Window Width
+6.4
+
+Cab Door Window Height
+14.4
+
+Cab Door Window Offset Bottom
+24.4
+
+Cab Door Window Corner Radius
+1.4
+
+Cab Side Window Width
+19.6
+
+Cab Side Window Height
+14.4
+
+Cab Side Window Offset Bottom
+24.4
+
+Cab Side Window Offset Front
+1.2
+
+Cab Side Window Corner Radius
+1.4
+
+Cab Front-Side Window Width
+10
+
+Cab Front-Side Window Height Short Edge
+10.8
+
+Cab Front-Side Window Height Long Edge
+12.2
+
+Cab Front-Side Window Offset Side
+2.4
+
+Cab Front-Side Window Offset Bottom
+31.6
+
+Cab Front-Side Window Corner Radius
+1.4
+
+Cab Front-Centre Window Width
+8.6
+
+Cab Front-Centre Window Height
+8.6
+
+Cab Front-Centre Window Offset Bottom
+30
+
+Cab Front-Centre Window Corner Radius
+1.4
+
+Nose Width
+24
+
+Nose Length
+21.8
+
+Nose Height Center
+21.4
+
+Nose Height Sides
+19.2
+
+Nose Steel Thickness
+1
+
+Nose Door Width
+10.8
+
+Nose Door Height
+14.6
+
+Nose Door Window Width
+6
+
+Nose Door Window Height
+6
+
+Nose Door Window Offset Bottom
+4
+
+Nose Air Intake Offset Front
+3
+
+Nose Air Intake Offset Right
+8.8
+
+Nose Air Intake External Diameter
+1.6
+
+Nose Air Intake Internal Diameter
+1.48
+
+Nose Air Intake Thickness
+0.06
+
+Nose Air Intake Length
+2
+
+Nose Air Intake Filter Housing Diameter
+3.3
+
+Nose Air Intake Filter Housing Thickness
+0.4
+
+Nose Air Intake Filter Housing Offset Bottom
+1.2
+
+Nose Fuel Input Offset Front
+3.2
+
+Nose Fuel Input Offset Right
+3.8
+
+Nose Fuel Input External Diameter
+1.4
+
+Nose Fuel Input Internal Diameter
+1.28
+
+Nose Fuel Input Thickness
+0.06
+
+Nose Fuel Input Length
+0
+
+Nose Exhaust Offset Back
+1.8
+
+Nose Exhaust Offset Left
+7.1
+
+Nose Exhaust External Diameter
+1.3
+
+Nose Exhaust Internal Diameter
+1.18
+
+Nose Exhaust Thickness
+0.06
+
+Nose Exhaust Length
+1
+
+Wheel Diameter
+9
+
+Wheel Width
+3.2
+
+Wheel Flange Height
+1
+
+Wheel Flange Width
+1.2
+
+Wheel Overall Width
+4.4
+
+Wheel Overall Diameter
+11
+
+Axle Diameter
+2
+
+Rear Axle Offset (from chassis rear edge)
+18.4
+
+Front Axle Offset (from chassis rear edge)
+40.2
+
+Wheelbase (center to center)
+21.8
+
+Cab Roof Length with Overhangs
+35.36
+
+Cab Roof Overhang Back
+0.38
+
+Cab Roof Overhang Front
+0.38

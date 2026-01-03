@@ -25,6 +25,7 @@ $fn = 120;
 SCALE_FULL = "";
 SCALE_7_INCH = 0;
 SCALE_3D_PRINT = 1;
+SCALE_25 = 2;
 
 // choose a scale size
 
@@ -34,24 +35,27 @@ SCALE_3D_PRINT = 1;
 // 1:50 (3D print small shelf model)
 modelSize = SCALE_3D_PRINT;
 
+// 1:25 (3d print for wind-up train)
+//modelSize = SCALE_25;
+
 // 1:1 (real-life full size model)
 // modelSize = SCALE_FULL;
 
 // prints calculated sizes to the console
 showReportSizes = true;
 
-showCab = true;
-showNose = true;
+showCab = false;
+showNose = false;
 showChassis = true;
 showWheels = true;
-showAxles = true;
+showAxles = false;
 showHotBoxes = true;
 attachAxlesToHotBox = true;
 showCabFrame = false;
 showNoseFrame = false;
 showChassisFrame = false;
-showFrontHitch = true;
-showRearHitch = true;
+showFrontHitch = false;
+showRearHitch = false;
 showHitchChains = true;
 showWheels_LF = true;
 showWheels_LR = true;
@@ -65,11 +69,14 @@ showHotBox_RR = true;
 
 // set the nose to be solid or hollow
 hollowNose = false;
-hollowCab = true;
-solidNosePipes = true;
+hollowCab = false;
+solidNosePipes = true; 
 
 include <./Brookville-Shunter-Dimensions.scad>
 use <./Brookville-Shunter-Dimensions.scad>
+
+include <./Brookville-Shunter-1_25-ChassisProfile.scad>
+use <./Brookville-Shunter-1_25-ChassisProfile.scad>
 
 // building materials
 
@@ -665,6 +672,8 @@ if (showChassisFrame) union()
     
 }
 
+module drawChassis(){
+
 // draw chassis
 if(showChassis) {
     
@@ -687,6 +696,10 @@ if(showChassis) {
     }
 
 }
+
+}
+
+module drawHotBoxes(){
 
 if(showHotBoxes){
 
@@ -724,6 +737,10 @@ if(showHotBoxes){
 
 }
 
+}
+
+module drawHitches() {
+
 // draw front hitch
 if(showFrontHitch) union(){
     translate([chassisWidth/2 - hitchMountPlateWidth/2 - hitchChainTagWidth, chassisLength, 0]){
@@ -740,6 +757,8 @@ if(showRearHitch) union(){
             hitchBlock();
         }
     }
+}
+
 }
 
 // draw cab frame
@@ -780,6 +799,8 @@ if(showCabFrame) union()
 	}
 }
          
+module drawCab(){
+
 // draw cab
 if(showCab) union(){
 
@@ -1033,7 +1054,7 @@ if(showCab) union(){
             }
         }
 
-        if(modelSize != SCALE_3D_PRINT){
+        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25){
             // draw the door handle
             translate([
                 -(cabWidth - chassisWidth) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight +
@@ -1076,7 +1097,7 @@ if(showCab) union(){
             }
         }
 
-        if(modelSize != SCALE_3D_PRINT){ 
+        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25){ 
             // draw the door handle
             translate([
                 cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
@@ -1094,7 +1115,11 @@ if(showCab) union(){
 
 } // end of cab union
 
+}
+
 // draw nose
+module drawNose(){ 
+
 if(showNose) union() {
 
 	difference() {
@@ -1113,91 +1138,96 @@ if(showNose) union() {
 					}
 				}
 			}
+            
+            if(showNosePipes()){
 
-			// create air intake
-			translate([
-				(chassisWidth - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
-				noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 20
-			])
-			{
-				rotate([ 0, 0, 0 ])
-				{
-					difference()
-					{
-						color(noseAirIntakeColor) union()
-						{
-							cylinder(noseAirIntakeLength + 20, d = noseAirIntakeDiameter, center = false);
-							// air intake housing (that the air intake filter sits onto)
-							translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 20 ])
-							{
-								cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter, center = false);
-							}
-                            if(modelSize == SCALE_3D_PRINT){
-                                // support of air intake housing (that the air intake filter sits onto)
-                                translate([ 0, 0, (noseAirIntakeFilterHousingOffsetBottom + 20) - noseAirIntakeFilterHousingThickness ])
+                // create air intake
+                translate([
+                    (chassisWidth - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
+                    noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 20
+                ])
+                {
+                    rotate([ 0, 0, 0 ])
+                    {
+                        difference()
+                        {
+                            color(noseAirIntakeColor) union()
+                            {
+                                cylinder(noseAirIntakeLength + 20, d = noseAirIntakeDiameter, center = false);
+                                // air intake housing (that the air intake filter sits onto)
+                                translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 20 ])
                                 {
-                                    cylinder(noseAirIntakeFilterHousingThickness, d1=noseAirIntakeDiameter, d2 = noseAirIntakeFilterHousingDiameter, center = false);
+                                    cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter, center = false);
+                                }
+                                if(modelSize == SCALE_3D_PRINT || modelSize == SCALE_25){
+                                    // support of air intake housing (that the air intake filter sits onto)
+                                    translate([ 0, 0, (noseAirIntakeFilterHousingOffsetBottom + 20) - noseAirIntakeFilterHousingThickness ])
+                                    {
+                                        cylinder(noseAirIntakeFilterHousingThickness, d1=noseAirIntakeDiameter, d2 = noseAirIntakeFilterHousingDiameter, center = false);
+                                    }
+                                }
+
+                            }
+                            translate([ 0, 0, -1 ])
+                            {
+                                if(!solidNosePipes){
+                                    cylinder(noseAirIntakeLength + 202, d = noseAirIntakeDiameter - noseAirIntakeThickness * 2, center = false);
                                 }
                             }
+                        }
+                    }
+                }
 
-						}
-						translate([ 0, 0, -1 ])
-						{
-							if(!solidNosePipes){
-							    cylinder(noseAirIntakeLength + 202, d = noseAirIntakeDiameter - noseAirIntakeThickness * 2, center = false);
-							}
-						}
-					}
-				}
-			}
+                // create gas input
+                translate([
+                    (chassisWidth - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
+                    noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 20
+                ])
+                {
+                    rotate([ 0, 0, 0 ])
+                    {
+                        difference()
+                        {
+                            union()
+                            {
+                                color(noseFuelInputColor) cylinder(noseFuelInputLength + 20, d = noseFuelInputDiameter, center = false);
+                            }
+                            translate([ 0, 0, -1 ])
+                            {
+                                if(!solidNosePipes){
+                                    cylinder(noseFuelInputLength + 102, d = noseFuelInputDiameter - noseFuelInputThickness * 2, center = false);
+                                }
+                            }
+                        }
+                    }
+                }
 
-			// create gas input
-			translate([
-				(chassisWidth - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
-				noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 20
-			])
-			{
-				rotate([ 0, 0, 0 ])
-				{
-					difference()
-					{
-						union()
-						{
-							color(noseFuelInputColor) cylinder(noseFuelInputLength + 20, d = noseFuelInputDiameter, center = false);
-						}
-						translate([ 0, 0, -1 ])
-						{
-							if(!solidNosePipes){
-							    cylinder(noseFuelInputLength + 102, d = noseFuelInputDiameter - noseFuelInputThickness * 2, center = false);
-							}
-						}
-					}
-				}
-			}
-
-			// create exhaust
-			translate([
-				(chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
-				noseHeightCenter + chassisHeight - 20
-			])
-			{
-				rotate([ 0, 0, 0 ])
-				{
-					difference()
-					{
-						color(noseExhaustColor) union()
-						{
-							cylinder(noseExhaustLength + 20, d = noseExhaustDiameter, center = false);
-						}
-						translate([ 0, 0, -1 ])
-						{
-							if(!solidNosePipes){
-							    cylinder(noseExhaustLength + 102, d = noseExhaustDiameter - noseExhaustThickness * 2, center = false);
-							}
-						}
-					}
-				}
-			}
+                // create exhaust
+                translate([
+                    (chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
+                    noseHeightCenter + chassisHeight - 20
+                ])
+                {
+                    rotate([ 0, 0, 0 ])
+                    {
+                        difference()
+                        {
+                            color(noseExhaustColor) union()
+                            {
+                                cylinder(noseExhaustLength + 20, d = noseExhaustDiameter, center = false);
+                            }
+                            translate([ 0, 0, -1 ])
+                            {
+                                if(!solidNosePipes){
+                                    cylinder(noseExhaustLength + 102, d = noseExhaustDiameter - noseExhaustThickness * 2, center = false);
+                                }
+                            }
+                        }
+                    }
+                }
+            
+            } // end if show nose pipes
+            
 		} // end create solid nose
 
 		// hollow-out the nose
@@ -1347,6 +1377,11 @@ if(showNose) union() {
 
 } // end of draw nose union
 
+}
+
+
+module drawWheels() {
+
 // draw wheels
 union() {
 
@@ -1423,4 +1458,26 @@ union() {
         }
     }
 }
+
+}
+
+module drawBody() {
+    difference(){
+        union(){
+            drawCab();
+            drawNose();
+        }
+        if(modelSize == SCALE_25){
+            drawChassisProfile_125();
+        }
+    }
+}
+
+//drawChassisProfile_125();
+drawBody();
+drawChassis();
+drawWheels();
+drawHotBoxes();
+drawHitches();
+
 
