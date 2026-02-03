@@ -1,54 +1,93 @@
-# XTR-Street 2 LED Mount
+# BladeZ Projects
 
-## Description
+## Overview
 
-This OpenSCAD project provides a custom mount for rear-facing LED lights on the Blade-Z XTR Street II e-scooter. The mount offsets the light from the chassis, straightens the alignment, and reuses existing holes for the wheel guard while requiring an additional hole for secure mounting.
+This folder contains 3D printable OpenSCAD designs for BladeZ electric scooters, specifically for the XTR-Street2 model.
 
-## Features
+### Projects
 
-- Customizable for left or right side mounting
-- Option to print parts separately or together to reduce supports
-- Includes preview of the LED lamp for alignment purposes
-- Reuses existing M6 holes from the wheel guard
-- Requires one additional M6 hole for bottom securing
+- [Rear Side Lamp Mount](#rear-side-lamp-mount)
+- [Motor Brush Cap Removal Tool](#motor-brush-cap-removal-tool)
+
+## Rear Side Lamp Mount
+
+![BladeZ Rear Side Lamp Mount](Renders/bladez-rear-side-lamp-mount.png)
+
+### Description
+
+Custom mount for rear-facing LED lights on the Blade-Z XTR Street II e-scooter. Offsets the light from the chassis, straightens alignment, reuses existing wheel guard holes, and requires one additional M6 hole.
+
+### Features
+
+- Left or right side mounting
+- Print parts separately or together (reduces supports)
+- LED lamp preview for alignment
+- Reuses M6 wheel guard holes
+- One additional M6 securing hole
+
+### Usage
+
+1. Open [`bladez-rear-side-lamp-mount.scad`](bladez-rear-side-lamp-mount.scad) in OpenSCAD.
+2. Set `left_or_right` to `"left"` or `"right"`.
+3. Adjust `show_*` variables:
+   - `show_mount_plate = 1;`
+   - `show_shaft_support = 1;`
+   - `show_lamp = 1;`
+   - `show_shaft_joiner = 0;`
+4. Render (F6), export STL.
+5. Print and assemble (glue with joiner if separate).
+
+### Dimensions
+
+- Width: 106mm
+- Height: 60mm
+- Thickness: 35mm
+- Holes: M6 (6mm), spacing 87mm (top holes)
+
+### Renders & Prints
+
+- [`bladez-rear-side-lamp-mount.stl`](Renders/bladez-rear-side-lamp-mount.stl)
+- Left plate: [`bladez-rear-side-lamp-mount-plate-left.stl`](Renders/bladez-rear-side-lamp-mount-plate-left.stl)
+- Right plate: [`bladez-rear-side-lamp-mount-plate-right.stl`](Renders/bladez-rear-side-lamp-mount-plate-right.stl)
+- Shaft joiner: [`bladez-rear-side-lamp-mount-shaft-joiner.stl`](Renders/bladez-rear-side-lamp-mount-shaft-joiner.stl)
+- Support shaft: [`bladez-rear-side-lamp-mount-support-shaft.stl`](Renders/bladez-rear-side-lamp-mount-support-shaft.stl)
+
+## Motor Brush Cap Removal Tool
+
+![Photo 1](Photos/20260201_184144.jpg)
+![Photo 2](Photos/20260201_184336.jpg)
+
+### Description
+
+Specialized tool to safely remove motor brush caps on BladeZ scooters for maintenance access without damage.
+
+### Usage
+
+1. Open [`motor-brush-cap-remover.scad`](motor-brush-cap-remover.scad) in OpenSCAD.
+2. Render (F6), export [`motor-brush-cap-remover.stl`](Renders/motor-brush-cap-remover.stl).
+3. 3D print the tool.
+
+### Demo
+
+[Motor Brush Removal Tool Demo](Photos/BladeZ%20Motor%20Brush%20Removal%20Tool_crushed_85pc.mp4)
 
 ## Requirements
 
-- OpenSCAD (version 2021.01 or later recommended)
-- 3D printer capable of printing the generated STL files
-
-## Usage
-
-1. Open `bladez-rear-side-lamp-mount.scad` in OpenSCAD.
-2. Set the `left_or_right` variable to `"left"` or `"right"` as needed for your scooter side.
-3. Adjust the `show_*` variables to display desired parts:
-   - `show_mount_plate = 1;` - Show the main mount plate
-   - `show_shaft_support = 1;` - Show the shaft support
-   - `show_lamp = 1;` - Show the LED lamp preview
-   - `show_shaft_joiner = 0;` - Show the joiner sleeve for separate printing
-4. Render the model (F6) and export as STL.
-5. Print the STL(s) and assemble if printed separately (glue the parts together using the joiner sleeve).
-
-## Dimensions
-
-- Overall width: 106mm
-- Overall height: 60mm
-- Overall thickness: 35mm
-- Hole diameter: 6mm (M6 bolts)
-- Hole spacing: 87mm (between top holes)
+- OpenSCAD (2021.01+ recommended)
+- 3D printer
 
 ## Customization
 
-The scad file includes many customizable parameters at the top, such as dimensions, hole sizes, and bevel amounts. Modify these as needed for your specific LED light or scooter model.
+Both SCAD files have parameters at the top for adjustments.
 
 ## Author
 
-Anthony Gallon
+Anthony Gallon, Owner/Licensor: AntzCode Ltd <https://www.antzcode.com>, Contact: https://github.com/AntzCode
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](../../LICENSE) file for details.
+[GNU General Public License v3.0](LICENSE/../../LICENSE)
 
-## Links
+## Repository
 
-- [GitHub Repository](https://github.com/AntzCode/OpenSCAD-Projects)
+[GitHub](https://github.com/AntzCode/OpenSCAD-Projects)
