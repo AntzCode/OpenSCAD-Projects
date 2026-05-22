@@ -1,0 +1,278 @@
+Computed Measurements for Brookville Shunter Model
+
+Scale Factor 1:8.4
+
+Overall Height
+562.381
+
+Overall Width
+268.81
+
+Overall Length
+484.524
+
+Chassis Width
+190.476
+
+Chassis Length
+339.286
+
+Chassis Height
+55.9524
+
+Chassis Clearance
+225
+
+Chassis Steel Thickness
+8
+
+Chassis Wheel Hole Height
+17.8571
+
+Chassis Wheel Hole Width
+45.2381
+
+Rear Wheel Hole Offset Back
+897.381
+
+Front Wheel Hole Offset Back
+-523.333
+
+Hitch Overall Length
+72.619
+
+Hitch Block Length
+34.5238
+
+Hitch Block Width
+34.5238
+
+Hitch Block Height
+30.9524
+
+Hitch Point Length
+35.7143
+
+Hitch Point Thin Diameter
+14.2857
+
+Hitch Point Wide Diameter
+33.3333
+
+Hitch Block Mount Plate Thickness
+2.38095
+
+Hitch Block Mount Plate Width
+85.7143
+
+Hitch Block Mount Plate Height
+54.7619
+
+Cab Width
+264.286
+
+Cab Length
+205.952
+
+Cab Height Centre
+271.429
+
+Cab Height Sides
+247.619
+
+Cab Steel Thickness
+3
+
+Cab Door Width
+54.7619
+
+Cab Door Height
+214.286
+
+Cab Door Offset Back
+14.2857
+
+Cab Door Offset Bottom
+27.381
+
+Cab Door Window Width
+38.0952
+
+Cab Door Window Height
+85.7143
+
+Cab Door Window Offset Bottom
+145.238
+
+Cab Door Window Corner Radius
+8.33333
+
+Cab Side Window Width
+116.667
+
+Cab Side Window Height
+85.7143
+
+Cab Side Window Offset Bottom
+145.238
+
+Cab Side Window Offset Front
+7.14286
+
+Cab Side Window Corner Radius
+8.33333
+
+Cab Front-Side Window Width
+59.5238
+
+Cab Front-Side Window Height Short Edge
+64.2857
+
+Cab Front-Side Window Height Long Edge
+72.619
+
+Cab Front-Side Window Offset Side
+14.2857
+
+Cab Front-Side Window Offset Bottom
+188.095
+
+Cab Front-Side Window Corner Radius
+8.33333
+
+Cab Front-Centre Window Width
+51.1905
+
+Cab Front-Centre Window Height
+51.1905
+
+Cab Front-Centre Window Offset Bottom
+178.571
+
+Cab Front-Centre Window Corner Radius
+8.33333
+
+Nose Width
+142.857
+
+Nose Length
+129.762
+
+Nose Height Center
+127.381
+
+Nose Height Sides
+114.286
+
+Nose Steel Thickness
+3
+
+Nose Door Width
+64.2857
+
+Nose Door Height
+86.9048
+
+Nose Door Window Width
+35.7143
+
+Nose Door Window Height
+35.7143
+
+Nose Door Window Offset Bottom
+23.8095
+
+Nose Air Intake Offset Front
+17.8571
+
+Nose Air Intake Offset Right
+52.381
+
+Nose Air Intake External Diameter
+9.52381
+
+Nose Air Intake Internal Diameter
+8.80952
+
+Nose Air Intake Thickness
+0.357143
+
+Nose Air Intake Length
+11.9048
+
+Nose Air Intake Filter Housing Diameter
+19.6429
+
+Nose Air Intake Filter Housing Thickness
+2.38095
+
+Nose Air Intake Filter Housing Offset Bottom
+7.14286
+
+Nose Fuel Input Offset Front
+19.0476
+
+Nose Fuel Input Offset Right
+22.619
+
+Nose Fuel Input External Diameter
+8.33333
+
+Nose Fuel Input Internal Diameter
+7.61905
+
+Nose Fuel Input Thickness
+0.357143
+
+Nose Fuel Input Length
+0
+
+Nose Exhaust Offset Back
+10.7143
+
+Nose Exhaust Offset Left
+42.2619
+
+Nose Exhaust External Diameter
+7.7381
+
+Nose Exhaust Internal Diameter
+7.02381
+
+Nose Exhaust Thickness
+0.357143
+
+Nose Exhaust Length
+5.95238
+
+Wheel Diameter
+450
+
+Wheel Width
+50
+
+Wheel Flange Height
+5
+
+Wheel Flange Width
+12
+
+Wheel Overall Width
+62
+
+Wheel Overall Diameter
+460
+
+Axle Diameter
+85
+
+Rear Axle Offset (from chassis rear edge)
+920
+
+Front Axle Offset (from chassis rear edge)
+-500.714
+
+Wheelbase (center to center)
+-1420.71
+
+

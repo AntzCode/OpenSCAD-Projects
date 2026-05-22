@@ -26,17 +26,21 @@ SCALE_FULL = "";
 SCALE_7_INCH = 0;
 SCALE_3D_PRINT = 1;
 SCALE_25 = 2;
+SCALE_5_INCH = 3;
 
 // choose a scale size
+
+// 1:8.4 (5 inch gauge mini rail)
+modelSize = SCALE_5_INCH;
 
 // 1:4.5 (7.25 inch gauge mini rail)
 // modelSize = SCALE_7_INCH;
 
 // 1:50 (3D print small shelf model)
-modelSize = SCALE_3D_PRINT;
+// modelSize = SCALE_3D_PRINT;
 
 // 1:25 (3d print for wind-up train)
-//modelSize = SCALE_25;
+// modelSize = SCALE_25;
 
 // 1:1 (real-life full size model)
 // modelSize = SCALE_FULL;
@@ -44,8 +48,8 @@ modelSize = SCALE_3D_PRINT;
 // prints calculated sizes to the console
 showReportSizes = true;
 
-showCab = false;
-showNose = false;
+showCab = true;
+showNose = true;
 showChassis = true;
 showWheels = true;
 showAxles = false;
@@ -56,7 +60,7 @@ showNoseFrame = false;
 showChassisFrame = false;
 showFrontHitch = false;
 showRearHitch = false;
-showHitchChains = true;
+showHitchChains = false;
 showWheels_LF = true;
 showWheels_LR = true;
 showWheels_RF = true;
