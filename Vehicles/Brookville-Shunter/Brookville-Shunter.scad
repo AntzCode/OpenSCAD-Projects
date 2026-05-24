@@ -80,6 +80,8 @@ showWheels = true;
 showAxles = true;
 showAxleBearings = true;
 showBearingCapPlate = true;
+showBearingCapBolts = true;
+showBearingCapBoltHoles = true;
 showJournalAssemblies = true;
 showPedestals = true;
 showPedestalBoltHoles = true;
@@ -825,30 +827,54 @@ module journalAssembly(){
                             cylinder(bearingCapPlateThickness(), d=bearingCapPlateDiameter(), center=false);
                         }
 
+                        if(showBearingCapBolts){
+
+                            // draw the bolts
+                            color(bearingCapBoltColor)
+                            translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                            for(i=[0:60:360]){
+                                rotate(i, [0, 0, 1]){
+                                    translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
+                                        // draw a bolt head
+                                        translate([
+                                            0, 
+                                            0,
+                                            -(bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                        ]){
+                                            cylinder(d=bearingCapBoltSize(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness(), $fn=6, center=false);
+                                        }
+
+                                        // draw a washer under the bolt head
+                                        translate([
+                                            0, 
+                                            0,
+                                            -(bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                        ]){
+                                            cylinder(d=bearingCapBoltWasherDiameter(), h=bearingCapBoltWasherThickness(), center=false);
+                                        }
+
+                                        // draw a bolt
+                                        translate([
+                                            0, 
+                                            0,
+                                            -(bearingCapPlateThickness())
+                                        ]){
+                                            cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
+                                        }
+                                    }
+                                }
+                            } // end for
+
+                        }
+                    }
+
+                    if(showBearingCapBoltHoles) {
                         // draw the bolts
                         color(bearingCapBoltColor)
                         translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
                         for(i=[0:60:360]){
                             rotate(i, [0, 0, 1]){
                                 translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
-                                    // draw a bolt head
-                                    translate([
-                                        0, 
-                                        0,
-                                        -(bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness())
-                                    ]){
-                                        cylinder(d=bearingCapBoltSize(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness(), $fn=6, center=false);
-                                    }
-
-                                    // draw a washer under the bolt head
-                                    translate([
-                                        0, 
-                                        0,
-                                        -(bearingCapBoltWasherThickness() + bearingCapPlateThickness())
-                                    ]){
-                                        cylinder(d=bearingCapBoltWasherDiameter(), h=bearingCapBoltWasherThickness(), center=false);
-                                    }
-
                                     // draw a bolt
                                     translate([
                                         0, 
@@ -860,12 +886,14 @@ module journalAssembly(){
                                 }
                             }
                         } // end for
+
                     }
+
                 }
             }
         }
-        
     }
+    
 }
 
 
@@ -1246,7 +1274,7 @@ if(showCab) union(){
         {
             rotate([ 90, 0, 90 ])
             {
-                cuboid([ doorWidth, doorHeight, cabSteelThickness() ], center = false);
+                cuboid([ doorWidth, doorHeight, cabSteelThickness() * 2 ], center = false);
             }
         }
 

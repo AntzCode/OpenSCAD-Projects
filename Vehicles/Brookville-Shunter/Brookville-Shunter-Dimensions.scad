@@ -49,7 +49,7 @@ noseDoorHeight = 730 / scale();
 noseDoorWidth = 540 / scale();
 noseDoorOffsetFront = 5 / scale();
 noseDoorFrameWidth = 40 / scale();
-noseDoorColor = "Gold";
+noseDoorColor = "#fff239";
 
 noseDoorWindowWidth = 300 / scale();
 noseDoorWindowHeight = 300 / scale();
@@ -131,7 +131,7 @@ doorWidth = 460 / scale();
 doorHeight = 1800 / scale();
 doorOffsetBack = 120 / scale();
 doorOffsetBottom = 230 / scale();
-doorColor = "Gold";
+doorColor = "#fff239";
 
 doorWindowWidth = 320 / scale();
 doorWindowHeight = 720 / scale();
@@ -162,11 +162,11 @@ hitchBlockColor = "DarkSlateGray";
 hitchBlockWidth = 290 / scale();
 hitchBlockHeight = 260 / scale();
 hitchBlockLength = 290 / scale();
-hitchBlockCornerRadius = 5 / scale();
+hitchBlockCornerRadius = (modelSize == SCALE_FULL) ? 5 / scale() : 0;
 hitchMountPlateWidth = 720 / scale();
 hitchMountPlateThickness = 20 / scale();
 hitchMountPlateHeight = 460 / scale();
-hitchMountPlateCornerRadius = 2 / scale();
+hitchMountPlateCornerRadius = (modelSize == SCALE_FULL) ? 2 / scale() : 0;
 hitchPointDiameterBig = 280 / scale();
 hitchPointDiameterSmall = 120 / scale();
 hitchPointLength = 300 / scale();
@@ -184,7 +184,7 @@ hitchChainHookThickness = 45 / scale();
 hitchNotchWidth = 80 / scale();
 hitchNotchLength = 260 / scale();
 hitchNotchDepth = 140 / scale();
-hitchNotchCornerRadius = 30 / scale();
+hitchNotchCornerRadius = (modelSize == SCALE_FULL) ? 30 / scale() : 0;
 
 // wheel holes
 wheelHoleWidth = 380 / scale();
@@ -222,7 +222,7 @@ journalBlockBearingCapBoltHoleDiameterOrig = 19;
 journalBlockBearingCapBoltHoleDepthOrig = 165;
 
 // SUSPENSION SPRING
-journalBlockSuspensionSpringColor = "#ff3300";
+journalBlockSuspensionSpringColor = "#8c9497";
 journalBlockSuspensionTravelDistanceOrig = 40;
 journalBlockSuspensionSpringHoleDiameterOrig = 80;
 journalBlockSuspensionSpringHoleDepthOrig = 160;
@@ -240,7 +240,7 @@ journalBlockBearingOuterThicknessOrig = 20;
 // BEARING CAP
 bearingCapColor = "#475458";
 bearingCapCenterColor = "#597175";
-bearingCapBoltColor = "#e8eaeb";
+bearingCapBoltColor = "#6e797e";
 bearingCapBoltDiameterOrig = 22;
 bearingCapBoltLengthOrig = 140;
 bearingCapBoltOffsetOuterEdgeOrig = 32;
