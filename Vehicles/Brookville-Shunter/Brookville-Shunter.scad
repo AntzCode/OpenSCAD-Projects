@@ -11,8 +11,13 @@ use <./libraries/BOSL/shapes.scad>
 
 include <./libraries/Round-Anything/polyround.scad>
 
+include <./libraries/pschatzmann-spring/pschatzmann-spring.scad>
+
 // number of facets used to generate an arc
-$fn = 120;
+$fn = $preview ? 20 : 120;
+$fa = 12; // Minimum angle for a fragment
+$fs = 2;  // Minimum size of a fragment (in mm)
+
 
 // asterisk hides it
 // this is used to compare the model to a known size (eg: 300mm)
@@ -27,14 +32,31 @@ SCALE_7_INCH = 0;
 SCALE_3D_PRINT = 1;
 SCALE_25 = 2;
 SCALE_5_INCH = 3;
+PRINT_MODE_NO_TOLERANCE = 0;
+PRINT_MODE_PRINTING_PLA_TOLERANCE = 1;
+PRINT_MODE_MILLING_MS_TOLERANCE = 2;
 
-// choose a scale size
+/** 
+* Choose a print mode (affects tolerances)
+*/
+// no changes - accurate measurements
+// printMode = PRINT_MODE_NO_TOLERANCE;
+
+// adjust with loose tolerances for PLA printing
+printMode = PRINT_MODE_PRINTING_PLA_TOLERANCE;
+
+// adjust with tight tolerances for CNC machining
+// printMode = PRINT_MODE_MILLING_MS_TOLERANCE;
+
+/**
+* Choose a scale size
+*/
 
 // 1:8.4 (5 inch gauge mini rail)
-modelSize = SCALE_5_INCH;
+// modelSize = SCALE_5_INCH;
 
 // 1:4.5 (7.25 inch gauge mini rail)
-// modelSize = SCALE_7_INCH;
+modelSize = SCALE_7_INCH;
 
 // 1:50 (3D print small shelf model)
 // modelSize = SCALE_3D_PRINT;
@@ -48,33 +70,45 @@ modelSize = SCALE_5_INCH;
 // prints calculated sizes to the console
 showReportSizes = true;
 
+/**
+* Visibility of parts
+*/
 showCab = true;
 showNose = true;
 showChassis = true;
 showWheels = true;
-showAxles = false;
-showHotBoxes = true;
-attachAxlesToHotBox = true;
+showAxles = true;
+showAxleBearings = true;
+showBearingCapPlate = true;
+showJournalAssemblies = true;
+showPedestals = true;
+showPedestalBoltHoles = true;
+showPedestalMountBrackets = true;
+showPedestalMountBracketBoltHoles = true;
+showJournalBlocks = true;
+showJournalBlockBoltHoles = true;
+showSuspensionSprings = true;
+attachAxlesToJournalBlock = true;
 showCabFrame = false;
 showNoseFrame = false;
 showChassisFrame = false;
-showFrontHitch = false;
-showRearHitch = false;
-showHitchChains = false;
+showFrontHitch = true;
+showRearHitch = true;
+showHitchChains = true;
 showWheels_LF = true;
 showWheels_LR = true;
 showWheels_RF = true;
 showWheels_RR = true;
-showHotBox_LF = true;
-showHotBox_LR = true;
-showHotBox_RF = true;
-showHotBox_RR = true;
+showJournalAssembly_LF = true;
+showJournalAssembly_LR = true;
+showJournalAssembly_RF = true;
+showJournalAssembly_RR = true;
 
 
 // set the nose to be solid or hollow
-hollowNose = false;
-hollowCab = false;
-solidNosePipes = true; 
+hollowNose = true;
+hollowCab = true;
+solidNosePipes = false; 
 
 include <./Brookville-Shunter-Dimensions.scad>
 use <./Brookville-Shunter-Dimensions.scad>
@@ -296,15 +330,18 @@ module flangedWheel(diameter, flangeHeight, flangeWidth, centerHoleDiameter)
 {
     difference(){
         union(){
-            color(wheelFlangeColor) cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
+            color(wheelFlangeColor)
+            cylinder(flangeWidth, d = diameter + flangeHeight * 2, center = false)
             {
             }
             translate([ 0, 0, flangeWidth ])
             {
-                color(wheelColor) cylinder(wheelWidth() - flangeWidth, d = diameter, center = false);
+                color(wheelColor)
+                cylinder(wheelWidth() - flangeWidth, d = diameter, center = false);
             }
         }
-        color(wheelColor) cylinder(wheelWidth(), d = centerHoleDiameter, center = false);
+        color(wheelColor)
+        cylinder(wheelWidth(), d = centerHoleDiameter, center = false);
     }
 }
 
@@ -582,58 +619,252 @@ module klam_fillet_cylinder(
     }
 }
 
-module bearingHousing(){
-    difference(){
-        
-        color(hitchBlockColor) translate([-0, 0, 0]){
-            rotate([90,0,90]){
-                cuboid([bearingHousingBlockWidth, bearingHousingBlockHeight, bearingHousingBlockThickness],  center=false, fillet=bearingHousingCornerRadius, edges=EDGES_ALL);
-                translate([((bearingHousingBlockWidth-bearingHousingDiameter)/2 + bearingHousingDiameter/2), ((bearingHousingBlockHeight-bearingHousingDiameter)/2 + bearingHousingDiameter/2), -bearingHousingProtrusion+bearingHousingCornerRadius]){
-                    hull(){
-                        color("red") cylinder(bearingHousingBlockThickness + bearingHousingProtrusion - bearingHousingCornerRadius, d=bearingHousingDiameter, center=false);
-                        color("green") translate([0, 0, bearingHousingCornerRadius]){
-                            
-                            rotate([0, 0, 0]){
-                                rotate_extrude(angle=360) translate([bearingHousingDiameter/2 - bearingHousingCornerRadius, -bearingHousingCornerRadius, 0]) circle(r=bearingHousingCornerRadius);
-                            }
-                            
-                        }
-                    }
-                }
-                translate([(bearingHousingPlateDiameter/2) + (bearingHousingBlockWidth-bearingHousingPlateDiameter)/2, (bearingHousingPlateDiameter/2)+(bearingHousingBlockHeight-bearingHousingPlateDiameter)/2, -bearingHousingPlateThickness]){
-                    // cuboid([bearingHousingPlateDiameter, bearingHousingPlateDiameter, bearingHousingPlateThickness], center=false, fillet=bearingHousingCornerRadius, edges=EDGES_ALL);
-                    cylinder(bearingHousingPlateThickness, d=bearingHousingPlateDiameter, center=false);
-                }
+module journalAssembly(){
 
-                // draw the bolts
-                translate([bearingHousingBlockWidth/2, bearingHousingBlockHeight/2, 0]){
-                for(i=[0:60:360]){
-                    rotate(i, [0, 0, 1]){
-                        translate([-((bearingHousingPlateDiameter-bearingHousingDiameter)-bearingHousingBoltSize/2), 0, 0]){
-                            // draw a bolt
-                            translate([
-                                0, 
-                                0,
-                                -(bearingHousingBoltProtrusion + bearingHousingPlateThickness)
-                            ]){
-                                cylinder(r=bearingHousingBoltSize, h=bearingHousingBoltProtrusion, $fn=6, center=false);
-                            }
-                        }
-                    }
-                }// end for
+    // PEDESTAL
+    if(showPedestals) {
+        color(pedestalColor) 
+        translate([0, 0, 0]) translate([0, -((pedestalWidth() - journalBlockWidth())/2), -pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight]) {
+            difference() {
+                // create the block that will be milled into the pedestal bracket
+                cuboid([pedestalThickness(), pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()],  center=false, edges=EDGES_ALL);
+
+                // create the block that is subtracted for the journal block
+                translate([0, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) cuboid([ pedestalThickness(), journalBlockWidth() + tolerance(), journalBlockHeight() + journalBlockSuspensionTravelDistance()],  center=false); 
+                
+                // round-off the bottom-left corner
+                translate([pedestalThickness()/2, pedestalWidth() - pedestalCornerRadius(), pedestalCornerRadius()]) 
+                rotate([90, 0, 0]) difference() {
+                    color("blue")
+                    cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
+                    color("green")
+                    translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
+                    translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
+                    translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
                 }
                 
+                // round-off the bottom-right corner
+                translate([pedestalThickness()/2, pedestalCornerRadius(), pedestalCornerRadius()]) 
+                difference() {
+                    // color("blue")
+                    cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
+                    // color("green")
+                    translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
+                    translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
+                    translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
+                }
+
+                // bolt holes for attaching to chassis mount
+                if(showPedestalBoltHoles) {
+                    // Bolt Hole Left
+                    translate([pedestalThickness() / 2, (pedestalWidth() - journalBlockWidth())/2/2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+                    
+                    // Bolt Hole Right
+                    translate([pedestalThickness() / 2, pedestalWidth() - (pedestalWidth() - journalBlockWidth())/2/2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+                }
+
             }
+
+            // SLIDE RAILS FOR SUSPENSION
+
+            // Channel left
+            translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) 
+            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], center=false, edges=EDGES_ALL);
+            
+            // Channel right
+            translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2 - tolerance()/2 + journalBlockChannelHeight()), pedestalHeight() - journalBlockHeight()]) 
+            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], center=false, edges=EDGES_ALL);
         }
-        
-        if(!attachAxlesToHotBox){
-            // drill a hole for the axle in the wheel bearing
-            translate([0, bearingHousingBlockWidth/2, bearingHousingBlockHeight/2]){
-                rotate([0, 90, 0]){
-                    cylinder(bearingHousingBlockThickness + 1, d=axleDiameter() + wheelBearingGap*2);
+    }
+
+    difference(){ 
+
+        // JOURNAL BLOCK
+        translate([0, 0, (-pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight) + (pedestalHeight()-journalBlockHeight())]){
+            rotate([90,0,90]){
+
+                if(showJournalBlocks) {
+
+                    color(journalBlockColor) 
+                    difference() {
+                        // start with a cube
+                        cuboid([journalBlockWidth(), journalBlockHeight(), journalBlockThickness()],  center=false, edges=EDGES_ALL);
+                        
+                        // Carve out space for the roller bearing                    
+                        color("red")
+                        translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                        cylinder(journalBlockBearingHeight() + tolerance(), d=journalBlockBearingOuterDiameter() + tolerance(),  center=false);
+
+                        // hole for the axle to go through
+                        translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                        cylinder(journalBlockThickness(), d=journalBlockBearingInnerDiameter(), center=false);
+
+                        // Suspension guide rail - channel left
+                        translate([journalBlockWidth() - journalBlockChannelHeight(), 0, journalBlockThickness()/2 - journalBlockChannelWidth()/2 - tolerance()/2]) 
+                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], center=false);
+                        
+                        // Suspension guide rail - channel right
+                        translate([0, 0, journalBlockThickness()/2 - journalBlockChannelWidth()/2 - tolerance()/2]) 
+                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], center=false);
+
+                        // spring hole left
+                        translate([
+                            journalBlockWidth() - journalBlockSuspensionSpringHoleDiameter()/2 - journalBlockChannelHeight() - journalBlockSuspensionSpringHoleOffset(), 
+                            journalBlockHeight() + 0.0001, 
+                            journalBlockThickness() / 2
+                        ]) 
+                        rotate([90, 0, 0]) 
+                        cylinder(journalBlockSuspensionSpringHoleDepth(), d=journalBlockSuspensionSpringHoleDiameter() + tolerance(), center=false);
+
+                        // spring hole right
+                        translate([
+                            journalBlockSuspensionSpringHoleDiameter()/2 + journalBlockChannelHeight() + journalBlockSuspensionSpringHoleOffset(), 
+                            journalBlockHeight() + 0.0001, 
+                            journalBlockThickness() / 2
+                        ]) 
+                        rotate([90, 0, 0]) 
+                        cylinder(journalBlockSuspensionSpringHoleDepth(), d=journalBlockSuspensionSpringHoleDiameter() + tolerance(), center=false);
+
+                        // BOLT HOLES FOR BEARING CAP
+                        if(showJournalBlockBoltHoles) {
+
+                            // drill the holes (will be tapped for the bearing cap bolts to screw into)
+                            color(bearingCapBoltColor)
+                            translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                            for(i=[0:60:360]){
+                                rotate(i, [0, 0, 1]){
+                                    translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
+                                        
+                                        // draw a bolt hole
+                                        translate([
+                                            0, 
+                                            0,
+                                            -(bearingCapPlateThickness())
+                                        ]){
+                                            cylinder(d=journalBlockBearingCapBoltHoleDiameter(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness() + journalBlockThickness(), center=false);
+                                        }
+                                    }
+                                }
+                            } // end for
+                        }
+                    }
+                }
+
+                // WHEEL BEARING
+                if(showAxleBearings) {
+                    // Draw a bearing
+                    translate([journalBlockWidth()/2, journalBlockHeight()/2, 0]) union(){
+                        // outer ring
+                        color(journalBlockBearingRingColor)
+                        difference(){
+                            cylinder(journalBlockBearingHeight(), d=journalBlockBearingOuterDiameter());
+                            cylinder(journalBlockBearingHeight(), d=(journalBlockBearingOuterDiameter() - journalBlockBearingOuterThickness()*2));
+                        }
+
+                        // seal
+                        color(journalBlockBearingSealColor)
+                        difference(){
+                            cylinder(journalBlockBearingHeight(), d=(journalBlockBearingOuterDiameter() - journalBlockBearingOuterThickness()*2));
+                            cylinder(journalBlockBearingHeight(), d=(journalBlockBearingInnerDiameter() + journalBlockBearingInnerThickness()*2));
+                        }
+
+                        // inner ring
+                        color(journalBlockBearingRingColor)
+                        difference(){
+                            cylinder(journalBlockBearingHeight(), d=(journalBlockBearingInnerDiameter() + journalBlockBearingInnerThickness()*2));
+                            cylinder(journalBlockBearingHeight(), d=journalBlockBearingInnerDiameter(), center=false);
+                        }
+                    }
+                }
+
+                // SUSPENSION SPRINGS
+                if(showSuspensionSprings) {
+                    // spring left
+                    color(journalBlockSuspensionSpringColor)
+                    translate([
+                        journalBlockWidth() - journalBlockSuspensionSpringHoleDiameter()/2 - journalBlockChannelHeight() - journalBlockSuspensionSpringHoleOffset(), 
+                        (journalBlockHeight()) + journalBlockSuspensionTravelDistance() - (journalBlockSuspensionSpringWireDiameter()/2), 
+                        journalBlockThickness() / 2
+                    ]) 
+                    rotate([90, 0, 0]) 
+                    spring3D(d=journalBlockSuspensionSpringHoleDiameter() - journalBlockSuspensionSpringWireDiameter(), height=journalBlockSuspensionSpringHoleDepth(), windings=journalBlockSuspensionSpringHoleDepth()/journalBlockSuspensionSpringWindingsRate(), flatStart=true, flatEnd=true, wireDiameter=journalBlockSuspensionSpringWireDiameter(), fn=12);
+
+                    // spring right
+                    color(journalBlockSuspensionSpringColor)
+                    translate([
+                        journalBlockSuspensionSpringHoleDiameter()/2 + journalBlockChannelHeight() + journalBlockSuspensionSpringHoleOffset(), 
+                        (journalBlockHeight()) + journalBlockSuspensionTravelDistance() - (journalBlockSuspensionSpringWireDiameter()/2), 
+                        journalBlockThickness() / 2
+                    ]) 
+                    rotate([90, 0, 0]) 
+                    spring3D(d=journalBlockSuspensionSpringHoleDiameter() - journalBlockSuspensionSpringWireDiameter(), height=journalBlockSuspensionSpringHoleDepth(), windings=journalBlockSuspensionSpringHoleDepth()/journalBlockSuspensionSpringWindingsRate(), flatStart=true, flatEnd=true, wireDiameter=journalBlockSuspensionSpringWireDiameter(), fn=12);
+                }
+
+
+                // BEARING CAPS
+                if(showBearingCapPlate) {
+
+                    translate([0, 0, 0])
+                    union() {
+                        color(bearingCapCenterColor)
+                        translate([journalBlockWidth()/2, journalBlockHeight()/2, -(bearingCapProtrusion())]){
+                            hull(){
+                                cylinder(bearingCapProtrusion(), d=bearingCapDiameter(), center=false);
+                                translate([0, 0, 0]){
+                                    rotate([0, 0, 0]){
+                                        rotate_extrude(angle=360) translate([bearingCapDiameter()/2 - bearingCapCornerRadius(), -bearingCapCornerRadius(), 0]) circle(r=bearingCapCornerRadius());
+                                    }
+                                }
+                            }
+                        }
+
+                        color(bearingCapColor)
+                        translate([journalBlockWidth()/2, journalBlockHeight()/2, -bearingCapPlateThickness()]){
+                            cylinder(bearingCapPlateThickness(), d=bearingCapPlateDiameter(), center=false);
+                        }
+
+                        // draw the bolts
+                        color(bearingCapBoltColor)
+                        translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                        for(i=[0:60:360]){
+                            rotate(i, [0, 0, 1]){
+                                translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
+                                    // draw a bolt head
+                                    translate([
+                                        0, 
+                                        0,
+                                        -(bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                    ]){
+                                        cylinder(d=bearingCapBoltSize(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness(), $fn=6, center=false);
+                                    }
+
+                                    // draw a washer under the bolt head
+                                    translate([
+                                        0, 
+                                        0,
+                                        -(bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                    ]){
+                                        cylinder(d=bearingCapBoltWasherDiameter(), h=bearingCapBoltWasherThickness(), center=false);
+                                    }
+
+                                    // draw a bolt
+                                    translate([
+                                        0, 
+                                        0,
+                                        -(bearingCapPlateThickness())
+                                    ]){
+                                        cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
+                                    }
+                                }
+                            }
+                        } // end for
+                    }
                 }
             }
         }
+        
     }
 }
 
@@ -676,6 +907,23 @@ if (showChassisFrame) union()
     
 }
 
+module angleIron(width, height, thickness, length) {
+    // Define the 2D cross-section points of the angle
+    angle_profile = [
+        [0, 0],
+        [width, 0],
+        [width, thickness],
+        [thickness, thickness],
+        [thickness, height],
+        [0, height]
+    ];
+
+    // Extrude the 2D profile into a 3D object
+    linear_extrude(height = length) {
+        polygon(angle_profile);
+    }
+}
+
 module drawChassis(){
 
 // draw chassis
@@ -697,44 +945,130 @@ if(showChassis) {
             cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
         }
 
+        // hollow-out the chassis
+        color("lightblue") 
+        translate([chassisSteelThickness(), chassisSteelThickness(), 0]) cuboid([ chassisWidth - chassisSteelThickness()* 2, chassisLength - chassisSteelThickness() * 2, chassisHeight - chassisSteelThickness()], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL);
+
+    }
+
+    if(showPedestalMountBrackets){
+
+        // draw pedestal mount bracket (left side)
+        color(pedestalMountBracketColor)
+        translate([0, 0, 0])
+        rotate([0, 0, 0])
+        drawPedestalMountBracket();
+
+        // draw pedestal mount bracket (right side)
+        color(pedestalMountBracketColor)
+        translate([chassisWidth - chassisSteelThickness(), 0, 0])
+        rotate([0, 0, 0])
+        mirror([1, 0, 0]) 
+        drawPedestalMountBracket();
+
     }
 
 }
 
 }
 
-module drawHotBoxes(){
+module drawPedestalMountBracket(){
 
-if(showHotBoxes){
+    translate([0, chassisLength-(chassisLength - pedestalMountBracketLength()) / 2, wheelHoleHeight]) 
+    rotate([90, 0, 0]) 
+    difference () {
+        angleIron(pedestalMountBracketWidth(), pedestalMountBracketHeight() * 2, pedestalMountBracketThickness(), pedestalMountBracketLength());
+        
+        if(showPedestalMountBracketBoltHoles) {
+            // draw rear-wheel-rear-leg slot
+            color("red")
+            translate([0, 0, 0])
+            drawPedestalMountBracketBoltHoleSlot();
 
-    if(showHotBox_LF){
+            // draw rear-wheel-front-leg slot
+            color("red")
+            translate([0, 0, -(pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2))])
+            drawPedestalMountBracketBoltHoleSlot();
+
+            // draw front-wheel-rear-leg slot
+            color("red")
+            translate([0, 0, -(frontWheelHoleOffsetBack - rearWheelHoleOffsetBack)])
+            drawPedestalMountBracketBoltHoleSlot();
+
+
+            // draw front-wheel-front-leg slot
+            color("red")
+            translate([0, 0, -(frontWheelHoleOffsetBack - rearWheelHoleOffsetBack) -(pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2))])
+            drawPedestalMountBracketBoltHoleSlot();
+        }
+    }
+}
+
+module drawPedestalMountBracketBoltHoleSlot(){
+
+    hull() {
+        // slot start
+        translate([pedestalMountBracketWidth()/2, pedestalMountBracketThickness(), 
+            // place center of hole on top of rear wheel guard edge
+            (chassisLength - ((chassisLength - pedestalMountBracketLength())/2)) - rearWheelHoleOffsetBack
+            // add half the width of the pedestal leg
+            + ((pedestalWidth() - journalBlockWidth())/2 /2)
+            // move to front of slot
+            - (((pedestalMountBracketBoltHoleSlotLength() - pedestalMountBracketBoltHoleDiameter())/2))
+        ])
+        rotate([90, 0, 0])
+        translate([0, 0, -1])
+        cylinder(pedestalMountBracketThickness()+2, d=pedestalMountBracketBoltHoleDiameter(), center=false);
+
+        // slot end
+        translate([pedestalMountBracketWidth()/2, pedestalMountBracketThickness(), 
+            // place center of hole on top of rear wheel guard edge
+            (chassisLength - ((chassisLength - pedestalMountBracketLength())/2)) - rearWheelHoleOffsetBack
+            // add half the width of the pedestal leg
+            + ((pedestalWidth() - journalBlockWidth())/2 /2)
+            // move to back of slot
+            + (((pedestalMountBracketBoltHoleSlotLength() - pedestalMountBracketBoltHoleDiameter())/2))
+            
+        ])
+        rotate([90, 0, 0])
+        translate([0, 0, -1])
+        cylinder(pedestalMountBracketThickness()+2, d=pedestalMountBracketBoltHoleDiameter(), center=false);
+    }
+
+}
+
+module drawJournalAssemblies(){
+
+if(showJournalAssemblies){
+
+    if(showJournalAssembly_LF){
         // draw front-left bearing housing
-        translate([bearingHousingBlockProtrusion, (frontWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
-            bearingHousing();
+        translate([journalBlockProtrusion, (frontWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0]){
+            journalAssembly();
         }
     }
 
-    if(showHotBox_LR){
+    if(showJournalAssembly_LR){
         // draw rear-left bearing housing
-        translate([bearingHousingBlockProtrusion, (rearWheelHoleOffsetBack - ((bearingHousingBlockWidth - wheelHoleWidth) / 2)), -((wheelHoleHeight))]){
-            bearingHousing();
+        translate([journalBlockProtrusion, (rearWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0]){
+            journalAssembly();
         }
     }
 
-    if(showHotBox_RF){
+    if(showJournalAssembly_RF){
         // draw front-right bearing housing
-        translate([chassisWidth-bearingHousingBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+        translate([chassisWidth-journalBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, 0]){
             rotate([0, 0, 180]){
-                bearingHousing();
+                journalAssembly();
             }
         }
     }
 
-    if(showHotBox_RR){
+    if(showJournalAssembly_RR){
         // draw rear-right bearing housing
-        translate([chassisWidth-bearingHousingBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, -wheelHoleHeight]){
+        translate([chassisWidth-journalBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, 0]){
             rotate([0, 0, 180]){
-                bearingHousing();
+                journalAssembly();
             }
         }
     }
@@ -1386,8 +1720,9 @@ if(showNose) union() {
 
 module drawWheels() {
 
+
 // draw wheels
-union() {
+translate([0, 0, -journalBoxOffsetY()]) union() {
 
 
     if(showAxles){
@@ -1481,7 +1816,7 @@ module drawBody() {
 drawBody();
 drawChassis();
 drawWheels();
-drawHotBoxes();
+drawJournalAssemblies();
 drawHitches();
 
 
