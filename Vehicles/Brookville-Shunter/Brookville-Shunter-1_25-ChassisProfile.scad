@@ -22,9 +22,9 @@ function batteryCavityInsetSides_125() = (chassisWidth_125 - batteryDiameter_125
 
 module drawChassisProfile_125() {   
     translate([
-        (-(cabWidth - chassisWidth) / 2) + (cabWidth - chassisWidth_125) / 2, 
+        (-(cabWidth - chassisWidth()) / 2) + (cabWidth - chassisWidth_125) / 2, 
         cabLength + noseLength - chassisLength_125 - chassisBodyOffsetFront_125,
-        chassisHeight
+        chassisHeight()
     ]) {
         union() {
             // chassis cavity

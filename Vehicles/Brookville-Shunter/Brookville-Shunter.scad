@@ -1,15 +1,53 @@
 /**
  * 3D model of the Brookville Shunter
  * Author: AntzCode Ltd
- * Version: 1.0.1
+ * Version: 2.0.0
  * URL: https://github.com/AntzCode/OpenSCAD-Projects/Vehicles/Brookville-Shunter
  * License: GPLv3
+ * 
+ * This file has been converted from BOSL1 to BOSL2 library.
+ * Conversion notes:
+ *   - Library includes changed from BOSL/ to BOSL2/
+ *   - Parameter 'fillet=' changed to 'rounding='
+ *   - polyRound() helper function wraps BOSL2 round_corners() with automatic radius clamping
  */
 
-include <./libraries/BOSL/constants.scad>
-use <./libraries/BOSL/shapes.scad>
+include <./libraries/BOSL2/std.scad>
+include <./libraries/BOSL2/constants.scad>
+include <./libraries/BOSL2/attachments.scad>
+use <./libraries/BOSL2/shapes3d.scad>
+use <./libraries/BOSL2/shapes2d.scad>
+use <./libraries/BOSL2/transforms.scad>
 
-include <./libraries/Round-Anything/polyround.scad>
+/*
+ * polyRound Compatibility Function for BOSL2
+ * Converts polyRound format [x, y, radius] to round_corners format
+ * Handles radius scaling that BOSL2 round_corners requires to avoid assertion errors
+ */
+function polyRound(points, defaultRadius=0) = 
+    let(
+        pts = [for (p = points) [p[0], p[1]]],
+        raw_radii = [for (p = points) len(p) > 2 ? p[2] : defaultRadius],
+        // Scale radii to be valid for the path
+        radii = [for (i = [0:len(pts)-1]) 
+            let(
+                p1 = pts[(i-1+len(pts)) % len(pts)],
+                p2 = pts[i],
+                p3 = pts[(i+1) % len(pts)],
+                // Calculate minimum edge length adjacent to this point
+                e1 = norm(p2 - p1),
+                e2 = norm(p3 - p2),
+                minEdge = min(e1, e2),
+                // Clamp radius to be at most 1/3 of the smallest adjacent edge
+                maxAllowed = minEdge / 3,
+                r = raw_radii[i]
+            )
+            min(r, maxAllowed)
+        ]
+    )
+    round_corners(pts, radius=radii);
+
+function isModelScale() = modelSize == SCALE_3D_PRINT || modelSize == SCALE_25;
 
 include <./libraries/pschatzmann-spring/pschatzmann-spring.scad>
 
@@ -73,30 +111,29 @@ showReportSizes = true;
 /**
 * Visibility of parts
 */
-showCab = true;
-showNose = true;
-showChassis = true;
-showWheels = true;
-showAxles = true;
-showAxleBearings = true;
+showCab =           true;
+showNose =          true;
+showChassis =       true;
+showWheels =        true;
+showAxles =         true;
+showAxleBearings =  true;
 showBearingCapPlate = true;
 showBearingCapBolts = true;
 showBearingCapBoltHoles = true;
 showJournalAssemblies = true;
-showPedestals = true;
+showPedestals =     true;
 showPedestalBoltHoles = true;
 showPedestalMountBrackets = true;
 showPedestalMountBracketBoltHoles = true;
 showJournalBlocks = true;
 showJournalBlockBoltHoles = true;
 showSuspensionSprings = true;
-attachAxlesToJournalBlock = true;
-showCabFrame = false;
-showNoseFrame = false;
-showChassisFrame = false;
-showFrontHitch = true;
-showRearHitch = true;
-showHitchChains = true;
+showCabFrame =      false;
+showNoseFrame =     false;
+showChassisFrame =  false;
+showFrontHitch =    true;
+showRearHitch =     true;
+showHitchChains =   true;
 showWheels_LF = true;
 showWheels_LR = true;
 showWheels_RF = true;
@@ -110,7 +147,9 @@ showJournalAssembly_RR = true;
 // set the nose to be solid or hollow
 hollowNose = true;
 hollowCab = true;
-solidNosePipes = false; 
+hollowChassis = true;
+solidNosePipes = true;
+attachAxlesToJournalBlock = true;
 
 include <./Brookville-Shunter-Dimensions.scad>
 use <./Brookville-Shunter-Dimensions.scad>
@@ -126,18 +165,23 @@ frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
 
 reportSize("Scale Factor 1:x", scale());
-reportSize("Overall Height", wheelDiameter()/2 + wheelFlangeHeight()*2 + chassisHeight + cabHeightCenter);
+reportSize("Overall Height", wheelDiameter()/2 + wheelFlangeHeight()*2 + chassisHeight() + cabHeightCenter);
 reportSize("Overall Width", cabWidth + cabRoofOverhangSide * 2);
-reportSize("Overall Length", chassisLength + hitchBlockLength * 2 + hitchPointLength * 2 + hitchMountPlateThickness * 2);
+reportSize("Overall Length", chassisLength() + hitchBlockLength * 2 + hitchPointLength * 2 + hitchMountPlateThickness * 2);
 
-reportSize("Chassis Width", chassisWidth);
-reportSize("Chassis Length", chassisLength);
-reportSize("Chassis Height", chassisHeight);
+reportSize("Chassis Width (overall)", chassisWidth());
+reportSize("Chassis Length (overall)", chassisLength());
+reportSize("Chassis Width (wall piece)", chassisWidth() - chassisCornerRadius()*2);
+reportSize("Chassis Length (wall piece)", chassisLength() - chassisCornerRadius()*2);
+reportSize("Chassis Height", chassisHeight());
 reportSize("Chassis Clearance", wheelDiameter() / 2);
 reportSize("Chassis Steel Thickness", chassisSteelThickness());
 
 reportSize("Chassis Wheel Hole Height", wheelHoleHeight);
 reportSize("Chassis Wheel Hole Width", wheelHoleWidth);
+
+reportSize("Chassis Corner Radius", chassisCornerRadius());
+reportSize("Chassis Corner Outer Length", (chassisCornerLength() + chassisSteelThickness()) * 2 - chassisCornerRadius() + (((2 * PI) * chassisCornerRadius()) / 4));
 
 rearWheelHoleOffsetBack = rearAxleOffset() - wheelHoleWidth / 2;
 frontWheelHoleOffsetBack = frontAxleOffset() - wheelHoleWidth / 2;
@@ -432,13 +476,13 @@ module noseDoor(side)
         difference()
         {
             // draw a door panel
-            color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness() ], center = false)
+            color(noseDoorColor) cuboid([ noseDoorWidth, noseDoorHeight, noseSteelThickness() ], anchor=[-1, -1, -1])
             {
             }
             // cut a window
             translate([ (noseDoorWidth - noseDoorWindowWidth) / 2, noseDoorWindowOffsetBottom, 0 ])
             {
-                cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness() ], center = false);
+                cuboid([ noseDoorWindowWidth, noseDoorWindowHeight, noseSteelThickness() ], anchor=[-1, -1, -1]);
             }
         }
 
@@ -450,9 +494,9 @@ module noseDoor(side)
         ]){
             rotate([-90,0,0]){
                 difference(){
-                    color(noseDoorWindowColor) cuboid([noseDoorWindowWidth, noseDoorWindowThickness, noseDoorWindowHeight], center=false);
+                    color(noseDoorWindowColor) cuboid([noseDoorWindowWidth, noseDoorWindowThickness, noseDoorWindowHeight], anchor=[-1, -1, -1]);
                     translate([noseDoorWindowBorderWidth, 0, noseDoorWindowBorderWidth]){
-                        cuboid([noseDoorWindowWidth - noseDoorWindowBorderWidth*2, noseDoorWindowThickness, noseDoorWindowHeight - noseDoorWindowBorderWidth*2], center=false);
+                        cuboid([noseDoorWindowWidth - noseDoorWindowBorderWidth*2, noseDoorWindowThickness, noseDoorWindowHeight - noseDoorWindowBorderWidth*2], anchor=[-1, -1, -1]);
                     }
                 }
             }
@@ -478,10 +522,21 @@ module hitchBlock(){
 
         // draw the mounting plate
         translate([hitchChainTagWidth, 0, 0]){
-            color(hitchBlockColor) cuboid([hitchMountPlateWidth, hitchMountPlateThickness, hitchMountPlateHeight], center=false, fillet=hitchMountPlateCornerRadius);
+            color(hitchBlockColor) cuboid([hitchMountPlateWidth, hitchMountPlateThickness, hitchMountPlateHeight], anchor=[-1, -1, -1], rounding=hitchMountPlateCornerRadius);
         }
 
         // hitch-block brace plate
+        hitchBlockOuter_pts = [
+            [0, 0],
+            [0, hitchChainTagWidth*2 + hitchMountPlateWidth - hitchMountPlateCornerRadius*2],
+            [hitchChainTagLength/2, hitchChainTagWidth*2 + hitchMountPlateWidth - hitchMountPlateCornerRadius*2],
+            [hitchChainTagLength, hitchChainTagWidth + hitchMountPlateWidth - hitchMountPlateCornerRadius*2],
+            [hitchBlockLength + hitchMountPlateThickness - hitchMountPlateCornerRadius*2, hitchChainTagWidth + hitchMountPlateWidth - hitchMountPlateCornerRadius*2],
+            [hitchBlockLength + hitchMountPlateThickness - hitchMountPlateCornerRadius*2, hitchChainTagWidth - hitchMountPlateCornerRadius*2],
+            [hitchChainTagLength, hitchChainTagWidth + hitchMountPlateThickness - hitchMountPlateCornerRadius*2],
+            [hitchChainTagLength/2, 0]
+        ];
+        hitchBlockOuter_radii = [0, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius, hitchMountPlateCornerRadius];
         translate([hitchMountPlateWidth + hitchChainTagWidth*2, hitchBlockLength + hitchMountPlateThickness, hitchMountPlateHeight]){
             rotate([0, 180, 90]){
                 color(hitchBlockColor) minkowski(){
@@ -502,10 +557,15 @@ module hitchBlock(){
 
         // draw the block
         translate([((hitchMountPlateWidth + hitchChainTagWidth*2) - hitchBlockWidth) / 2, hitchMountPlateThickness, hitchMountPlateHeight - hitchBlockHeight/2]){
-            color(hitchBlockColor) cuboid([hitchBlockWidth, hitchBlockLength, hitchBlockHeight], center=false, fillet=hitchBlockCornerRadius);
+            color(hitchBlockColor) cuboid([hitchBlockWidth, hitchBlockLength, hitchBlockHeight], anchor=[-1, -1, -1], rounding=hitchBlockCornerRadius);
         }
 
         // left angle support
+        leftAngleSupport_pts = [
+            [0, 0],
+            [0, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2],
+            [hitchBlockLength - hitchMountPlateCornerRadius*2, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2]
+        ];
         translate([hitchChainTagWidth + hitchMountPlateWidth/2 - hitchBlockWidth/2 + hitchMountPlateCornerRadius*2, hitchMountPlateThickness, 0]){
             rotate([90, 0, 90]){
                 color(hitchBlockColor) minkowski(){
@@ -520,6 +580,11 @@ module hitchBlock(){
         }
 
         // right angle support
+        rightAngleSupport_pts = [
+            [0, 0],
+            [0, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2],
+            [hitchBlockLength - hitchMountPlateCornerRadius*2, hitchMountPlateHeight - hitchBlockHeight/2 - hitchMountPlateCornerRadius*2]
+        ];
         translate([hitchChainTagWidth + hitchMountPlateWidth/2 + hitchBlockWidth/2 - hitchMountPlateThickness, hitchMountPlateThickness, 0]){
             rotate([90, 0, 90]){
                 color(hitchBlockColor) minkowski(){
@@ -546,6 +611,15 @@ module hitchBlock(){
             rotate([-90, 0, 0]){
                 color(hitchBlockColor) difference(){
                     // draw the solid hitch point
+                    hitchPointProfile_pts = [
+                        [0, 0],
+                        [0, hitchPointDiameterSmall/2],
+                        [hitchPointLength/4 * 3, hitchPointDiameterSmall/2 + hitchPointDiameterBig/2 / 4],
+                        [hitchPointLength, hitchPointDiameterBig/2],
+                        [hitchPointLength + archHeight, 0],
+                        [hitchPointLength + archHeight - archHeight/10, 0]
+                    ];
+                    hitchPointProfile_radii = [0, 0, 200, 5, hitchNotchCornerRadius, 0];
                     rotate_extrude(angle=360){
                         rotate([0, 0, 90]){
                             polygon(polyRound([
@@ -561,7 +635,7 @@ module hitchBlock(){
                     }
                     // cut the slot
                     translate([-hitchNotchWidth/2, -hitchNotchDepth, hitchPointLength-hitchNotchLength]){
-                        cuboid([hitchNotchWidth, hitchNotchDepth, hitchNotchLength+archHeight], center=false, fillet=hitchNotchCornerRadius);
+                        cuboid([hitchNotchWidth, hitchNotchDepth, hitchNotchLength+archHeight], anchor=[-1, -1, -1], rounding=hitchNotchCornerRadius);
                     }
                 }
             }
@@ -585,54 +659,37 @@ module hitchBlock(){
     }
 }
 
+module drawPedestal() {
 
-module klam_fillet_cylinder(
-    cylinder_height=2,
-    cylinder_radius=1,
-    fillet_radius_bottom=1,
-    fillet_radius_top=0,
-    nfaces=50
-) {
-    /* created by Kevin Lam on Dec 3, 2016 */
-    union() {      
-        cylinder(cylinder_height, r=cylinder_radius, $fn=nfaces, false);
-        
-        if (fillet_radius_bottom > 0) {
-            difference() {
-                cylinder(fillet_radius_bottom, r=cylinder_radius+fillet_radius_bottom, $fn=nfaces, false);
-                translate([0, 0, fillet_radius_bottom])
-                rotate_extrude($fn=nfaces)
-                translate([cylinder_radius+fillet_radius_bottom, 0, 0])
-                circle(fillet_radius_bottom, $fn=nfaces);
-            }
-        }
-        
-        if (fillet_radius_top>0) {
-            difference() {
-                translate([0,0,cylinder_height-fillet_radius_top])
-                cylinder(fillet_radius_top, r=cylinder_radius+fillet_radius_top, $fn=nfaces, false);
-                
-                translate([0, 0, cylinder_height-fillet_radius_top])
-                rotate_extrude($fn=nfaces)
-                translate([cylinder_radius+fillet_radius_top, 0, 0])
-                circle(fillet_radius_top, $fn=nfaces);
-            }
-        }
-    }
-}
-
-module journalAssembly(){
-
-    // PEDESTAL
-    if(showPedestals) {
-        color(pedestalColor) 
-        translate([0, 0, 0]) translate([0, -((pedestalWidth() - journalBlockWidth())/2), -pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight]) {
+    render(){
+    translate([
+            0, 
+            -((pedestalWidth() - journalBlockWidth())/2), 
+            -pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight
+        ]) {
             difference() {
                 // create the block that will be milled into the pedestal bracket
-                cuboid([pedestalThickness(), pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()],  center=false, edges=EDGES_ALL);
+                union() {
+                    cuboid([pedestalThickness(), pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
+                    
+                    // right top wedge
+                    translate([pedestalThickness(), 0, pedestalHeight() + journalBlockSuspensionTravelDistance()])
+                    rotate([180, 90, 0])
+                    linear_extrude(height=pedestalThickness()) 
+                    polygon(points=[[0, 0], [0, (pedestalWidthTop() - pedestalWidth())/2], [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]], paths=[[0, 1, 2]]);
 
+                    // left top wedge
+                    translate([0, pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()])
+                    rotate([0, 90, 0])
+                    linear_extrude(height=pedestalThickness()) 
+                    polygon(points=[
+                        [0, 0], 
+                        [0, (pedestalWidthTop() - pedestalWidth())/2],
+                        [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]
+                    ], paths=[[0, 1, 2]]);
+                }
                 // create the block that is subtracted for the journal block
-                translate([0, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) cuboid([ pedestalThickness(), journalBlockWidth() + tolerance(), journalBlockHeight() + journalBlockSuspensionTravelDistance()],  center=false); 
+                translate([0, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) cuboid([ pedestalThickness(), journalBlockWidth() + tolerance(), journalBlockHeight() + journalBlockSuspensionTravelDistance()],  anchor=[-1, -1, -1]); 
                 
                 // round-off the bottom-left corner
                 translate([pedestalThickness()/2, pedestalWidth() - pedestalCornerRadius(), pedestalCornerRadius()]) 
@@ -658,13 +715,24 @@ module journalAssembly(){
 
                 // bolt holes for attaching to chassis mount
                 if(showPedestalBoltHoles) {
-                    // Bolt Hole Left
-                    translate([pedestalThickness() / 2, (pedestalWidth() - journalBlockWidth())/2/2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                    // 1st Bolt Hole Left
+                    color("red")
+                    translate([pedestalThickness() / 2, pedestalWidth() / 2 - pedestalBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+
+                    // 2nd Bolt Hole Left
+                    translate([pedestalThickness() / 2, pedestalWidth() / 2 - pedestalOuterBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
+                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+
+                    
+                    // 1st Bolt Hole Right
+                    translate([pedestalThickness() / 2, pedestalWidth() / 2 + pedestalBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
                     cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
                     
-                    // Bolt Hole Right
-                    translate([pedestalThickness() / 2, pedestalWidth() - (pedestalWidth() - journalBlockWidth())/2/2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                    // 2nd Bolt Hole Right
+                    translate([pedestalThickness() / 2, pedestalWidth() / 2 + pedestalOuterBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
                     cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+                    
                 }
 
             }
@@ -673,12 +741,22 @@ module journalAssembly(){
 
             // Channel left
             translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) 
-            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], center=false, edges=EDGES_ALL);
+            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
             
             // Channel right
             translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2 - tolerance()/2 + journalBlockChannelHeight()), pedestalHeight() - journalBlockHeight()]) 
-            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], center=false, edges=EDGES_ALL);
+            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
         }
+    }
+
+}
+
+module journalAssembly(){
+
+    // PEDESTAL
+    if(showPedestals) {
+        color(pedestalColor)
+        drawPedestal();
     }
 
     difference(){ 
@@ -692,7 +770,7 @@ module journalAssembly(){
                     color(journalBlockColor) 
                     difference() {
                         // start with a cube
-                        cuboid([journalBlockWidth(), journalBlockHeight(), journalBlockThickness()],  center=false, edges=EDGES_ALL);
+                        cuboid([journalBlockWidth(), journalBlockHeight(), journalBlockThickness()],  anchor=[-1, -1, -1], edges=EDGES_ALL);
                         
                         // Carve out space for the roller bearing                    
                         color("red")
@@ -700,18 +778,20 @@ module journalAssembly(){
                         cylinder(journalBlockBearingHeight() + tolerance(), d=journalBlockBearingOuterDiameter() + tolerance(),  center=false);
 
                         // hole for the axle to go through
+                        // @TODO: this needs a proper seal design, or some way that is better than hard-coding a tolerance
                         translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
-                        cylinder(journalBlockThickness(), d=journalBlockBearingInnerDiameter(), center=false);
+                        cylinder(journalBlockThickness(), d=journalBlockBearingInnerDiameter() + 8 / scale(), center=false);
 
                         // Suspension guide rail - channel left
                         translate([journalBlockWidth() - journalBlockChannelHeight(), 0, journalBlockThickness()/2 - journalBlockChannelWidth()/2 - tolerance()/2]) 
-                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], center=false);
+                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], anchor=[-1, -1, -1]);
                         
                         // Suspension guide rail - channel right
                         translate([0, 0, journalBlockThickness()/2 - journalBlockChannelWidth()/2 - tolerance()/2]) 
-                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], center=false);
+                        cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], anchor=[-1, -1, -1]);
 
                         // spring hole left
+                        if(showSuspensionSprings && !isModelScale())
                         translate([
                             journalBlockWidth() - journalBlockSuspensionSpringHoleDiameter()/2 - journalBlockChannelHeight() - journalBlockSuspensionSpringHoleOffset(), 
                             journalBlockHeight() + 0.0001, 
@@ -721,6 +801,7 @@ module journalAssembly(){
                         cylinder(journalBlockSuspensionSpringHoleDepth(), d=journalBlockSuspensionSpringHoleDiameter() + tolerance(), center=false);
 
                         // spring hole right
+                        if(showSuspensionSprings && !isModelScale())
                         translate([
                             journalBlockSuspensionSpringHoleDiameter()/2 + journalBlockChannelHeight() + journalBlockSuspensionSpringHoleOffset(), 
                             journalBlockHeight() + 0.0001, 
@@ -755,7 +836,7 @@ module journalAssembly(){
                 }
 
                 // WHEEL BEARING
-                if(showAxleBearings) {
+                if(showAxleBearings && !isModelScale()) {
                     // Draw a bearing
                     translate([journalBlockWidth()/2, journalBlockHeight()/2, 0]) union(){
                         // outer ring
@@ -808,6 +889,7 @@ module journalAssembly(){
                 // BEARING CAPS
                 if(showBearingCapPlate) {
 
+
                     translate([0, 0, 0])
                     union() {
                         color(bearingCapCenterColor)
@@ -827,7 +909,7 @@ module journalAssembly(){
                             cylinder(bearingCapPlateThickness(), d=bearingCapPlateDiameter(), center=false);
                         }
 
-                        if(showBearingCapBolts){
+                        if(showBearingCapBolts && !isModelScale()){
 
                             // draw the bolts
                             color(bearingCapBoltColor)
@@ -868,27 +950,18 @@ module journalAssembly(){
                         }
                     }
 
-                    if(showBearingCapBoltHoles) {
+                    if(showBearingCapBoltHoles && !isModelScale()) {
                         // draw the bolts
-                        color(bearingCapBoltColor)
                         translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
-                        for(i=[0:60:360]){
-                            rotate(i, [0, 0, 1]){
-                                translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
-                                    // draw a bolt
-                                    translate([
-                                        0, 
-                                        0,
-                                        -(bearingCapPlateThickness())
-                                    ]){
-                                        cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
-                                    }
-                                }
-                            }
+                        for(i=[0:60:360]) {
+                            // draw a bolt
+                            color(bearingCapBoltColor)
+                            rotate(i, [0, 0, 1])
+                            translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0])
+                            translate([0, 0, -(bearingCapPlateThickness())])
+                            cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
                         } // end for
-
                     }
-
                 }
             }
         }
@@ -898,41 +971,39 @@ module journalAssembly(){
 
 
 // draw chassis frame
-if (showChassisFrame) union()
-{
+if (showChassisFrame) union() {
+
 	// left frame
-    chassisLeftFrameLength = chassisLength - chassisSteelThickness() * 2;
+    chassisLeftFrameLength = chassisLength() - chassisSteelThickness() * 2;
     reportSize("Chassis Left Frame Length", chassisLeftFrameLength);
+
 	translate([ chassisSteelThickness(), chassisSteelThickness(), 0 ])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, chassisLeftFrameLength, frameTimberWidth ]);
-	}
+	color(frameTimberColor) cube([ frameTimberHeight, chassisLeftFrameLength, frameTimberWidth ]);
+	
 
 	// right frame
-    chassisRightFrameLength = chassisWidth - frameTimberHeight - chassisSteelThickness();
+    chassisRightFrameLength = chassisWidth() - frameTimberHeight - chassisSteelThickness();
     reportSize("Chassis Right Frame Length", chassisRightFrameLength);
+
 	translate([chassisRightFrameLength, chassisSteelThickness(), 0 ])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, chassisLength - chassisSteelThickness() * 2, frameTimberWidth ]);
-	}
+	color(frameTimberColor) cube([ frameTimberHeight, chassisLength() - chassisSteelThickness() * 2, frameTimberWidth ]);
+	
 
 	// rear frame
     chassisRearFrameLength = frameTimberHeight + chassisSteelThickness();
     reportSize("Chassis Rear Frame Length", chassisRearFrameLength);
+
 	translate([ chassisRearFrameLength, chassisSteelThickness(), 0 ])
-	{
-		color(frameTimberColor) cube([ chassisWidth - frameTimberHeight * 2 - chassisSteelThickness() * 2, frameTimberHeight, frameTimberWidth ]);
-	}
+	color(frameTimberColor) cube([ chassisWidth() - frameTimberHeight * 2 - chassisSteelThickness() * 2, frameTimberHeight, frameTimberWidth ]);
+	
 
 	// front frame
-    chassisFrontFrameLength = chassisWidth - frameTimberHeight * 2 - chassisSteelThickness() * 2;
+    chassisFrontFrameLength = chassisWidth() - frameTimberHeight * 2 - chassisSteelThickness() * 2;
     reportSize("Chassis Front Frame Length", chassisFrontFrameLength);
-	translate(
-	    [ frameTimberHeight + chassisSteelThickness(), chassisLength - frameTimberHeight - chassisSteelThickness(), 0 ])
-	{
-		color(frameTimberColor) cube([chassisFrontFrameLength, frameTimberHeight, frameTimberWidth ]);
-	}
-    
+
+	translate([ frameTimberHeight + chassisSteelThickness(), chassisLength() - frameTimberHeight - chassisSteelThickness(), 0 ])
+	color(frameTimberColor) cube([chassisFrontFrameLength, frameTimberHeight, frameTimberWidth ]);
+
 }
 
 module angleIron(width, height, thickness, length) {
@@ -956,40 +1027,148 @@ module drawChassis(){
 
 // draw chassis
 if(showChassis) {
-    
-    difference()
-    {
-        color(chassisColor, alpha = 1) cuboid([ chassisWidth, chassisLength, chassisHeight ], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL);
+
+    // CHASSIS CORNERS
+    render() difference() {
+        union() {
+            // left rear
+
+            if(!isModelScale())
+            drawChassisCorner();
+            
+            // right rear
+            if(!isModelScale())
+            translate([chassisWidth(), 0, 0])
+            rotate([0, 0, 90])
+            drawChassisCorner();
+            
+            // right front
+            if(!isModelScale())
+            translate([chassisWidth(), chassisLength(), 0])
+            rotate([0, 0, 180])
+            drawChassisCorner();
+            
+            // left front
+            if(!isModelScale())
+            translate([0, chassisLength(), 0])
+            rotate([0, 0, 270])
+            drawChassisCorner();
+        }
+
+        if(hollowChassis) {
+            // hollow-out the chassis
+            if(chassisCornerRadius() > 0 && !isModelScale()) {
+                color(chassisCornerColor)
+                translate([0, 0, 0]) cuboid([ chassisWidth(), chassisLength(), chassisHeight()], anchor=[-1, -1, -1], rounding=chassisCornerRadius(), edges=[[0,0,0,0], [0,0,0,0], [1,1,1,1]]);
+            } else {
+                color(chassisCornerColor)
+                translate([0, 0, 0]) cuboid([ chassisWidth(), chassisLength(), chassisHeight()], anchor=[-1, -1, -1]);
+            }
+        }
+        
+    }
+
+    // CHASSIS SIDES
+    color(chassisColor)
+    render() difference() {
+        union() {
+            // front side
+            translate([chassisCornerRadius(), 0, 0])
+            cuboid([chassisWidth() - chassisCornerRadius()*2, chassisSteelThickness(), chassisHeight()], anchor=[-1, -1, -1]);
+
+            // rear side
+            translate([chassisCornerRadius(), chassisLength() - chassisSteelThickness(), 0])
+            cuboid([chassisWidth() - chassisCornerRadius()*2, chassisSteelThickness(), chassisHeight()], anchor=[-1, -1, -1]);
+
+            // right side
+            translate([0, chassisCornerRadius(), 0])
+            cuboid([chassisSteelThickness(), chassisLength() - chassisCornerRadius()*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+            // left side
+            translate([chassisWidth() - chassisSteelThickness(), chassisCornerRadius(), 0])
+            cuboid([chassisSteelThickness(), chassisLength() - chassisCornerRadius()*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+        }
 
         // draw wheel holes
         color(chassisColor, alpha = 1) translate([ 0, rearWheelHoleOffsetBack, 0 ])
-        {
-            cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
-        }
+        cube([ chassisWidth(), wheelHoleWidth, wheelHoleHeight ]);
 
         // draw wheel holes
         color(chassisColor, alpha = 1) translate([ 0, frontWheelHoleOffsetBack, 0 ])
-        {
-            cube([ chassisWidth, wheelHoleWidth, wheelHoleHeight ]);
+        cube([ chassisWidth(), wheelHoleWidth, wheelHoleHeight ]);
+
+    }
+
+    // CHASSIS TOP
+    color(chassisColor)
+    render() difference() {
+        translate([0, 0, chassisHeight() - chassisSteelThickness()])
+        cuboid([chassisWidth(), chassisLength(), chassisSteelThickness()], anchor=[-1, -1, -1]);
+
+        translate([chassisCornerRadius(), chassisCornerRadius(), chassisHeight() - chassisSteelThickness()])
+        difference() {
+            translate([-chassisCornerRadius(), -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            cylinder(chassisSteelThickness(), r=chassisCornerRadius(), center=false);
+            translate([0, -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius(), chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            translate([-chassisCornerRadius(), 0, 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius(), chassisSteelThickness()], anchor=[-1, -1, -1]);
         }
 
-        // hollow-out the chassis
-        color("lightblue") 
-        translate([chassisSteelThickness(), chassisSteelThickness(), 0]) cuboid([ chassisWidth - chassisSteelThickness()* 2, chassisLength - chassisSteelThickness() * 2, chassisHeight - chassisSteelThickness()], center=false, fillet=chassisCornerRadius, edges=EDGES_Z_ALL);
+        translate([chassisWidth(), 0, 0])
+        rotate([0, 0, 90])
+        translate([chassisCornerRadius(), chassisCornerRadius(), chassisHeight() - chassisSteelThickness()])
+        difference() {
+            translate([-chassisCornerRadius(), -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            cylinder(chassisSteelThickness(), r=chassisCornerRadius(), center=false);
+            translate([0, -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius(), chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            translate([-chassisCornerRadius(), 0, 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius(), chassisSteelThickness()], anchor=[-1, -1, -1]);
+        }
+
+        translate([chassisWidth(), chassisLength(), 0])
+        rotate([0, 0, 180])
+        translate([chassisCornerRadius(), chassisCornerRadius(), chassisHeight() - chassisSteelThickness()])
+        difference() {
+            translate([-chassisCornerRadius(), -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            cylinder(chassisSteelThickness(), r=chassisCornerRadius(), center=false);
+            translate([0, -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius(), chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            translate([-chassisCornerRadius(), 0, 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius(), chassisSteelThickness()], anchor=[-1, -1, -1]);
+        }
+
+        translate([0, chassisLength(), 0])
+        rotate([0, 0, 270])
+        translate([chassisCornerRadius(), chassisCornerRadius(), chassisHeight() - chassisSteelThickness()])
+        difference() {
+            translate([-chassisCornerRadius(), -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            cylinder(chassisSteelThickness(), r=chassisCornerRadius(), center=false);
+            translate([0, -chassisCornerRadius(), 0])
+            cuboid([chassisCornerRadius(), chassisCornerRadius()*2, chassisSteelThickness()], anchor=[-1, -1, -1]);
+            translate([-chassisCornerRadius(), 0, 0])
+            cuboid([chassisCornerRadius()*2, chassisCornerRadius(), chassisSteelThickness()], anchor=[-1, -1, -1]);
+        }
 
     }
 
     if(showPedestalMountBrackets){
 
-        // draw pedestal mount bracket (left side)
+        // draw pedestal mount bracket (right side)
         color(pedestalMountBracketColor)
-        translate([0, 0, 0])
+        translate([chassisSteelThickness(), 0, 0])
         rotate([0, 0, 0])
         drawPedestalMountBracket();
 
-        // draw pedestal mount bracket (right side)
+        // draw pedestal mount bracket (left side)
         color(pedestalMountBracketColor)
-        translate([chassisWidth - chassisSteelThickness(), 0, 0])
+        translate([chassisWidth() - chassisSteelThickness(), 0, 0])
         rotate([0, 0, 0])
         mirror([1, 0, 0]) 
         drawPedestalMountBracket();
@@ -1000,33 +1179,171 @@ if(showChassis) {
 
 }
 
+module drawChassisCorner() {
+    
+    color(chassisCornerColor)
+    translate([chassisCornerRadius() - chassisSteelThickness(), chassisCornerRadius() - chassisSteelThickness(), 0])
+    difference() {
+        union() {
+            // draw the curve
+            translate([0, 0, -chassisSteelThickness()])
+            cylinder(chassisHeight() + chassisSteelThickness() * 2, r=chassisCornerRadius(), center=false);
+
+            // extend side X
+            translate([-chassisCornerRadius(), 0, -chassisSteelThickness()])
+            cuboid([chassisCornerLength(), chassisCornerLength() - chassisCornerRadius(), chassisHeight() + chassisSteelThickness() * 2], anchor=[-1, -1, -1]);
+
+            // extend side Y
+            translate([0, -chassisCornerRadius(), -chassisSteelThickness()])
+            cuboid([chassisCornerLength() - chassisCornerRadius(), chassisCornerLength(), chassisHeight() + chassisSteelThickness() * 2], anchor=[-1, -1, -1]);
+        }
+
+        // cut off the corner diagonally
+        translate([0, 0, -chassisSteelThickness()])
+        linear_extrude(height=chassisHeight() + chassisSteelThickness() * 2)
+        translate([chassisCornerLength()/2 - chassisSteelThickness(), chassisCornerLength()/2-chassisSteelThickness(), -chassisSteelThickness()])
+        mirror([1, 1, 0])
+        polygon(points=[
+            [-chassisCornerLength(), -chassisCornerLength()], 
+            [chassisCornerLength() + chassisSteelThickness(), -chassisCornerLength()], 
+            [chassisCornerLength() + chassisSteelThickness(), 0], 
+            [0, chassisCornerLength() + chassisSteelThickness()], 
+            [-chassisCornerLength(), chassisCornerLength() + chassisSteelThickness()]
+        ], paths=[[0, 1, 2, 3, 4]]);
+        
+    }
+
+    // draw a bolt hole - 1st bottom left
+    color(chassisBoltColor)
+    translate([
+        -chassisSteelThickness() - chassisBoltThickness(), 
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        chassisSteelThickness() + chassisCornerBoltOffset()
+    ])
+    rotate([90, 0, 90])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 2nd bottom left
+    color(chassisBoltColor)
+    translate([
+        -chassisSteelThickness() - chassisBoltThickness(), 
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        chassisSteelThickness() + (chassisHeight() - chassisCornerBoltOffset() * 2) / 3
+    ])
+    rotate([90, 0, 90])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 3rd bottom left
+    color(chassisBoltColor)
+    translate([
+        -chassisSteelThickness() - chassisBoltThickness(), 
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        chassisSteelThickness() + ((chassisHeight() - chassisCornerBoltOffset() * 2) / 3) * 2
+    ])
+    rotate([90, 0, 90])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 4th bottom left
+    color(chassisBoltColor)
+    translate([
+        -chassisSteelThickness() - chassisBoltThickness(), 
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        chassisSteelThickness() + ((chassisHeight() - chassisCornerBoltOffset() * 2) / 3) * 3
+    ])
+    rotate([90, 0, 90])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 1st bottom right
+    color(chassisBoltColor)
+    translate([
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        0,
+        chassisSteelThickness() + chassisCornerBoltOffset()
+    ])
+    rotate([90, 0, 0])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 2nd bottom right
+    color(chassisBoltColor)
+    translate([
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        0,
+        chassisSteelThickness() + (chassisHeight() - chassisCornerBoltOffset() * 2) / 3
+    ])
+    rotate([90, 0, 0])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 3rd bottom right
+    color(chassisBoltColor)
+    translate([
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        0,
+        chassisSteelThickness() + ((chassisHeight() - chassisCornerBoltOffset() * 2) / 3) * 2
+    ])
+    rotate([90, 0, 0])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+    // draw a bolt hole - 4th bottom right
+    color(chassisBoltColor)
+    translate([
+        chassisCornerLength() - chassisBoltSize()/2 - chassisSteelThickness() - chassisCornerBoltOffset(), 
+        0,
+        chassisSteelThickness() + ((chassisHeight() - chassisCornerBoltOffset() * 2) / 3) * 3
+    ])
+    rotate([90, 0, 0])
+    cylinder(chassisBoltThickness(), d=chassisBoltSize(), $fn=6);
+
+}
+
+
+
+
 module drawPedestalMountBracket(){
 
-    translate([0, chassisLength-(chassisLength - pedestalMountBracketLength()) / 2, wheelHoleHeight]) 
+    translate([0, chassisWallLength() + chassisCornerRadius(), wheelHoleHeight]) 
     rotate([90, 0, 0]) 
     difference () {
-        angleIron(pedestalMountBracketWidth(), pedestalMountBracketHeight() * 2, pedestalMountBracketThickness(), pedestalMountBracketLength());
+        angleIron(pedestalMountBracketWidth(), pedestalMountBracketHeight() * 2, pedestalMountBracketThickness(), chassisWallLength());
         
         if(showPedestalMountBracketBoltHoles) {
-            // draw rear-wheel-rear-leg slot
+            // draw rear-wheel-rear-leg slot 1
             color("red")
-            translate([0, 0, 0])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalBoltHoleOffset()])
             drawPedestalMountBracketBoltHoleSlot();
 
-            // draw rear-wheel-front-leg slot
+            // draw rear-wheel-rear-leg slot 2
             color("red")
-            translate([0, 0, -(pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2))])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalOuterBoltHoleOffset()])
             drawPedestalMountBracketBoltHoleSlot();
 
-            // draw front-wheel-rear-leg slot
+            // draw rear-wheel-front-leg slot 1
             color("red")
-            translate([0, 0, -(frontWheelHoleOffsetBack - rearWheelHoleOffsetBack)])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalBoltHoleOffset()])
             drawPedestalMountBracketBoltHoleSlot();
 
-
-            // draw front-wheel-front-leg slot
+            // draw rear-wheel-front-leg slot 2
             color("red")
-            translate([0, 0, -(frontWheelHoleOffsetBack - rearWheelHoleOffsetBack) -(pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2))])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalOuterBoltHoleOffset()])
+            drawPedestalMountBracketBoltHoleSlot();
+
+            // draw front-wheel-rear-leg slot 1
+            color("red")
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalBoltHoleOffset()])
+            drawPedestalMountBracketBoltHoleSlot();
+
+            // draw front-wheel-rear-leg slot 2
+            color("red")
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalOuterBoltHoleOffset()])
+            drawPedestalMountBracketBoltHoleSlot();
+
+            // draw front-wheel-front-leg slot 1
+            color("red")
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalBoltHoleOffset()])
+            drawPedestalMountBracketBoltHoleSlot();
+
+            // draw front-wheel-front-leg slot 2
+            color("red")
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalOuterBoltHoleOffset()])
             drawPedestalMountBracketBoltHoleSlot();
         }
     }
@@ -1034,30 +1351,16 @@ module drawPedestalMountBracket(){
 
 module drawPedestalMountBracketBoltHoleSlot(){
 
+    translate([0, 0, -pedestalMountBracketBoltHoleSlotLength()/2])
     hull() {
         // slot start
-        translate([pedestalMountBracketWidth()/2, pedestalMountBracketThickness(), 
-            // place center of hole on top of rear wheel guard edge
-            (chassisLength - ((chassisLength - pedestalMountBracketLength())/2)) - rearWheelHoleOffsetBack
-            // add half the width of the pedestal leg
-            + ((pedestalWidth() - journalBlockWidth())/2 /2)
-            // move to front of slot
-            - (((pedestalMountBracketBoltHoleSlotLength() - pedestalMountBracketBoltHoleDiameter())/2))
-        ])
+        translate([pedestalThickness()/2, pedestalMountBracketThickness(), 0])
         rotate([90, 0, 0])
         translate([0, 0, -1])
         cylinder(pedestalMountBracketThickness()+2, d=pedestalMountBracketBoltHoleDiameter(), center=false);
 
         // slot end
-        translate([pedestalMountBracketWidth()/2, pedestalMountBracketThickness(), 
-            // place center of hole on top of rear wheel guard edge
-            (chassisLength - ((chassisLength - pedestalMountBracketLength())/2)) - rearWheelHoleOffsetBack
-            // add half the width of the pedestal leg
-            + ((pedestalWidth() - journalBlockWidth())/2 /2)
-            // move to back of slot
-            + (((pedestalMountBracketBoltHoleSlotLength() - pedestalMountBracketBoltHoleDiameter())/2))
-            
-        ])
+        translate([pedestalThickness()/2, pedestalMountBracketThickness(), pedestalMountBracketBoltHoleSlotLength()])
         rotate([90, 0, 0])
         translate([0, 0, -1])
         cylinder(pedestalMountBracketThickness()+2, d=pedestalMountBracketBoltHoleDiameter(), center=false);
@@ -1065,41 +1368,31 @@ module drawPedestalMountBracketBoltHoleSlot(){
 
 }
 
-module drawJournalAssemblies(){
+module drawJournalAssemblies() {
 
-if(showJournalAssemblies){
+if(showJournalAssemblies) {
 
-    if(showJournalAssembly_LF){
-        // draw front-left bearing housing
-        translate([journalBlockProtrusion, (frontWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0]){
-            journalAssembly();
-        }
-    }
+    // draw front-left bearing housing
+    if(showJournalAssembly_LF)
+    translate([chassisSteelThickness(), (frontWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0])
+    journalAssembly();
 
-    if(showJournalAssembly_LR){
-        // draw rear-left bearing housing
-        translate([journalBlockProtrusion, (rearWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0]){
-            journalAssembly();
-        }
-    }
+    // draw rear-left bearing housing
+    if(showJournalAssembly_LR)
+    translate([chassisSteelThickness(), (rearWheelHoleOffsetBack - ((journalBlockWidth() - wheelHoleWidth) / 2)), 0])
+    journalAssembly();
+ 
+    // draw front-right bearing housing
+    if(showJournalAssembly_RF)
+    translate([chassisWidth() - chassisSteelThickness(), frontWheelHoleOffsetBack + wheelHoleWidth + ((journalBlockWidth() - wheelHoleWidth) / 2), 0])
+    rotate([0, 0, 180])
+    journalAssembly();
 
-    if(showJournalAssembly_RF){
-        // draw front-right bearing housing
-        translate([chassisWidth-journalBlockProtrusion, frontWheelHoleOffsetBack + wheelHoleWidth, 0]){
-            rotate([0, 0, 180]){
-                journalAssembly();
-            }
-        }
-    }
-
-    if(showJournalAssembly_RR){
-        // draw rear-right bearing housing
-        translate([chassisWidth-journalBlockProtrusion, rearWheelHoleOffsetBack + wheelHoleWidth, 0]){
-            rotate([0, 0, 180]){
-                journalAssembly();
-            }
-        }
-    }
+    // draw rear-right bearing housing
+    if(showJournalAssembly_RR)
+    translate([chassisWidth() - chassisSteelThickness(), rearWheelHoleOffsetBack + wheelHoleWidth + ((journalBlockWidth() - wheelHoleWidth) / 2), 0])
+    rotate([0, 0, 180])
+    journalAssembly();
 
 }
 
@@ -1107,376 +1400,289 @@ if(showJournalAssemblies){
 
 module drawHitches() {
 
-// draw front hitch
-if(showFrontHitch) union(){
-    translate([chassisWidth/2 - hitchMountPlateWidth/2 - hitchChainTagWidth, chassisLength, 0]){
-        rotate([0, 0, 0]){
-            hitchBlock();
-        }
+    // draw front hitch
+    if(showFrontHitch) union() {
+        translate([chassisWidth()/2 - hitchMountPlateWidth/2 - hitchChainTagWidth, chassisLength(), 0])
+        rotate([0, 0, 0])
+        hitchBlock();
     }
-}
 
-// draw rear hitch
-if(showRearHitch) union(){
-     translate([chassisWidth/2 + hitchMountPlateWidth/2 + hitchChainTagWidth, 0, 0]){
-        rotate([0, 0, 180]){
-            hitchBlock();
-        }
+    // draw rear hitch
+    if(showRearHitch) union() {
+        translate([chassisWidth()/2 + hitchMountPlateWidth/2 + hitchChainTagWidth, 0, 0])
+        rotate([0, 0, 180])
+        hitchBlock();
     }
-}
 
 }
 
 // draw cab frame
-if(showCabFrame) union()
-{
+if(showCabFrame) union() {
 	// right front frame
 	translate([
-		cabWidth - cabSteelThickness() - (frameTimberHeight + (cabWidth - chassisWidth) / 2),
+		cabWidth - cabSteelThickness() - (frameTimberHeight + (cabWidth - chassisWidth()) / 2),
 		cabLength - frameTimberWidth - cabSteelThickness(),
-		chassisHeight
+		chassisHeight()
 	])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
-	}
+	color(frameTimberColor)
+    cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
+	
 
 	// left front frame
 	translate([
-		-(cabWidth - chassisWidth) / 2 + cabSteelThickness(), cabLength - frameTimberWidth - cabSteelThickness(),
-		chassisHeight
+		-(cabWidth - chassisWidth()) / 2 + cabSteelThickness(), cabLength - frameTimberWidth - cabSteelThickness(),
+		chassisHeight()
 	])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
-	}
+	color(frameTimberColor)
+    cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
+	
 
 	// right rear frame
 	translate([
-		cabWidth - (frameTimberHeight + (cabWidth - chassisWidth) / 2) + -cabSteelThickness(), cabSteelThickness(),
-		chassisHeight
+		cabWidth - (frameTimberHeight + (cabWidth - chassisWidth()) / 2) + -cabSteelThickness(), cabSteelThickness(),
+		chassisHeight()
 	])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
-	}
+	color(frameTimberColor)
+    cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
+	
 
 	// left rear frame
-	translate([ -(cabWidth - chassisWidth) / 2 + cabSteelThickness(), cabSteelThickness(), chassisHeight ])
-	{
-		color(frameTimberColor) cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
-	}
+	translate([ -(cabWidth - chassisWidth()) / 2 + cabSteelThickness(), cabSteelThickness(), chassisHeight() ])
+	color(frameTimberColor)
+    cube([ frameTimberHeight, frameTimberWidth, cabHeightCenter ]);
+	
 }
          
 module drawCab(){
 
 // draw cab
-if(showCab) union(){
+if(showCab) render() union() {
 
     reportSize("Cab Roof Length with Overhangs", cabLength + cabRoofOverhangBack + cabRoofOverhangFront);
     reportSize("Cab Roof Overhang Back", cabRoofOverhangBack);
     reportSize("Cab Roof Overhang Front", cabRoofOverhangFront);
 
     // draw the cab roof overhang
-    difference(){
-        translate([ -(cabWidth - chassisWidth) / 2, cabLength + cabRoofOverhangFront, chassisHeight + cabHeightSides ]){
-            rotate([ 90, 0, 0 ]){
-                color(cabColor) linear_extrude(height = cabLength + cabRoofOverhangBack + cabRoofOverhangFront){
-                    cabRoofPolygon();
-                }
-            }
-        }
+    difference() {
+        translate([ -(cabWidth - chassisWidth()) / 2, cabLength + cabRoofOverhangFront, chassisHeight() + cabHeightSides ])
+        rotate([ 90, 0, 0 ])
+        color(cabColor) 
+        linear_extrude(height = cabLength + cabRoofOverhangBack + cabRoofOverhangFront)
+        cabRoofPolygon();
 
-        translate([ -(cabWidth - chassisWidth) / 2, cabLength + cabRoofOverhangFront, chassisHeight ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                color(cabColor) linear_extrude(height = cabRoofOverhangFront)
-                {
-                    offset(delta = -cabRoofOverhangFront ) cabPolygon();
-                }
-            }
-        }
-    
-        translate([ -(cabWidth - chassisWidth) / 2, 0, chassisHeight ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                color(cabColor) linear_extrude(height = cabRoofOverhangFront)
-                {
-                    offset(delta = -cabRoofOverhangBack ) cabPolygon();
-                }
-            }
-        }
-    
+        translate([ -(cabWidth - chassisWidth()) / 2, cabLength + cabRoofOverhangFront, chassisHeight() ])
+        rotate([ 90, 0, 0 ])
+        color(cabColor) linear_extrude(height = cabRoofOverhangFront)
+        offset(delta = -cabRoofOverhangFront ) 
+        cabPolygon();
+
+        translate([ -(cabWidth - chassisWidth()) / 2, 0, chassisHeight() ])
+        rotate([ 90, 0, 0 ])
+        color(cabColor) linear_extrude(height = cabRoofOverhangFront)
+        offset(delta = -cabRoofOverhangBack ) 
+        cabPolygon();
+
     }
 
     difference() {
         difference() {
             // draw the cab with some extra length for the front roof overhang
-            translate([ -(cabWidth - chassisWidth) / 2, cabLength, chassisHeight ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    color(cabColor) linear_extrude(height = cabLength)
-                    {
-                        cabPolygon();
-                    }
-                }
-            }
-            
-        } // end drawing the solid cab & roof overhang 
+            translate([ -(cabWidth - chassisWidth()) / 2, cabLength, chassisHeight() ])
+            rotate([ 90, 0, 0 ])
+            color(cabColor) linear_extrude(height = cabLength)
+            cabPolygon();
+        }
 
         // hollow-out the cab
-        if(hollowCab){
-            translate([ -(cabWidth - chassisWidth) / 2, cabLength - cabSteelThickness(), chassisHeight ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    linear_extrude(height = cabLength - cabSteelThickness() * 2)
-                    {
-                        offset(delta = -cabSteelThickness() ) cabPolygon();
-                    }
-                }
-            }
+        if(hollowCab) {
+            translate([ -(cabWidth - chassisWidth()) / 2, cabLength - cabSteelThickness(), chassisHeight() ])
+            rotate([ 90, 0, 0 ])
+            linear_extrude(height = cabLength - cabSteelThickness() * 2)
+            offset(delta = -cabSteelThickness() )
+            cabPolygon();
         }
 
         // draw left window
         translate([
-            -((cabWidth - chassisWidth) / 2 ), cabLength - (leftWindowOffsetFront + leftWindowWidth),
+            -((cabWidth - chassisWidth()) / 2 ), cabLength - (leftWindowOffsetFront + leftWindowWidth),
             leftWindowOffsetBottom +
-            chassisHeight
+            chassisHeight()
         ])
-        {
-            cuboid([ cabSteelThickness(), leftWindowWidth, leftWindowHeight ], center = false,
-                fillet = leftWindowCornerRadius, edges = EDGES_X_ALL);
-        }
+        cuboid([ cabSteelThickness(), leftWindowWidth, leftWindowHeight ], anchor=[-1, -1, -1]);
+
 
         // cut left door hole
-        translate([ -(cabWidth - chassisWidth) / 2, doorOffsetBack, chassisHeight + doorOffsetBottom ])
-        {
-            rotate([ 90, 0, 90 ])
-            {
-                cuboid([ doorWidth, doorHeight, cabSteelThickness() ], center = false);
-            }
-        }
+        translate([ -(cabWidth - chassisWidth()) / 2, doorOffsetBack, chassisHeight() + doorOffsetBottom ])
+        rotate([ 90, 0, 90 ])
+        cuboid([ doorWidth, doorHeight, cabSteelThickness() ], anchor=[-1, -1, -1]);
 
         // draw right window
         translate([
-            -((cabWidth - chassisWidth) / 2 - (cabWidth - cabSteelThickness())),
+            -((cabWidth - chassisWidth()) / 2 - (cabWidth - cabSteelThickness())),
             cabLength - (rightWindowOffsetFront + rightWindowWidth), rightWindowOffsetBottom +
-            chassisHeight
+            chassisHeight()
         ])
-        {
-            cuboid([ cabSteelThickness() + 0.001, rightWindowWidth, rightWindowHeight ], 
-                center = false, fillet = rightWindowCornerRadius, edges = EDGES_X_ALL);
-        }
+        cuboid([ cabSteelThickness() + 0.001, rightWindowWidth, rightWindowHeight ], anchor=[-1, -1, -1]);
+
 
         // cut right door hole
-        translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack, chassisHeight + doorOffsetBottom ])
-        {
-            rotate([ 90, 0, 90 ])
-            {
-                cuboid([ doorWidth, doorHeight, cabSteelThickness() * 2 ], center = false);
-            }
-        }
+        translate([ 
+            cabWidth - (cabWidth - chassisWidth()) / 2 - cabSteelThickness(), 
+            doorOffsetBack, 
+            chassisHeight() + doorOffsetBottom 
+        ])
+        rotate([ 90, 0, 90 ])
+        cuboid([ doorWidth, doorHeight, cabSteelThickness() * 2 ], anchor=[-1,-1,-1]);
+
 
         // carve front windows
 
         // front centre window
         translate([
-            cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, cabLength,
+            cabWidth / 2 - (cabWidth - chassisWidth()) / 2 - frontCenterWindowWidth / 2, cabLength,
             frontCenterWindowOffsetBottom +
-            chassisHeight
+            chassisHeight()
         ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness() + 0.001 ],
-                            center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL);
-            }
-        }
+        rotate([ 90, 0, 0 ])
+        cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness() + 0.001], anchor=[-1, -1, -1]);
+        
 
         // front left window
+        windowRadiiPointsFL = [
+            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+        ];
         translate([
-            -((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), cabLength,
-            chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
-            frontSideWindowHeightLong
+            -((cabWidth - chassisWidth()) / 2 - frontSideWindowOffsetSide), 
+            cabLength,
+            chassisHeight() + (frontSideWindowOffsetBottom + chassisHeight()) - frontSideWindowHeightLong
         ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                radiiPoints = [
-                    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-                    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-                    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-                ];
-                linear_extrude(cabSteelThickness()) polygon(polyRound(radiiPoints, 30));
-            }
-        }
+        rotate([ 90, 0, 0 ])
+        linear_extrude(cabSteelThickness())
+        polygon(polyRound(windowRadiiPointsFL, 30));
+
 
         // front right window
         translate([
-            cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, cabLength,
-            (chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+            cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth()) / 2, 
+            cabLength,
+            (chassisHeight() + frontSideWindowOffsetBottom + chassisHeight()) -
             frontSideWindowHeightLong
         ])
-        {
-
-            mirror([ 1, 0, 0 ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    linear_extrude(cabSteelThickness()) polygon(polyRound(
-                        [
-                            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-                            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-                            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-                        ],
-                        30));
-                }
-            }
-        }
+        mirror([ 1, 0, 0 ])
+        rotate([ 90, 0, 0 ])
+        linear_extrude(cabSteelThickness()) 
+        polygon(polyRound([
+            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+        ], 30));
 
         // carve rear windows
 
         // rear centre window
         translate([
-            cabWidth / 2 - (cabWidth - chassisWidth) / 2 - frontCenterWindowWidth / 2, cabSteelThickness() ,
+            cabWidth / 2 - (cabWidth - chassisWidth()) / 2 - frontCenterWindowWidth / 2, cabSteelThickness() ,
             frontCenterWindowOffsetBottom +
-            chassisHeight
+            chassisHeight()
         ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness() ],
-                        center = false, fillet = frontCenterWindowCornerRadius, edges = EDGES_Z_ALL);
-            }
-        }
+        rotate([ 90, 0, 0 ])
+        cuboid([ frontCenterWindowWidth, frontCenterWindowHeight, cabSteelThickness() ],
+        anchor=[-1, -1, -1]);
 
         // rear left window
+        windowRadiiPointsRL = [
+            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+        ];
         translate([
-            -((cabWidth - chassisWidth) / 2 - frontSideWindowOffsetSide), cabSteelThickness(),
-            chassisHeight + (frontSideWindowOffsetBottom + chassisHeight) -
+            -((cabWidth - chassisWidth()) / 2 - frontSideWindowOffsetSide), cabSteelThickness(),
+            chassisHeight() + (frontSideWindowOffsetBottom + chassisHeight()) -
             frontSideWindowHeightLong
         ])
-        {
-            rotate([ 90, 0, 0 ])
-            {
-                radiiPoints = [
-                    [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-                    [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-                    [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-                ];
-                linear_extrude(cabSteelThickness()) polygon(polyRound(radiiPoints, 30));
-            }
-        }
+        rotate([ 90, 0, 0 ])
+        linear_extrude(cabSteelThickness()) 
+        polygon(polyRound(windowRadiiPointsRL, 30));
 
         // rear right window
         translate([
-            cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth) / 2, cabSteelThickness(),
-            (chassisHeight + frontSideWindowOffsetBottom + chassisHeight) -
+            cabWidth - frontSideWindowOffsetSide - (cabWidth - chassisWidth()) / 2, cabSteelThickness(),
+            (chassisHeight() + frontSideWindowOffsetBottom + chassisHeight()) -
             frontSideWindowHeightLong
         ])
-        {
+        mirror([ 1, 0, 0 ])
+        rotate([ 90, 0, 0 ])
+        linear_extrude(cabSteelThickness()) polygon(polyRound([
+            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
+            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
+            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
+        ], 30));
 
-            mirror([ 1, 0, 0 ])
-            {
-                rotate([ 90, 0, 0 ])
-                {
-                    linear_extrude(cabSteelThickness()) polygon(polyRound(
-                        [
-                            [ 0, 0, frontSideWindowCornerRadius ], [ frontSideWindowWidth, 0, frontSideWindowCornerRadius ],
-                            [ frontSideWindowWidth, frontSideWindowHeightLong, frontSideWindowCornerRadius ],
-                            [ 0, frontSideWindowHeightShort, frontSideWindowCornerRadius ]
-                        ],
-                        30));
-                }
-            }
-        }
     }
 
     // draw the left door
-    union()
-    {
-        difference()
-        {
-            translate([ -(cabWidth - chassisWidth) / 2 + cabSteelThickness(), doorOffsetBack, chassisHeight + doorOffsetBottom ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(doorColor) cuboid([ doorWidth, doorHeight, cabSteelThickness() ], center = false);
-                }
-            }
+    union() {
+        difference() {
+            translate([ -(cabWidth - chassisWidth()) / 2 + cabSteelThickness(), doorOffsetBack, chassisHeight() + doorOffsetBottom ])
+            rotate([ 90, 0, 90 ])
+            color(doorColor) 
+            cuboid([ doorWidth, doorHeight, cabSteelThickness() ], anchor=[-1, -1, -1]);
+            
             // cut the door window
             translate([
-                -(cabWidth - chassisWidth) / 2 + cabSteelThickness(),
-                (doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight +
+                -(cabWidth - chassisWidth()) / 2 + cabSteelThickness(),
+                (doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight() +
                 doorWindowOffsetBottom
             ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    cuboid([ doorWindowWidth, doorWindowHeight, cabSteelThickness() * 2 ], center = false,
-                        fillet = doorWindowCornerRadius, edges = EDGES_Z_ALL);
-                }
-            }
+            rotate([ 90, 0, 90 ])
+            cuboid([ doorWindowWidth, doorWindowHeight, cabSteelThickness() * 2 ], anchor=[-1, -1, -1]);
         }
 
-        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25){
-            // draw the door handle
-            translate([
-                -(cabWidth - chassisWidth) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight +
-                doorHandleOffsetBottom
-            ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
-                }
-            }
-        }
+        // draw the door handle
+        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25)
+        translate([
+            -(cabWidth - chassisWidth()) / 2 - doorHandleLength + cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack, chassisHeight() +
+            doorHandleOffsetBottom
+        ])
+        rotate([ 90, 0, 90 ])
+        color(doorHandleColor) 
+        cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
 
     } // end draw left door
 
     // draw the right door
-    union()
-    {
-        difference()
-        {
-            translate([ cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness() * 2, doorOffsetBack, chassisHeight + doorOffsetBottom ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(doorColor) cuboid([ doorWidth, doorHeight, cabSteelThickness() ], center = false);
-                }
-            }
+    union() {
+        difference() {
+            translate([ 
+                cabWidth - (cabWidth - chassisWidth()) / 2 - cabSteelThickness() * 2, 
+                doorOffsetBack, 
+                chassisHeight() + doorOffsetBottom 
+            ])
+            rotate([ 90, 0, 90 ])
+            color(doorColor) cuboid([ doorWidth, doorHeight, cabSteelThickness() ], anchor=[-1, -1, -1]);
+
             // cut the door window
             translate([
-                cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness() * 2,
-                (doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight +
+                cabWidth - (cabWidth - chassisWidth()) / 2 - cabSteelThickness() * 2,
+                (doorWidth - doorWindowWidth) / 2 + doorOffsetBack, chassisHeight() +
                 doorWindowOffsetBottom
             ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    cuboid([ doorWindowWidth, doorWindowHeight, cabSteelThickness() ], 
-                        center = false, fillet = doorWindowCornerRadius, edges = EDGES_Z_ALL);
-                }
-            }
+            rotate([ 90, 0, 90 ])
+            cube([ doorWindowWidth, doorWindowHeight, cabSteelThickness() ], anchor=[-1, -1, -1]);
         }
 
-        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25){ 
-            // draw the door handle
-            translate([
-                cabWidth - (cabWidth - chassisWidth) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
-                chassisHeight +
-                doorHandleOffsetBottom
-            ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
-                }
-            }
-        }
+        // draw the door handle
+        if(modelSize != SCALE_3D_PRINT && modelSize != SCALE_25)
+        translate([
+            cabWidth - (cabWidth - chassisWidth()) / 2 - cabSteelThickness(), doorOffsetBack + doorHandleOffsetBack,
+            chassisHeight() +
+            doorHandleOffsetBottom
+        ])
+        rotate([ 90, 0, 90 ])
+        color(doorHandleColor) cylinder(doorHandleLength, d = doorHandleDiameter, center = false);
+
     } // end draw right door
 
 } // end of cab union
@@ -1486,7 +1692,7 @@ if(showCab) union(){
 // draw nose
 module drawNose(){ 
 
-if(showNose) union() {
+if(showNose) render() union() {
 
 	difference() {
 		// create nose & fittings
@@ -1494,252 +1700,189 @@ if(showNose) union() {
 		union() {
 
 			// create solid nose
-			translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength, chassisHeight ])
-			{
-				rotate([ 90, 0, 0 ])
-				{
-					color(noseColor) linear_extrude(height = noseLength)
-					{
-						nosePolygon();
-					}
-				}
-			}
+			translate([ (chassisWidth() - noseWidth) / 2, cabLength + noseLength, chassisHeight() ])
+			rotate([ 90, 0, 0 ])
+			color(noseColor) linear_extrude(height = noseLength)
+			nosePolygon();
             
-            if(showNosePipes()){
+            if(showNosePipes()) {
 
                 // create air intake
                 translate([
-                    (chassisWidth - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
-                    noseLength + cabLength - noseAirIntakeOffsetFront, noseHeightCenter + chassisHeight - 20
+                    (chassisWidth() - noseWidth) / 2 + noseWidth - noseAirIntakeDiameter - noseAirIntakeOffsetRight,
+                    noseLength + cabLength - noseAirIntakeOffsetFront, 
+                    noseHeightCenter + chassisHeight() - 20
                 ])
-                {
-                    rotate([ 0, 0, 0 ])
-                    {
-                        difference()
-                        {
-                            color(noseAirIntakeColor) union()
-                            {
-                                cylinder(noseAirIntakeLength + 20, d = noseAirIntakeDiameter, center = false);
-                                // air intake housing (that the air intake filter sits onto)
-                                translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 20 ])
-                                {
-                                    cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter, center = false);
-                                }
-                                if(modelSize == SCALE_3D_PRINT || modelSize == SCALE_25){
-                                    // support of air intake housing (that the air intake filter sits onto)
-                                    translate([ 0, 0, (noseAirIntakeFilterHousingOffsetBottom + 20) - noseAirIntakeFilterHousingThickness ])
-                                    {
-                                        cylinder(noseAirIntakeFilterHousingThickness, d1=noseAirIntakeDiameter, d2 = noseAirIntakeFilterHousingDiameter, center = false);
-                                    }
-                                }
-
-                            }
-                            translate([ 0, 0, -1 ])
-                            {
-                                if(!solidNosePipes){
-                                    cylinder(noseAirIntakeLength + 202, d = noseAirIntakeDiameter - noseAirIntakeThickness * 2, center = false);
-                                }
-                            }
+                rotate([ 0, 0, 0 ])
+                difference() {
+                    color(noseAirIntakeColor) 
+                    union() {
+                        cylinder(noseAirIntakeLength + 20, d = noseAirIntakeDiameter, center = false);
+                        
+                        // air intake housing (that the air intake filter sits onto)
+                        translate([ 0, 0, noseAirIntakeFilterHousingOffsetBottom + 20 ])
+                        cylinder(noseAirIntakeFilterHousingThickness, d = noseAirIntakeFilterHousingDiameter, center = false);
+                        
+                        if(modelSize == SCALE_3D_PRINT || modelSize == SCALE_25) {
+                            // support of air intake housing (that the air intake filter sits onto)
+                            translate([ 0, 0, (noseAirIntakeFilterHousingOffsetBottom + 20) - noseAirIntakeFilterHousingThickness ])
+                            cylinder(noseAirIntakeFilterHousingThickness, d1=noseAirIntakeDiameter, d2 = noseAirIntakeFilterHousingDiameter, center = false);
                         }
+
+                        if(!solidNosePipes)
+                        translate([ 0, 0, -1 ])
+                        cylinder(noseAirIntakeLength + 202, d = noseAirIntakeDiameter - noseAirIntakeThickness * 2, center = false);
+
                     }
                 }
 
                 // create gas input
                 translate([
-                    (chassisWidth - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
-                    noseLength + cabLength - noseFuelInputOffsetFront, noseHeightCenter + chassisHeight - 20
+                    (chassisWidth() - noseWidth) / 2 + noseWidth - noseFuelInputDiameter - noseFuelInputOffsetRight,
+                    noseLength + cabLength - noseFuelInputOffsetFront, 
+                    noseHeightCenter + chassisHeight() - 20
                 ])
-                {
-                    rotate([ 0, 0, 0 ])
-                    {
-                        difference()
-                        {
-                            union()
-                            {
-                                color(noseFuelInputColor) cylinder(noseFuelInputLength + 20, d = noseFuelInputDiameter, center = false);
-                            }
-                            translate([ 0, 0, -1 ])
-                            {
-                                if(!solidNosePipes){
-                                    cylinder(noseFuelInputLength + 102, d = noseFuelInputDiameter - noseFuelInputThickness * 2, center = false);
-                                }
-                            }
-                        }
-                    }
+                rotate([ 0, 0, 0 ])
+                difference() {
+                    color(noseFuelInputColor)
+                    cylinder(noseFuelInputLength + 20, d = noseFuelInputDiameter, center = false);
+                    
+                    if(!solidNosePipes)
+                    translate([ 0, 0, -1 ])
+                    cylinder(noseFuelInputLength + 102, d = noseFuelInputDiameter - noseFuelInputThickness * 2, center = false);
+                    
                 }
 
                 // create exhaust
                 translate([
-                    (chassisWidth - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
-                    noseHeightCenter + chassisHeight - 20
+                    (chassisWidth() - noseWidth) / 2 + noseExhaustOffsetLeft, cabLength + noseExhaustOffsetBack,
+                    noseHeightCenter + chassisHeight() - 20
                 ])
-                {
-                    rotate([ 0, 0, 0 ])
-                    {
-                        difference()
-                        {
-                            color(noseExhaustColor) union()
-                            {
-                                cylinder(noseExhaustLength + 20, d = noseExhaustDiameter, center = false);
-                            }
-                            translate([ 0, 0, -1 ])
-                            {
-                                if(!solidNosePipes){
-                                    cylinder(noseExhaustLength + 102, d = noseExhaustDiameter - noseExhaustThickness * 2, center = false);
-                                }
-                            }
-                        }
-                    }
+                rotate([ 0, 0, 0 ])
+                difference() {
+                    color(noseExhaustColor) 
+                    cylinder(noseExhaustLength + 20, d = noseExhaustDiameter, center = false);
+                    
+                    if(!solidNosePipes) 
+                    translate([ 0, 0, -1 ])
+                    cylinder(noseExhaustLength + 102, d = noseExhaustDiameter - noseExhaustThickness * 2, center = false);
+                    
                 }
-            
             } // end if show nose pipes
             
 		} // end create solid nose
 
 		// hollow-out the nose
-		if(hollowNose){
-			translate([ (chassisWidth - noseWidth) / 2, cabLength + noseLength - noseSteelThickness(), chassisHeight ])
-				{
-				rotate([ 90, 0, 0 ])
-				{
-					linear_extrude(height = noseLength - noseSteelThickness() * 2)
-					{
-						offset(delta = -noseSteelThickness() * 2) nosePolygon();
-					}
-				}
-			}
-
-        }
-
+		if(hollowNose)
+        translate([ (chassisWidth() - noseWidth) / 2, cabLength + noseLength - noseSteelThickness(), chassisHeight() ])
+        rotate([ 90, 0, 0 ])
+        linear_extrude(height = noseLength - noseSteelThickness() * 2)
+        offset(delta = -noseSteelThickness() * 2)
+        nosePolygon();
+        
         // cut front engine bay hole
         translate([
-            ((chassisWidth - noseWidth) / 2) + ((noseWidth - noseFrontWindowWidth) / 2), (noseLength + cabLength) - (noseSteelThickness()),
-            chassisHeight
+            ((chassisWidth() - noseWidth) / 2) + ((noseWidth - noseFrontWindowWidth) / 2), 
+            (noseLength + cabLength) - (noseSteelThickness()),
+            chassisHeight()
         ])
-        {
-            cube([ noseFrontWindowWidth, noseSteelThickness(), noseFrontWindowHeight ]);
-        }
+        cube([ noseFrontWindowWidth, noseSteelThickness(), noseFrontWindowHeight ]);
+        
 
 		if(hollowNose){
             // cut left engine bay hole
             translate([
-                (chassisWidth - noseWidth) / 2,
-                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+                (chassisWidth() - noseWidth) / 2 - noseSteelThickness(),
+                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight() +
                 noseDoorFrameWidth
             ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(noseDoorColor) cuboid(
-                        [
-                            noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
-                            noseSteelThickness()
-                        ],
-                        center = false);
-                }
-            }
+            rotate([ 90, 0, 90 ])
+            color(noseDoorColor) 
+            cuboid([
+                noseLength - noseDoorFrameWidth * 2, 
+                noseDoorHeight - noseDoorFrameWidth * 2,
+                noseSteelThickness()
+            ],
+            anchor=[-1, -1, -1]);
 
             // cut right engine bay hole
             translate([
-                ((chassisWidth - noseWidth) / 2) + (noseWidth - noseSteelThickness()),
-                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight +
+                (chassisWidth() - noseWidth) / 2 + noseWidth - chassisSteelThickness(),
+                (cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2 + noseDoorFrameWidth), chassisHeight() +
                 noseDoorFrameWidth
             ])
-            {
-                rotate([ 90, 0, 90 ])
-                {
-                    color(noseDoorColor) cuboid(
-                        [
-                            noseLength - noseDoorFrameWidth * 2, noseDoorHeight - noseDoorFrameWidth * 2,
-                            noseSteelThickness() 
-                        ],
-                        center = false);
-                }
-            }
-
+            rotate([ 90, 0, 90 ])
+            color(noseDoorColor) 
+            cuboid([
+                noseLength - noseDoorFrameWidth * 2, 
+                noseDoorHeight - noseDoorFrameWidth * 2,
+                noseSteelThickness() * 3
+            ], anchor=[-1, -1, -1]);
         }
-
     }
 
     // draw the front grille
-    color(noseFrontGrilleColor) union(){
+    color(noseFrontGrilleColor) 
+    union() {
         // draw grille border
         translate([
-            ( (chassisWidth-noseWidth) / 2 + (noseWidth-noseFrontGrilleWidth) / 2 ),
-            cabLength+noseLength - noseFrontGrilleThickness + noseFrontGrilleProtrusionFront,
-            chassisHeight
-        ]){
-            difference(){
-                cuboid([noseFrontGrilleWidth, noseFrontGrilleThickness, noseFrontGrilleHeight], center=false);
-                translate([noseFrontGrilleBorderWidth, 0, noseFrontGrilleBorderWidth ]){
-                    cuboid([noseFrontGrilleWidth - noseFrontGrilleBorderWidth*2, noseFrontGrilleThickness, noseFrontGrilleHeight - noseFrontGrilleBorderWidth*2], center=false);
-                }
-            }
+            ( (chassisWidth()-noseWidth) / 2 + (noseWidth-noseFrontGrilleWidth) / 2 ),
+            cabLength + noseLength - noseFrontGrilleThickness + noseFrontGrilleProtrusionFront,
+            chassisHeight()
+        ])
+        difference() {
+            cuboid([noseFrontGrilleWidth, noseFrontGrilleThickness, noseFrontGrilleHeight], anchor=[-1, -1, -1]);
+            
+            translate([noseFrontGrilleBorderWidth, 0, noseFrontGrilleBorderWidth ])
+            cuboid([noseFrontGrilleWidth - noseFrontGrilleBorderWidth*2, noseFrontGrilleThickness, noseFrontGrilleHeight - noseFrontGrilleBorderWidth*2], anchor=[-1, -1, -1]);
         }
         
         // draw louvre grille
+        translate([0, 0, 0])
         translate([
-            (chassisWidth-noseWidth)/2 + noseFrontGrilleWidth/2 + (noseWidth-noseFrontGrilleWidth)/2, 
-            cabLength+noseLength - noseFrontGrilleProtrusionFront - noseFrontGrilleLouvreWidth/2, 
-            chassisHeight + noseFrontGrilleLouvreWidth/2 + noseFrontGrilleBorderWidth
+            (chassisWidth()-noseWidth)/2 + noseFrontGrilleWidth/2 + (noseWidth-noseFrontGrilleWidth)/2, 
+            cabLength+noseLength - noseFrontGrilleThickness + noseFrontGrilleProtrusionFront + noseFrontGrilleLouvreWidth/2, 
+            chassisHeight() + noseFrontGrilleLouvreWidth/2 + noseFrontGrilleBorderWidth
         ]){
-            rotate([0, -90, 0]){
-                louvreGrill(noseFrontWindowWidth - noseFrontGrilleBorderWidth*2, noseFrontGrilleHeight - noseFrontGrilleLouvreWidth - noseFrontGrilleBorderWidth, noseFrontGrilleLouvreThickness, noseFrontGrilleLouvreWidth, noseFrontGrilleLouvreDistance, noseFrontGrilleLouvreAngle);
-            }
+            rotate([0, -90, 0])
+            louvreGrill(noseFrontWindowWidth - noseFrontGrilleBorderWidth*2, noseFrontGrilleHeight - noseFrontGrilleLouvreWidth - noseFrontGrilleBorderWidth, noseFrontGrilleLouvreThickness, noseFrontGrilleLouvreWidth, noseFrontGrilleLouvreDistance, noseFrontGrilleLouvreAngle);
         }
-
     }
 
 	// draw the left front door
 	translate([
-		(chassisWidth - noseWidth) / 2 - noseSteelThickness(),
+		(chassisWidth() - noseWidth) / 2 - noseSteelThickness(),
 		(cabLength + noseLength - noseDoorWidth - noseDoorOffsetFront),
-		chassisHeight
+		chassisHeight()
 	])
-	{
-		rotate([ 90, 0, 90 ])
-		{
-			noseDoor();
-		}
-	}
+	rotate([ 90, 0, 90 ])
+	noseDoor();
 
 	// draw the left rear door
 	translate([
-		(chassisWidth - noseWidth) / 2 - noseSteelThickness(),
+		(chassisWidth() - noseWidth) / 2 - noseSteelThickness(),
 		(cabLength + noseLength - noseDoorWidth * 2 - noseDoorOffsetFront * 2),
-		chassisHeight
+		chassisHeight()
 	])
-	{
-		rotate([ 90, 0, 90 ])
-		{
-			noseDoor();
-		}
-	}
+	rotate([ 90, 0, 90 ])
+	noseDoor();
 
 	// draw the right front door
 	translate([
-		noseWidth + (chassisWidth - noseWidth) / 2 + noseSteelThickness(), (cabLength + noseLength - noseDoorOffsetFront),
-		chassisHeight
+		noseWidth + (chassisWidth() - noseWidth) / 2 + noseSteelThickness(), (cabLength + noseLength - noseDoorOffsetFront),
+		chassisHeight()
 	])
-	{
-		rotate([ 90, 0, -90 ])
-		{
-			noseDoor();
-		}
-	}
+	rotate([ 90, 0, -90 ])
+	noseDoor();
 
 	// draw the right rear door
 	translate([
-		noseWidth + (chassisWidth - noseWidth) / 2 + noseSteelThickness(),
+		noseWidth + (chassisWidth() - noseWidth) / 2 + noseSteelThickness(),
 		(cabLength + noseLength - noseDoorWidth - noseDoorOffsetFront * 2),
-		chassisHeight
+		chassisHeight()
 	])
-	{
-		rotate([ 90, 0, -90 ])
-		{
-			noseDoor();
-		}
-	}
+	rotate([ 90, 0, -90 ])
+	noseDoor();
 
 } // end of draw nose union
 
@@ -1752,85 +1895,58 @@ module drawWheels() {
 // draw wheels
 translate([0, 0, -journalBoxOffsetY()]) union() {
 
+    // rear axle
+    if(showAxles)
+    translate([ axleOffsetLeft(), rearAxleOffset(), 0 ])
+    rotate([ 0, 90, 0 ])
+    cylinder(axleLength(), d = axleDiameter(), center = false);
 
-    if(showAxles){
-        // rear axle
-        translate([ axleOffsetLeft(), rearAxleOffset(), 0 ])
-        {
-            rotate([ 0, 90, 0 ])
-            {
-                cylinder(axleLength(), d = axleDiameter(), center = false);
-            }
-        }
-    }
+    // rear left wheel
+    if(showWheels && showWheels_LR)
+    translate([ ((chassisWidth() - wheelTrackWidth()) / 2) + wheelFlangeWidth(), rearAxleOffset(), 0 ])
+    rotate([ 0, -90, 0 ])
+    flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
 
-    if(showWheels && showWheels_LR){
-        // rear left wheel
-        translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), rearAxleOffset(), 0 ])
-        {
-            rotate([ 0, -90, 0 ])
-            {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
-            }
-        }
-    }
+    // rear right wheel
+    if(showWheels && showWheels_RR)
+    translate([
+        ((chassisWidth() - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
+        rearAxleOffset(), 0
+    ])
+    rotate([ 0, 90, 0 ])
+    flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
 
-    if(showWheels && showWheels_RR){
-        // rear right wheel
-        translate([
-            ((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
-            rearAxleOffset(), 0
-        ])
-        {
-            rotate([ 0, 90, 0 ])
-            {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
-            }
-        }
-    }
+    // front axle
+    if(showAxles)
+    translate([ axleOffsetLeft(), frontAxleOffset(), 0 ])
+    rotate([ 0, 90, 0 ])
+    cylinder(axleLength(), d = axleDiameter(), center = false);
 
-    if(showAxles){
-        // front axle
-        translate([ axleOffsetLeft(), frontAxleOffset(), 0 ])
-        {
-            rotate([ 0, 90, 0 ])
-            {
-                cylinder(axleLength(), d = axleDiameter(), center = false);
-            }
-        }
-    }
 
-    if(showWheels && showWheels_LF){
-        // front left wheel
-        translate([ ((chassisWidth - wheelTrackWidth()) / 2) + wheelFlangeWidth(), frontAxleOffset(), 0 ])
-        {
-            rotate([ 0, -90, 0 ])
-            {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
-            }
-        }
-    }
+    // front left wheel
+    if(showWheels && showWheels_LF)
+    translate([ ((chassisWidth() - wheelTrackWidth()) / 2) + wheelFlangeWidth(), frontAxleOffset(), 0 ])
+    rotate([ 0, -90, 0 ])
+    flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
 
-    if(showWheels && showWheels_RF){
-        // front right wheel
-        translate([
-            ((chassisWidth - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
-            frontAxleOffset(), 0
-        ])
-        {
-            rotate([ 0, 90, 0 ])
-            {
-                flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
-            }
-        }
-    }
+
+    // front right wheel
+    if(showWheels && showWheels_RF)
+    translate([
+        ((chassisWidth() - wheelTrackWidth()) / 2 - wheelFlangeWidth() * 2) + wheelTrackWidth() + wheelFlangeWidth(),
+        frontAxleOffset(), 0
+    ])
+    rotate([ 0, 90, 0 ])
+    flangedWheel(wheelDiameter(), wheelFlangeHeight(), wheelFlangeWidth(), axleDiameter());
+
+
 }
 
 }
 
 module drawBody() {
-    difference(){
-        union(){
+    difference() {
+        union() {
             drawCab();
             drawNose();
         }
@@ -1840,7 +1956,6 @@ module drawBody() {
     }
 }
 
-//drawChassisProfile_125();
 drawBody();
 drawChassis();
 drawWheels();

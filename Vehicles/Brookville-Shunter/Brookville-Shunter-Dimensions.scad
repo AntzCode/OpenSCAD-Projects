@@ -37,12 +37,12 @@ noseFrontWindowHeight = noseHeightCenter - 330 / scale();
 noseFrontGrilleLouvreDistance = 30 / scale();
 noseFrontGrilleLouvreThickness = 4 / scale();
 noseFrontGrilleLouvreWidth = 50 / scale();
-noseFrontGrilleLouvreAngle = -70;
+noseFrontGrilleLouvreAngle = -55;
 noseFrontGrilleWidth = noseFrontWindowWidth;
 noseFrontGrilleHeight = noseFrontWindowHeight;
 noseFrontGrilleThickness = 50 / scale();
-noseFrontGrilleProtrusionFront = 3 / scale();
-noseFrontGrilleColor = "Yellow";
+noseFrontGrilleProtrusionFront = 5 / scale();
+noseFrontGrilleColor = "#ffe032";
 noseFrontGrilleBorderWidth = 60 / scale();
 
 noseDoorHeight = 730 / scale();
@@ -151,11 +151,18 @@ step1Thickness = 20 / scale();
 step1OffsetBottom = 40 / scale();
 
 // chassis
-chassisWidth = 1600 / scale();
-chassisHeight = 470 / scale();
-chassisLength = cabLength + noseLength + (30 / scale());
-chassisCornerRadius = 100 / scale();
-chassisColor = "Black";
+chassisColor = "#292930";
+chassisCornerColor = "#363632";
+chassisBoltColor = "#545558";
+chassisWidthOrig = 1600;
+chassisHeightOrig = 470;
+chassisLengthOrig = cabLength + noseLength + 30;
+chassisCornerRadiusOrig = 140;
+chassisCornerLengthOrig = 255;
+chassisCornerBoltOffsetOrig = 20;
+
+chassisBoltSizeOrig = 36;
+chassisBoltThicknessOrig = 20;
 
 // hitch block
 hitchBlockColor = "DarkSlateGray";
@@ -190,30 +197,133 @@ hitchNotchCornerRadius = (modelSize == SCALE_FULL) ? 30 / scale() : 0;
 wheelHoleWidth = 380 / scale();
 wheelHoleHeight = 150 / scale();
 
+// CHASSIS LENGTH
+function chassisLength() =
+    modelSize == SCALE_7_INCH ? 633 :
+    modelSize == SCALE_5_INCH ? 339 :
+    modelSize == SCALE_3D_PRINT ? 57 :
+    modelSize == SCALE_25 ? 113 : 
+    chassisLengthOrig;
+
+// CHASSIS WIDTH
+function chassisWidth() =
+    modelSize == SCALE_7_INCH ? 355 :
+    modelSize == SCALE_5_INCH ? 190 :
+    modelSize == SCALE_3D_PRINT ? 32 :
+    modelSize == SCALE_25 ? chassisWidthOrig / scale() : 
+    chassisWidthOrig;
+
+// CHASSIS HEIGHT
+function chassisHeight() =
+    //modelSize == SCALE_7_INCH ? 105 :
+    modelSize == SCALE_7_INCH ? 100 :
+    modelSize == SCALE_5_INCH ? chassisHeightOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 9.4 :
+    modelSize == SCALE_25 ? chassisHeightOrig / scale() : 
+    chassisHeightOrig;
+
+// CHASSIS CORNER RADIUS
+function chassisCornerRadius() =
+    modelSize == SCALE_7_INCH ? chassisCornerRadiusOrig / scale() :
+    modelSize == SCALE_5_INCH ? chassisCornerRadiusOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 0 :
+    modelSize == SCALE_25 ? 0 : 
+    chassisCornerRadiusOrig;
+
+// CHASSIS CORNER LENGTH
+function chassisCornerLength() =
+    modelSize == SCALE_7_INCH ? chassisCornerLengthOrig / scale() :
+    modelSize == SCALE_5_INCH ? chassisCornerLengthOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_25 ? chassisCornerLengthOrig / scale() : 
+    chassisCornerLengthOrig;
+
+// CHASSIS CORNER BOLT OFFSET
+function chassisCornerBoltOffset() =
+    modelSize == SCALE_7_INCH ? chassisCornerBoltOffsetOrig / scale() :
+    modelSize == SCALE_5_INCH ? chassisCornerBoltOffsetOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_25 ? chassisCornerBoltOffsetOrig / scale() : 
+    chassisCornerBoltOffsetOrig;
+
+// CHASSIS BOLT SIZE
+function chassisBoltSize() =
+    modelSize == SCALE_7_INCH ? chassisBoltSizeOrig / scale() :
+    modelSize == SCALE_5_INCH ? chassisBoltSizeOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_25 ? chassisBoltSizeOrig / scale() : 
+    chassisBoltSizeOrig;
+
+// CHASSIS BOLT THICKNESS
+function chassisBoltThickness() =
+    modelSize == SCALE_7_INCH ? chassisBoltThicknessOrig / scale() :
+    modelSize == SCALE_5_INCH ? chassisBoltThicknessOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_25 ? chassisBoltThicknessOrig / scale() : 
+    chassisBoltThicknessOrig;
+
+
+
 // JOURNAL ASSEMBLY
 
 // PEDESTAL
-pedestalColor = "#1f3b4d";
-pedestalWidthOrig = 620;
+pedestalColor = "#444852";
+pedestalWidthOrig = 650;
 pedestalHeightOrig = 400;
 pedestalThicknessOrig = 165;
+pedestalWidthTopOrig = 850;
 pedestalCornerRadiusOrig = 5;
 pedestalBoltHoleDiameterOrig = 21;
 pedestalBoltHoleDepthOrig = 180;
+pedestalOuterBoltHoleDepthOrig = 180;
 
 // PEDESTAL MOUNT BRACKET (INSIDE CHASSIS)
 pedestalMountBracketColor = "#2e4046";
 pedestalMountBracketWidthOrig = 180;
 pedestalMountBracketHeightOrig = 100;
 pedestalMountBracketThicknessOrig = 16;
-pedestalMountBracketLengthOrig = chassisLength - chassisCornerRadius * 2;
+pedestalMountBracketLengthOrig = chassisLength() - chassisCornerRadius() * 2;
 pedestalMountBracketBoltHoleDiameterOrig = 24;
 pedestalMountBracketBoltHoleSlotLengthOrig = 48;
+
+pedestalLegTopLength=56;
+pedestalLegTopOuterWidth=24;
+pedestalLegTopInnerWidth=18;
+pedestalLegTopInnerLength=4;
+pedestalLegTopInnerOffsetY=16;
+pedestalLegTopPointWidthMin=18;
+pedestalLegTopPointWidthMax=18;
+pedestalLegTopScoopAngle=25;
+
+
+pedestalLegBottomLength=30;
+pedestalLegBottomOuterWidth=24;
+pedestalLegBottomInnerWidth=18;
+pedestalLegBottomInnerLength=4;
+pedestalLegBottomInnerOffsetY=3;
+pedestalLegBottomPointWidthMin=18;
+pedestalLegBottomPointWidthMax=18;
+pedestalLegBottomScoopAngle=25;
+
+
+pedestalHeelLength=16;
+pedestalHeelOuterWidth=24;
+pedestalHeelInnerWidth=18;
+pedestalHeelInnerLength=4;
+pedestalHeelInnerOffsetY=3;
+pedestalHeelPointWidthMin=18;
+pedestalHeelPointWidthMax=18;
+pedestalHeelScoopAngle=25;
+
+pedestalLegTopScoopRoundness =      1;
+pedestalLegBottomScoopRoundness =   1;
+pedestalHeelScoopRoundness =        1;
+
 
 // JOURNAL BLOCK
 journalBlockColor = "#404546";
 journalBlockThicknessOrig = 165;
-journalBlockWidthOrig = 380;
+journalBlockWidthOrig = 360;
 journalBlockHeightOrig = 300;
 journalBlockProtrusion = 30 / scale();
 journalBlockChannelWidthOrig = 12;
@@ -268,6 +378,14 @@ function pedestalWidth() =
     modelSize == SCALE_25 ? pedestalWidthOrig / scale() : 
     pedestalWidthOrig;
 
+// PEDESTAL WIDTH TOP
+function pedestalWidthTop() =
+    modelSize == SCALE_7_INCH ? pedestalWidthTopOrig / scale() :
+    modelSize == SCALE_5_INCH ? pedestalWidthTopOrig / scale() :
+    modelSize == SCALE_3D_PRINT ? pedestalWidthTopOrig / scale() :
+    modelSize == SCALE_25 ? pedestalWidthTopOrig / scale() : 
+    pedestalWidthTopOrig;
+
 // PEDESTAL HEIGHT
 function pedestalHeight() =
     modelSize == SCALE_7_INCH ? pedestalHeightOrig / scale() :
@@ -279,7 +397,7 @@ function pedestalHeight() =
 // PEDESTAL THICKNESS
 function pedestalThickness() =
     modelSize == SCALE_7_INCH ? 24 :
-    modelSize == SCALE_5_INCH ? 24 :
+    modelSize == SCALE_5_INCH ? 15 :
     modelSize == SCALE_3D_PRINT ? 4 :
     modelSize == SCALE_25 ? 3 : 
     pedestalThicknessOrig;
@@ -300,27 +418,43 @@ function pedestalBoltHoleDiameter() =
     modelSize == SCALE_25 ? 2 : 
     pedestalBoltHoleDiameterOrig;
 
-// PEDESTAL BOLT HOLE DEPTH
+// PEDESTAL BOLT HOLE DEPTH (inner)
 function pedestalBoltHoleDepth() =
-    modelSize == SCALE_7_INCH ? 40 :
+    modelSize == SCALE_7_INCH ? 90 :
     modelSize == SCALE_5_INCH ? 40 :
     modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 2 : 
     pedestalBoltHoleDepthOrig;
 
+// PEDESTAL OUTER BOLT HOLE DEPTH
+function pedestalOuterBoltHoleDepth() =
+    modelSize == SCALE_7_INCH ? 65 :
+    modelSize == SCALE_5_INCH ? 40 :
+    modelSize == SCALE_3D_PRINT ? 2 :
+    modelSize == SCALE_25 ? 2 : 
+    pedestalOuterBoltHoleDepthOrig;
+
+// PEDESTAL BOLT HOLE OFFSET 1
+function pedestalBoltHoleOffset() =
+    (journalBlockWidth() / 2) + (pedestalWidth() - journalBlockWidth())/2/2 - pedestalBoltHoleDiameter();
+
+// PEDESTAL BOLT HOLE OFFSET 2
+function pedestalOuterBoltHoleOffset() =
+    (journalBlockWidth() / 2) + (pedestalWidth() - journalBlockWidth())/2/2 + (pedestalWidthTop() - pedestalWidth())/2 - pedestalBoltHoleDiameter();
+
 // PEDESTAL MOUNT BRACKET WIDTH
 function pedestalMountBracketWidth() =
     modelSize == SCALE_7_INCH ? 25 :
-    modelSize == SCALE_5_INCH ? 25 :
-    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_5_INCH ? 15 :
+    modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 3 : 
     pedestalMountBracketWidthOrig;
 
 // PEDESTAL MOUNT BRACKET HEIGHT
 function pedestalMountBracketHeight() =
     modelSize == SCALE_7_INCH ? 25 :
-    modelSize == SCALE_5_INCH ? 25 :
-    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_5_INCH ? 15 :
+    modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 3 : 
     pedestalMountBracketHeightOrig;
 
@@ -328,17 +462,12 @@ function pedestalMountBracketHeight() =
 function pedestalMountBracketThickness() =
     modelSize == SCALE_7_INCH ? 3 :
     modelSize == SCALE_5_INCH ? 3 :
-    modelSize == SCALE_3D_PRINT ? 3 :
+    modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 3 : 
     pedestalMountBracketThicknessOrig;
 
 // PEDESTAL MOUNT BRACKET LENGTH
-function pedestalMountBracketLength() =
-    modelSize == SCALE_7_INCH ? pedestalMountBracketLengthOrig :
-    modelSize == SCALE_5_INCH ? pedestalMountBracketLengthOrig :
-    modelSize == SCALE_3D_PRINT ? pedestalMountBracketLengthOrig :
-    modelSize == SCALE_25 ? pedestalMountBracketLengthOrig : 
-    pedestalMountBracketLengthOrig;
+function chassisWallLength() = chassisLength() - chassisCornerRadius()*2;
 
 // PEDESTAL MOUNT BRACKET HOLE DIAMETER (for bolt to go through)
 function pedestalMountBracketBoltHoleDiameter() =
@@ -350,7 +479,7 @@ function pedestalMountBracketBoltHoleDiameter() =
 
 // PEDESTAL MOUNT BRACKET HOLE SLOT LENGTH
 function pedestalMountBracketBoltHoleSlotLength() =
-    modelSize == SCALE_7_INCH ? 16 :
+    modelSize == SCALE_7_INCH ? 10 :
     modelSize == SCALE_5_INCH ? 16 :
     modelSize == SCALE_3D_PRINT ? 3 :
     modelSize == SCALE_25 ? 3 : 
@@ -358,7 +487,7 @@ function pedestalMountBracketBoltHoleSlotLength() =
 
 // SUSPENSION TRAVEL DISTANCE
 function journalBlockSuspensionTravelDistance() =
-    modelSize == SCALE_7_INCH ? 12 :
+    modelSize == SCALE_7_INCH ? 8 :
     modelSize == SCALE_5_INCH ? 8 :
     modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 2 : 
@@ -367,7 +496,7 @@ function journalBlockSuspensionTravelDistance() =
 // SUSPENSION SPRING HOLE DIAMETER
 function journalBlockSuspensionSpringHoleDiameter() =
     modelSize == SCALE_7_INCH ? 14 :
-    modelSize == SCALE_5_INCH ? 14 :
+    modelSize == SCALE_5_INCH ? 10 :
     modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 2 : 
     journalBlockSuspensionSpringHoleDiameterOrig;
@@ -375,7 +504,7 @@ function journalBlockSuspensionSpringHoleDiameter() =
 // SUSPENSION SPRING HOLE DEPTH
 function journalBlockSuspensionSpringHoleDepth() =
     modelSize == SCALE_7_INCH ? 24 :
-    modelSize == SCALE_5_INCH ? 24 :
+    modelSize == SCALE_5_INCH ? 12 :
     modelSize == SCALE_3D_PRINT ? 0 :
     modelSize == SCALE_25 ? 0 : 
     journalBlockSuspensionSpringHoleDepthOrig;
@@ -383,7 +512,7 @@ function journalBlockSuspensionSpringHoleDepth() =
 // SUSPENSION SPRING HOLE OFFSET
 function journalBlockSuspensionSpringHoleOffset() = 
     modelSize == SCALE_7_INCH ? 3 :
-    modelSize == SCALE_5_INCH ? 14 :
+    modelSize == SCALE_5_INCH ? 3 :
     modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 2 : 
     journalBlockSuspensionSpringHoleOffsetOrig;
@@ -442,7 +571,7 @@ function journalBlockHeight() =
 // JOURNAL BLOCK THICKNESS
 function journalBlockThickness() =
     modelSize == SCALE_7_INCH ? 24 :
-    modelSize == SCALE_5_INCH ? 24 :
+    modelSize == SCALE_5_INCH ? 15 :
     modelSize == SCALE_3D_PRINT ? 4 :
     modelSize == SCALE_25 ? 3 : 
     journalBlockThicknessOrig;
@@ -491,7 +620,7 @@ function journalBlockBearingHeight() =
 function journalBlockBearingOuterThickness() =
     modelSize == SCALE_7_INCH ? 2.2 :
     modelSize == SCALE_5_INCH ? 6 :
-    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_3D_PRINT ? 1 :
     modelSize == SCALE_25 ? 3 : 
     journalBlockBearingOuterThicknessOrig;
 
@@ -499,7 +628,7 @@ function journalBlockBearingOuterThickness() =
 function journalBlockBearingInnerThickness() =
     modelSize == SCALE_7_INCH ? 2.4 :
     modelSize == SCALE_5_INCH ? 6 :
-    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_3D_PRINT ? 1 :
     modelSize == SCALE_25 ? 3 : 
     journalBlockBearingInnerThicknessOrig;
 
@@ -507,7 +636,7 @@ function journalBlockBearingInnerThickness() =
 function bearingCapPlateDiameter() =
     modelSize == SCALE_7_INCH ? 70 :
     modelSize == SCALE_5_INCH ? 5 :
-    modelSize == SCALE_3D_PRINT ? 0 :
+    modelSize == SCALE_3D_PRINT ? 7 :
     modelSize == SCALE_25 ? 0 : 
     bearingCapPlateDiameterOrig;
 
@@ -515,31 +644,31 @@ function bearingCapPlateDiameter() =
 function bearingCapPlateThickness() =
     modelSize == SCALE_7_INCH ? 5 :
     modelSize == SCALE_5_INCH ? 5 :
-    modelSize == SCALE_3D_PRINT ? 0 :
-    modelSize == SCALE_25 ? 0 : 
+    modelSize == SCALE_3D_PRINT ? 1 :
+    modelSize == SCALE_25 ? 1 : 
     bearingCapPlateThicknessOrig;
 
 // BEARING CAP DIAMETER (center cap)
 function bearingCapDiameter() =
     modelSize == SCALE_7_INCH ? 30 :
     modelSize == SCALE_5_INCH ? 30 :
-    modelSize == SCALE_3D_PRINT ? 0 :
-    modelSize == SCALE_25 ? 0 : 
+    modelSize == SCALE_3D_PRINT ? 4 :
+    modelSize == SCALE_25 ? 4 : 
     bearingCapDiameterOrig;
 
 // BEARING CAP PROTRUSION (center cap)
 function bearingCapProtrusion() =
     modelSize == SCALE_7_INCH ? 8 :
     modelSize == SCALE_5_INCH ? 5 :
-    modelSize == SCALE_3D_PRINT ? 0 :
-    modelSize == SCALE_25 ? 0 : 
+    modelSize == SCALE_3D_PRINT ? 1 :
+    modelSize == SCALE_25 ? 1 : 
     bearingCapProtrusionOrig;
 
 // BEARING CAP ROUNDNESS (center cap)
 function bearingCapCornerRadius() =
     modelSize == SCALE_7_INCH ? 5 :
     modelSize == SCALE_5_INCH ? 5 :
-    modelSize == SCALE_3D_PRINT ? 0 :
+    modelSize == SCALE_3D_PRINT ? 0.5 :
     modelSize == SCALE_25 ? 0 : 
     bearingCapCornerRadiusOrig;
 
@@ -627,7 +756,7 @@ function chassisSteelThickness() =
 // AXLE DIAMETER
 function axleDiameter() = 
     modelSize == SCALE_7_INCH ? 20 :
-    modelSize == SCALE_5_INCH ? 20 :
+    modelSize == SCALE_5_INCH ? 16 :
     modelSize == SCALE_3D_PRINT ? 2 :
     modelSize == SCALE_25 ? 2 : 
     85;
@@ -635,14 +764,14 @@ function axleDiameter() =
 // AXLE LENGTH
 function axleLength() = 
     showJournalAssemblies
-        ? chassisWidth - (journalBlockProtrusion*2 + journalBlockThickness())
+        ? chassisWidth() - (journalBlockProtrusion*2 + journalBlockThickness())
         : wheelTrackWidth() - wheelFlangeWidth() * 2
         ;
 
 function axleOffsetLeft() =
     showJournalAssemblies
         ? journalBlockProtrusion + journalBlockThickness()/2
-        : (chassisWidth - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2
+        : (chassisWidth() - (wheelTrackWidth() - wheelFlangeWidth() * 2)) / 2
         ;
 
 function rearAxleOffset() = 
@@ -653,23 +782,23 @@ function rearAxleOffset() =
     (730 + 380/2);
 
 function frontAxleOffset() = 
-    modelSize == SCALE_7_INCH ? chassisLength - ((650 + 380/2) / scale()) :
-    modelSize == SCALE_5_INCH ? chassisLength - ((650 + 380/2) / scale()) :
-    modelSize == SCALE_3D_PRINT ? chassisLength - ((650 + 380 / 2) / scale()) :
-    modelSize == SCALE_25 ? chassisLength - ((650 + 380 / 2) / scale()) :
-    chassisLength - (650 + 380/2);
+    modelSize == SCALE_7_INCH ? chassisLength() - ((650 + 380/2) / scale()) :
+    modelSize == SCALE_5_INCH ? chassisLength() - ((650 + 380/2) / scale()) :
+    modelSize == SCALE_3D_PRINT ? chassisLength() - ((650 + 380 / 2) / scale()) :
+    modelSize == SCALE_25 ? chassisLength() - ((650 + 380 / 2) / scale()) :
+    chassisLength() - (650 + 380/2);
 
 function wheelDiameter() = 
     modelSize == SCALE_7_INCH ? 150 :
-    modelSize == SCALE_5_INCH ? 450 /scale() :
-    modelSize == SCALE_3D_PRINT ? 450 / scale() :
+    modelSize == SCALE_5_INCH ? 80 :
+    modelSize == SCALE_3D_PRINT ? 16 :
     modelSize == SCALE_25 ? 450 / scale() : 
     450;
 
 function wheelWidth() = 
     modelSize == SCALE_7_INCH ? 18 :
-    modelSize == SCALE_5_INCH ? 18 :
-    modelSize == SCALE_3D_PRINT ? 160 / scale() :
+    modelSize == SCALE_5_INCH ? 16 :
+    modelSize == SCALE_3D_PRINT ? 3 :
     modelSize == SCALE_25 ? 160 / scale() : 
     50;
 
@@ -690,6 +819,6 @@ function wheelFlangeHeight() =
 function wheelTrackWidth() = 
     modelSize == SCALE_7_INCH ? 184 : 
     modelSize == SCALE_5_INCH ? 127 : 
-    modelSize == SCALE_3D_PRINT ? chassisWidth - wheelWidth()*2 - journalBlockThickness() - journalBlockProtrusion - axleDiameter() :
+    modelSize == SCALE_3D_PRINT ? chassisWidth() - wheelWidth()*2 - journalBlockThickness() - journalBlockProtrusion - axleDiameter() :
     modelSize == SCALE_25 ? 26 : 
     1067;
