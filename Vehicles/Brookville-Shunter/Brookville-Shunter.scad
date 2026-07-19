@@ -12,12 +12,10 @@
  *   - polyRound() helper function wraps BOSL2 round_corners() with automatic radius clamping
  */
 
-include <./libraries/BOSL2/std.scad>
-include <./libraries/BOSL2/constants.scad>
-include <./libraries/BOSL2/attachments.scad>
-use <./libraries/BOSL2/shapes3d.scad>
-use <./libraries/BOSL2/shapes2d.scad>
-use <./libraries/BOSL2/transforms.scad>
+//include <./libraries/BOSL2/std.scad>
+
+include <./libraries/BOSL2-2.0.743/std.scad>
+
 
 /*
  * polyRound Compatibility Function for BOSL2
@@ -114,6 +112,9 @@ showReportSizes = true;
 showCab =           true;
 showNose =          true;
 showChassis =       true;
+showChassisTop =    true;
+showChassisCorners = true;
+showChassisCornerJigs = false;
 showWheels =        true;
 showAxles =         true;
 showAxleBearings =  true;
@@ -128,6 +129,7 @@ showPedestalMountBracketBoltHoles = true;
 showJournalBlocks = true;
 showJournalBlockBoltHoles = true;
 showSuspensionSprings = true;
+showSuspensionSpringHoles = true;
 showCabFrame =      false;
 showNoseFrame =     false;
 showChassisFrame =  false;
@@ -142,6 +144,11 @@ showJournalAssembly_LF = true;
 showJournalAssembly_LR = true;
 showJournalAssembly_RF = true;
 showJournalAssembly_RR = true;
+showChassisCornerJig_LF = false;
+showChassisCornerJig_LR = false;
+showChassisCornerJig_RF = false;
+showChassisCornerJig_RR = false;
+
 
 
 // set the nose to be solid or hollow
@@ -164,7 +171,7 @@ frameTimberWidth = 45;
 frameTimberHeight = 45;
 frameTimberColor = "SaddleBrown";
 
-reportSize("Scale Factor 1:x", scale());
+reportSize("Scale Factor 1:x", modelScale());
 reportSize("Overall Height", wheelDiameter()/2 + wheelFlangeHeight()*2 + chassisHeight() + cabHeightCenter);
 reportSize("Overall Width", cabWidth + cabRoofOverhangSide * 2);
 reportSize("Overall Length", chassisLength() + hitchBlockLength * 2 + hitchPointLength * 2 + hitchMountPlateThickness * 2);
@@ -661,93 +668,101 @@ module hitchBlock(){
 
 module drawPedestal() {
 
-    render(){
+    _pedestalPrismoidOppositeLength = ((pedestalWidthTop()-pedestalWidth())/2);
+    _pedestalPrismoidAdjacentLength = (pedestalHeight() + journalBlockSuspensionTravelDistance());
+    _pedestalPrismoidHypotenuseLength = sqrt(_pedestalPrismoidOppositeLength*_pedestalPrismoidOppositeLength + _pedestalPrismoidAdjacentLength*_pedestalPrismoidAdjacentLength);
+
+    render()
     translate([
-            0, 
-            -((pedestalWidth() - journalBlockWidth())/2), 
-            -pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight
-        ]) {
-            difference() {
-                // create the block that will be milled into the pedestal bracket
-                union() {
-                    cuboid([pedestalThickness(), pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
-                    
-                    // right top wedge
-                    translate([pedestalThickness(), 0, pedestalHeight() + journalBlockSuspensionTravelDistance()])
-                    rotate([180, 90, 0])
-                    linear_extrude(height=pedestalThickness()) 
-                    polygon(points=[[0, 0], [0, (pedestalWidthTop() - pedestalWidth())/2], [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]], paths=[[0, 1, 2]]);
+        0, 
+        -((pedestalWidth() - journalBlockWidth())/2), 
+        -pedestalHeight() + journalBlockSuspensionTravelDistance() + wheelHoleHeight
+    ]) {
+        difference() {
+            // create the block that will be milled into the pedestal bracket
+            union() {
+                prismoid(size1=[pedestalThickness(), pedestalWidth()], size2=[pedestalThickness(), pedestalWidthTop()], h=pedestalHeight(), rounding=pedestalEdgeRadius(), anchor=[-1, -1, -1]);
 
-                    // left top wedge
-                    translate([0, pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()])
-                    rotate([0, 90, 0])
-                    linear_extrude(height=pedestalThickness()) 
-                    polygon(points=[
-                        [0, 0], 
-                        [0, (pedestalWidthTop() - pedestalWidth())/2],
-                        [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]
-                    ], paths=[[0, 1, 2]]);
-                }
-                // create the block that is subtracted for the journal block
-                translate([0, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) cuboid([ pedestalThickness(), journalBlockWidth() + tolerance(), journalBlockHeight() + journalBlockSuspensionTravelDistance()],  anchor=[-1, -1, -1]); 
+                *cuboid([pedestalThickness(), pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
                 
-                // round-off the bottom-left corner
-                translate([pedestalThickness()/2, pedestalWidth() - pedestalCornerRadius(), pedestalCornerRadius()]) 
-                rotate([90, 0, 0]) difference() {
-                    color("blue")
-                    cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
-                    color("green")
-                    translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
-                    translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
-                    translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
-                }
-                
-                // round-off the bottom-right corner
-                translate([pedestalThickness()/2, pedestalCornerRadius(), pedestalCornerRadius()]) 
-                difference() {
-                    // color("blue")
-                    cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
-                    // color("green")
-                    translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
-                    translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
-                    translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
-                }
+                // right top wedge
+                *translate([pedestalThickness(), 0, pedestalHeight() + journalBlockSuspensionTravelDistance()])
+                rotate([180, 90, 0])
+                linear_extrude(height=pedestalThickness()) 
+                polygon(points=[[0, 0], [0, (pedestalWidthTop() - pedestalWidth())/2], [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]], paths=[[0, 1, 2]]);
 
-                // bolt holes for attaching to chassis mount
-                if(showPedestalBoltHoles) {
-                    // 1st Bolt Hole Left
-                    color("red")
-                    translate([pedestalThickness() / 2, pedestalWidth() / 2 - pedestalBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
-                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
-
-                    // 2nd Bolt Hole Left
-                    translate([pedestalThickness() / 2, pedestalWidth() / 2 - pedestalOuterBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
-                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
-
-                    
-                    // 1st Bolt Hole Right
-                    translate([pedestalThickness() / 2, pedestalWidth() / 2 + pedestalBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
-                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
-                    
-                    // 2nd Bolt Hole Right
-                    translate([pedestalThickness() / 2, pedestalWidth() / 2 + pedestalOuterBoltHoleOffset(), (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
-                    cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
-                    
-                }
-
+                // left top wedge
+                *translate([0, pedestalWidth(), pedestalHeight() + journalBlockSuspensionTravelDistance()])
+                rotate([0, 90, 0])
+                linear_extrude(height=pedestalThickness()) 
+                polygon(points=[
+                    [0, 0], 
+                    [0, (pedestalWidthTop() - pedestalWidth())/2],
+                    [pedestalHeight() - pedestalCornerRadius() + journalBlockSuspensionTravelDistance(), 0]
+                ], paths=[[0, 1, 2]]);
             }
 
-            // SLIDE RAILS FOR SUSPENSION
-
-            // Channel left
-            translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight()]) 
-            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
+            // create the block that is subtracted for the journal block
+            translate([0, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight() - journalBlockSuspensionTravelDistance()]) 
+            cuboid([ pedestalThickness(), journalBlockWidth() + tolerance(), journalBlockHeight() + journalBlockSuspensionTravelDistance()],  anchor=[-1, -1, -1]); 
             
-            // Channel right
-            translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2 - tolerance()/2 + journalBlockChannelHeight()), pedestalHeight() - journalBlockHeight()]) 
-            cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
+            // round-off the bottom-left corner
+            *translate([pedestalThickness()/2, pedestalWidth() - pedestalCornerRadius(), pedestalCornerRadius()]) 
+            rotate([90, 0, 0]) difference() {
+                color("blue")
+                cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
+                color("green")
+                translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
+                translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
+                translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
+            }
+            
+            // round-off the bottom-right corner
+            *translate([pedestalThickness()/2, pedestalCornerRadius(), pedestalCornerRadius()]) 
+            difference() {
+                // color("blue")
+                cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius() * 2]);
+                // color("green")
+                translate([-pedestalThickness()/2, 0, 0]) rotate([0, 90, 0]) cylinder(pedestalThickness(), d=pedestalCornerRadius() * 2, center=false);
+                translate([0, pedestalCornerRadius()/2, 0]) cuboid([pedestalThickness(), pedestalCornerRadius(), pedestalCornerRadius() * 2]);
+                translate([0, 0, pedestalCornerRadius()/2]) cuboid([pedestalThickness(), pedestalCornerRadius() * 2, pedestalCornerRadius()]);
+            }
+
+            // bolt holes for attaching to chassis mount
+            if(showPedestalBoltHoles) {
+                _pedestalBoltHolesJournalBlockCenter = ((pedestalWidth() - journalBlockWidth())/2 + journalBlockWidth()/2);
+                // Inner Bolt Hole Left
+                translate([pedestalThickness() / 2, _pedestalBoltHolesJournalBlockCenter + pedestalBoltHoleSpacing() / 2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+
+                // Outer Bolt Hole Left
+                translate([pedestalThickness() / 2, _pedestalBoltHolesJournalBlockCenter + pedestalOuterBoltHoleSpacing() / 2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
+                cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+
+                
+                // Inner Bolt Hole Right
+                translate([pedestalThickness() / 2, _pedestalBoltHolesJournalBlockCenter - pedestalBoltHoleSpacing() / 2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalBoltHoleDepth()]) 
+                cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+                
+                // Outer Bolt Hole Right
+                translate([pedestalThickness() / 2, _pedestalBoltHolesJournalBlockCenter - pedestalOuterBoltHoleSpacing() / 2, (pedestalHeight() + journalBlockSuspensionTravelDistance())-pedestalOuterBoltHoleDepth()]) 
+                cylinder(pedestalBoltHoleDepth(), d=pedestalBoltHoleDiameter(), center=false);
+                
+            }
+
         }
+
+        // SLIDE RAILS FOR SUSPENSION
+
+        // Channel left
+        translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, (pedestalWidth() - journalBlockWidth())/2 - tolerance()/2, pedestalHeight() - journalBlockHeight() - journalBlockSuspensionTravelDistance()]) 
+        cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
+        
+        // Channel right
+        translate([pedestalThickness() / 2 - journalBlockChannelWidth()/2, pedestalWidth() - ((pedestalWidth() - journalBlockWidth())/2 - tolerance()/2 + journalBlockChannelHeight()), pedestalHeight() - journalBlockHeight() - journalBlockSuspensionTravelDistance()]) 
+        cuboid([journalBlockChannelHeight(), journalBlockChannelWidth(), journalBlockHeight() + journalBlockSuspensionTravelDistance()], anchor=[-1, -1, -1], edges=EDGES_ALL);
     }
+    
 
 }
 
@@ -762,6 +777,7 @@ module journalAssembly(){
     difference(){ 
 
         // JOURNAL BLOCK
+        translate([0, 0, 10])
         translate([0, 0, (-pedestalHeight() - journalBlockSuspensionTravelDistance() + wheelHoleHeight) + (pedestalHeight()-journalBlockHeight())]){
             rotate([90,0,90]){
 
@@ -772,15 +788,14 @@ module journalAssembly(){
                         // start with a cube
                         cuboid([journalBlockWidth(), journalBlockHeight(), journalBlockThickness()],  anchor=[-1, -1, -1], edges=EDGES_ALL);
                         
-                        // Carve out space for the roller bearing                    
-                        color("red")
+                        // Carve out space for the roller bearing 
                         translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
                         cylinder(journalBlockBearingHeight() + tolerance(), d=journalBlockBearingOuterDiameter() + tolerance(),  center=false);
 
                         // hole for the axle to go through
                         // @TODO: this needs a proper seal design, or some way that is better than hard-coding a tolerance
                         translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
-                        cylinder(journalBlockThickness(), d=journalBlockBearingInnerDiameter() + 8 / scale(), center=false);
+                        cylinder(journalBlockThickness(), d=journalBlockBearingInnerDiameter() + 8 / modelScale(), center=false);
 
                         // Suspension guide rail - channel left
                         translate([journalBlockWidth() - journalBlockChannelHeight(), 0, journalBlockThickness()/2 - journalBlockChannelWidth()/2 - tolerance()/2]) 
@@ -791,7 +806,7 @@ module journalAssembly(){
                         cuboid([journalBlockChannelHeight(), journalBlockHeight(), journalBlockChannelWidth() + tolerance()], anchor=[-1, -1, -1]);
 
                         // spring hole left
-                        if(showSuspensionSprings && !isModelScale())
+                        if(showSuspensionSpringHoles && !isModelScale())
                         translate([
                             journalBlockWidth() - journalBlockSuspensionSpringHoleDiameter()/2 - journalBlockChannelHeight() - journalBlockSuspensionSpringHoleOffset(), 
                             journalBlockHeight() + 0.0001, 
@@ -801,7 +816,7 @@ module journalAssembly(){
                         cylinder(journalBlockSuspensionSpringHoleDepth(), d=journalBlockSuspensionSpringHoleDiameter() + tolerance(), center=false);
 
                         // spring hole right
-                        if(showSuspensionSprings && !isModelScale())
+                        if(showSuspensionSpringHoles && !isModelScale())
                         translate([
                             journalBlockSuspensionSpringHoleDiameter()/2 + journalBlockChannelHeight() + journalBlockSuspensionSpringHoleOffset(), 
                             journalBlockHeight() + 0.0001, 
@@ -889,12 +904,14 @@ module journalAssembly(){
                 // BEARING CAPS
                 if(showBearingCapPlate) {
 
+                    difference() {
 
-                    translate([0, 0, 0])
-                    union() {
-                        color(bearingCapCenterColor)
-                        translate([journalBlockWidth()/2, journalBlockHeight()/2, -(bearingCapProtrusion())]){
-                            hull(){
+                        translate([0, 0, 0])
+                        union() {
+                            // create a rounded centre cap 
+                            color(bearingCapCenterColor)
+                            translate([journalBlockWidth()/2, journalBlockHeight()/2, -(bearingCapProtrusion())])
+                            hull() {
                                 cylinder(bearingCapProtrusion(), d=bearingCapDiameter(), center=false);
                                 translate([0, 0, 0]){
                                     rotate([0, 0, 0]){
@@ -902,65 +919,66 @@ module journalAssembly(){
                                     }
                                 }
                             }
-                        }
+                            
+                            // create the disc
+                            color(bearingCapColor)
+                            translate([journalBlockWidth()/2, journalBlockHeight()/2, -bearingCapPlateThickness()])
+                            cyl(l=bearingCapPlateThickness(), d=bearingCapPlateDiameter(), rounding1=bearingCapPlateThickness()/2, anchor=[0,0,-1]);
+                            
+                            if(showBearingCapBolts && !isModelScale()){
 
-                        color(bearingCapColor)
-                        translate([journalBlockWidth()/2, journalBlockHeight()/2, -bearingCapPlateThickness()]){
-                            cylinder(bearingCapPlateThickness(), d=bearingCapPlateDiameter(), center=false);
-                        }
+                                // draw the bolts
+                                color(bearingCapBoltColor)
+                                translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                                for(i=[0:60:360]){
+                                    rotate(i, [0, 0, 1]){
+                                        translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
+                                            // draw a bolt head
+                                            translate([
+                                                0, 
+                                                0,
+                                                -(bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                            ]){
+                                                cylinder(d=bearingCapBoltSize(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness(), $fn=6, center=false);
+                                            }
 
-                        if(showBearingCapBolts && !isModelScale()){
+                                            // draw a washer under the bolt head
+                                            translate([
+                                                0, 
+                                                0,
+                                                -(bearingCapBoltWasherThickness() + bearingCapPlateThickness())
+                                            ]){
+                                                cylinder(d=bearingCapBoltWasherDiameter(), h=bearingCapBoltWasherThickness(), center=false);
+                                            }
 
-                            // draw the bolts
-                            color(bearingCapBoltColor)
-                            translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
-                            for(i=[0:60:360]){
-                                rotate(i, [0, 0, 1]){
-                                    translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0]){
-                                        // draw a bolt head
-                                        translate([
-                                            0, 
-                                            0,
-                                            -(bearingCapBoltThickness() + bearingCapBoltWasherThickness() + bearingCapPlateThickness())
-                                        ]){
-                                            cylinder(d=bearingCapBoltSize(), h=bearingCapBoltThickness() + bearingCapBoltWasherThickness(), $fn=6, center=false);
-                                        }
-
-                                        // draw a washer under the bolt head
-                                        translate([
-                                            0, 
-                                            0,
-                                            -(bearingCapBoltWasherThickness() + bearingCapPlateThickness())
-                                        ]){
-                                            cylinder(d=bearingCapBoltWasherDiameter(), h=bearingCapBoltWasherThickness(), center=false);
-                                        }
-
-                                        // draw a bolt
-                                        translate([
-                                            0, 
-                                            0,
-                                            -(bearingCapPlateThickness())
-                                        ]){
-                                            cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
+                                            // draw a bolt
+                                            translate([
+                                                0, 
+                                                0,
+                                                -(bearingCapPlateThickness())
+                                            ]){
+                                                cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
+                                            }
                                         }
                                     }
-                                }
-                            } // end for
+                                } // end for
 
+                            }
                         }
-                    }
 
-                    if(showBearingCapBoltHoles && !isModelScale()) {
-                        // draw the bolts
-                        translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
-                        for(i=[0:60:360]) {
-                            // draw a bolt
-                            color(bearingCapBoltColor)
-                            rotate(i, [0, 0, 1])
-                            translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0])
-                            translate([0, 0, -(bearingCapPlateThickness())])
-                            cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
-                        } // end for
+                        if(showBearingCapBoltHoles && !isModelScale()) {
+                            // draw the bolts
+                            translate([journalBlockWidth()/2, journalBlockHeight()/2, 0])
+                            for(i=[0:60:360]) {
+                                // draw a bolt
+                                color(bearingCapBoltColor)
+                                rotate(i, [0, 0, 1])
+                                translate([bearingCapPlateDiameter()/2 - (bearingCapBoltOffsetOuterEdge() + bearingCapBoltSize()), 0, 0])
+                                translate([0, 0, -(bearingCapPlateThickness())])
+                                cylinder(d=bearingCapBoltDiameter(), h=bearingCapBoltLength(), center=false);
+                            } // end for
+                        }
+
                     }
                 }
             }
@@ -1025,10 +1043,8 @@ module angleIron(width, height, thickness, length) {
 
 module drawChassis(){
 
-// draw chassis
-if(showChassis) {
-
-    // CHASSIS CORNERS
+// CHASSIS CORNERS
+if(showChassisCorners) {
     render() difference() {
         union() {
             // left rear
@@ -1067,6 +1083,42 @@ if(showChassis) {
         }
         
     }
+}
+
+if(showChassisCornerJigs) {
+
+    // left rear
+    if(showChassisCornerJig_LR)
+    render()
+    translate([0, 0, 0])
+    rotate([0, 0, 0])
+    drawChassisCornerJig();
+
+    // right rear
+    if(showChassisCornerJig_RR)
+    render()
+    translate([chassisWidth(), 0, 0])
+    rotate([0, 0, 90])
+    drawChassisCornerJig();
+
+    // left front
+    if(showChassisCornerJig_LF)
+    render()
+    translate([0, chassisLength(), 0])
+    rotate([0, 0, 270])
+    drawChassisCornerJig();
+
+    // right front
+    if(showChassisCornerJig_RF)
+    render()
+    translate([chassisWidth(), chassisLength(), 0])
+    rotate([0, 0, 180])
+    drawChassisCornerJig();
+
+}
+
+// draw chassis
+if(showChassis) {
 
     // CHASSIS SIDES
     color(chassisColor)
@@ -1101,6 +1153,7 @@ if(showChassis) {
     }
 
     // CHASSIS TOP
+    if(showChassisTop)
     color(chassisColor)
     render() difference() {
         translate([0, 0, chassisHeight() - chassisSteelThickness()])
@@ -1178,6 +1231,69 @@ if(showChassis) {
 }
 
 }
+
+
+module drawChassisCornerJig() {
+
+    difference() {
+        union() {
+            // calculate overall thickness of the chassis jig
+            chassisCornerJigOverallThickness = chassisCornerJigThickness*2+chassisSteelThickness()+chassisCornerJigTolerance*2;
+
+            // calculate the length of the corner gap
+            cornerDiagonalLength = sqrt(chassisCornerRadius() * chassisCornerRadius() + chassisCornerRadius() * chassisCornerRadius());
+            #translate([chassisCornerRadius()/2, chassisCornerRadius()/2, 0])
+            rotate([0, 0, 45])
+            cuboid([chassisSteelThickness() + chassisCornerJigThickness * 2, cornerDiagonalLength, chassisHeight()], anchor=[0, 0, -1]);
+
+            // add half of this on each side
+            #translate([chassisCornerJigLength + chassisCornerRadius() - chassisCornerJigThickness, chassisSteelThickness()/2, 0])
+            rotate([0, 0, 90])
+            cuboid([chassisCornerJigOverallThickness, chassisCornerJigLength, chassisHeight()], anchor=[0, -1, -1]);
+            
+            // add half of this on each side
+            #translate([chassisSteelThickness()/2, chassisCornerRadius() - chassisCornerJigThickness, 0])
+            rotate([0, 0, 0])
+            cuboid([chassisCornerJigOverallThickness, chassisCornerJigLength, chassisHeight()], anchor=[0, -1, -1]);
+
+        }
+
+        // DRILL CENTER HOLE 
+        translate([0, 0, chassisHeight()/2])
+        rotate([-45, 90, 0])
+        cylinder(d=chassisCornerJigCenterHoleDiameter, 100);
+
+        // CHASSIS SIDES - subtract from jig
+
+        // front side
+        translate([chassisCornerRadius(), - chassisCornerJigTolerance, 0])
+        cuboid([chassisWidth() - chassisCornerRadius()*2, chassisSteelThickness() + chassisCornerJigTolerance*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+        // rear side
+        translate([chassisCornerRadius(), chassisLength() - chassisSteelThickness(), 0])
+        cuboid([chassisWidth() - chassisCornerRadius()*2, chassisSteelThickness() + chassisCornerJigTolerance*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+        // right side
+        translate([- chassisCornerJigTolerance, chassisCornerRadius(), 0])
+        cuboid([chassisSteelThickness() + chassisCornerJigTolerance*2, chassisLength() - chassisCornerRadius()*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+        // left side
+        translate([chassisWidth() - chassisSteelThickness(), chassisCornerRadius(), 0])
+        cuboid([chassisSteelThickness() + chassisCornerJigTolerance*2, chassisLength() - chassisCornerRadius()*2, chassisHeight()], anchor=[-1, -1, -1]);
+
+        // carve inset from the bottom
+        #translate([-chassisSteelThickness()/2 - chassisCornerJigThickness, -chassisSteelThickness()/2 - chassisCornerJigThickness, 0])
+        cuboid([chassisCornerRadius()*4, chassisCornerRadius()*4, chassisCornerJigInset], anchor=[-1, -1, -1]);
+
+        // carve inset from the top
+        #translate([-chassisSteelThickness()/2 - chassisCornerJigThickness, -chassisSteelThickness()/2 - chassisCornerJigThickness, chassisHeight() - chassisCornerJigInset])
+        cuboid([chassisCornerRadius()*4, chassisCornerRadius()*4, chassisCornerJigInset], anchor=[-1, -1, -1]);
+
+
+    }
+
+}
+
 
 module drawChassisCorner() {
     
@@ -1308,42 +1424,42 @@ module drawPedestalMountBracket(){
         if(showPedestalMountBracketBoltHoles) {
             // draw rear-wheel-rear-leg slot 1
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw rear-wheel-rear-leg slot 2
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalOuterBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() - pedestalOuterBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw rear-wheel-front-leg slot 1
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw rear-wheel-front-leg slot 2
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalOuterBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - rearAxleOffset() + pedestalOuterBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw front-wheel-rear-leg slot 1
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw front-wheel-rear-leg slot 2
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalOuterBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() - pedestalOuterBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw front-wheel-front-leg slot 1
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
 
             // draw front-wheel-front-leg slot 2
             color("red")
-            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalOuterBoltHoleOffset()])
+            translate([0, 0, chassisWallLength() + chassisCornerRadius() - frontAxleOffset() + pedestalOuterBoltHoleSpacing()])
             drawPedestalMountBracketBoltHoleSlot();
         }
     }

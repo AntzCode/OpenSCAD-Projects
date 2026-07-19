@@ -1,0 +1,20 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "New set 1": {
+            "chassisSteelThickness": "3",
+            "chassisSteelWidth": "100",
+            "jigHeight": "15",
+            "jigScrewHoleDiameter": "4",
+            "jigScrewTabWidth": "15",
+            "jigSteelSlotDepth": "30",
+            "jigWidth": "40",
+            "pilotBoltHoleDiameter": "3.2000000000000002",
+            "pilotBoltHoleInset": "12",
+            "pilotBoltHoleNum": "4",
+            "pilotHoleCylinderDiameter": "18",
+            "pilotHoleCylinderHeight": "25",
+            "tolerance": "0.29999999999999999"
+        }
+    }
+}

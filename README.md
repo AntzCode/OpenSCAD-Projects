@@ -9,6 +9,8 @@ A scaled-model replica of the original Brookville Shunter situated at the histor
 - Multiple scale options: 1:4.5 (7.25 inch gauge mini rail), 1:8.4 (5 inch gauge), 1:50, 1:25, and full-size
 - Detailed working components: cab + nose, chassis, flanged wheels, working journal assembly with axle bearings and suspension
 
+![Render: Journal assembly with axle bearing and suspension](./Vehicles/Brookville-Shunter/Renders/Journal-Assembly/Brookville-Shunter-JournalAssembly.png)
+
 ## Enclosure for XL4015
 
 Constant Current & Constant Voltage Step down DC-DC Converter 
