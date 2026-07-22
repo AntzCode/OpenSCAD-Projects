@@ -15,19 +15,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-cell_dia = 18.4;    // Cell diameter default = 18.4 for 18650s **PRINT OUT TEST FIT PIECE STL FIRST**
+cell_dia = 18.8;    // Cell diameter default = 18.4 for 18650s **PRINT OUT TEST FIT PIECE STL FIRST**
 cell_height = 65;	// Cell height default = 65 for 18650s
-wall = 1.2;       // Wall thickness around a single cell. Make as a multiple of the nozzle diameter. Spacing between cells is twice this amount. default = 1.2
+wall = 0.4;       // Wall thickness around a single cell. Make as a multiple of the nozzle diameter. Spacing between cells is twice this amount. default = 1.2
 					// If using bought injection molded hexes and printing out the boxes, take the distance between the centers of 2 cells and divide by two for the wall thickness (((((pitch - diameter)/2). Add space for the protuding interlocking tabs in the cap or box clearances.
 
-num_rows = 4;
-num_cols = 8;
+num_rows = 2;
+num_cols = 5;
 
 holder_height = 10; // Height of cell holder default = 10 (not including slot_height)
 slot_height = 3;  // Height of all slots default = 3 mm (set to 0 for no slots but that allows you to print without support)
 
-col_slot_width = 8; // Width of slots between rows default = 8
-row_slot_width = 8; // Width of slots along rows default = 8
+col_slot_width = 8.4; // Width of slots between rows default = 8
+row_slot_width = 8.4; // Width of slots along rows default = 8
 
 
 pack_style = "rect";	// "rect" for rectangular pack, "para" for parallelogram, "tria" for triangle shaped pack (number of rows define the amount of rows at the bottom of the triangle. Columns get ignored)
@@ -35,19 +35,26 @@ pack_style = "rect";	// "rect" for rectangular pack, "para" for parallelogram, "
 wire_style = "strip";	// "strip" to make space to run nickel strips between cells. Default usage
 						// "bus" to make space for bus wires between rows
 
-box_style = "both";		// "bolt" for bolting the box pack together
+box_style = "bolt";		// "bolt" for bolting the box pack together
 						// "ziptie" for using zipties to fasten the box together. (ziptie heads will stick out),
 						// "both" default: uses bolts for the 4 corners and zipties inbetween. Useful for mounting the pack to something with zipties but while still using bolts to hold it together 
 
-part_type = "normal";   // "normal","mirrored", or "both". "assembled" is used for debugging.  You'll want a mirrored piece if the tops and bottom are different ( ie. When there are even rows in rectangular style or any number of rows in parallelogram. The Console will tell you if you need a mirrored piece).
+// "normal","mirrored", or "both". "assembled" is used for debugging.  You'll want a mirrored piece if the tops and bottom are different ( ie. When there are even rows in rectangular style or any number of rows in parallelogram. The Console will tell you if you need a mirrored piece).
+part_type = "both";
+//part_type="normal";
+//part_type="mirrored";
 
-part = "holder";   		// "holder" to generate cell holders,
-						// "cap" to generate pack end caps,
-						// "box lid" to generate box lid
-						// "box bottom" for box bottom
-						// "wire clamp" for strain relief clamp
-						// "insulator" for insulator piece to fit over the nickel strips
-						// "vertical box section" for vertical battery stacking boxes (print 1 section for every additional stacked pack) 
+// "holder" to generate cell holders,
+// "cap" to generate pack end caps,
+// "box lid" to generate box lid
+// "box bottom" for box bottom
+// "wire clamp" for strain relief clamp
+// "insulator" for insulator piece to fit over the nickel strips
+// "vertical box section" for vertical battery stacking boxes (print 1 section for every additional stacked pack) 
+//part = "box lid";
+//part = "vertical box section";
+part = "holder";
+
 
 box_lip = true;			// Adds a lip to the box pieces. default = true.
 wire_clamp_add = true; 	// Adds a wire exit hole out the side of the box lid.
@@ -57,13 +64,13 @@ cap_wall = 1.2;				// Cap wall thickness (default = 1.2 recommend to make a mult
 cap_clearance = 0.2;		// Clearance between holder and caps default = 0.2
 
 box_wall = 2;				// Box wall thickness (default = 2.0 recommend to make at least 4 * multiple of nozzle dia)
-box_clearance = 0.2;		// Clearance between holder and box default = 0.2
+box_clearance = 0.8;		// Clearance between holder and box default = 0.2
 
 
 // Box clearances for wires
-bms_clearance = 10; 			// Vertical space for the battery management system (bms) on top of holders, set to 0 for no extra space
+bms_clearance = 6; 			// Vertical space for the battery management system (bms) on top of holders, set to 0 for no extra space
 box_bottom_clearance = 0;	// Vertical space for wires on bottom of box
-box_wire_side_clearance = 3; // Horizontal space from right side (side with wire hole opening) to the box wall for wires
+box_wire_side_clearance = 0; // Horizontal space from right side (side with wire hole opening) to the box wall for wires
 box_nonwire_side_clearance = 0; // Horizontal space from left side (opposite of wire hole) to the box wall for wires
 
 support_z_gap = 0.3;		// Insulator gap to holder. default 0.3
@@ -71,7 +78,7 @@ insulator_tolerance = 1.5;	// How much smaller to make the width of the insulato
 insulator_thickness = (slot_height-support_z_gap);	// Thickness of insulator
 
 wire_diameter = 5;			// Diameter of 1 power wire used in the strain relief clamps default = 5 for 10 awg stranded silicon wire
-wire_clamp_bolt_dia = 3;	// Bolt dia used for clamping wire default = 3 for M3 bolt
+wire_clamp_bolt_dia = 0;	// Bolt dia used for clamping wire default = 3 for M3 bolt
 clamp_factor = 0.7;			// Factor of wire diameter to be clamped. Higher number is less clamping force (default=0.7 max=1.0)
 bolt_dia = 3;				// Actual dia of bolt default = 3 for M3 bolt
 bolt_head_dia = 6;			// Actual dia of bolt head default = 6 for M3 socket head bolt
@@ -96,7 +103,7 @@ stacking_bolts = false;	// Adds holes through the holders to bolt them (if not u
 						// !!!!!!MAKE SURE BOLTS DO NOT SHORT NICKEL STRIPS!!!!
 						// Don't use with stacking pins. You'll need mirrored pieces.
 stacking_bolt_dia = 4.5;	// Bolt dia. Make slightly bigger for bolt fit. Watch out for too large bolts that cut too much out of the holder.
-num_pack_stacks = 1;	// How many additional packs you will stack vertically. Affects part = vertical box section. (set to 1 if you just want to print single sections and glue them together. 1 section for every additional pack stack)
+num_pack_stacks = 2;	// How many additional packs you will stack vertically. Affects part = vertical box section. (set to 1 if you just want to print single sections and glue them together. 1 section for every additional pack stack)
 
 
 
@@ -106,10 +113,10 @@ num_pack_stacks = 1;	// How many additional packs you will stack vertically. Aff
 
 cell_top_overlap = 3; // How big the opening overlaps the cell default = 3
 opening_dia = cell_dia-cell_top_overlap*2;   		// Circular opening to expose cell
-separation = 1;   			// Separation between cell top and wire slots (aka tab thickness) default = 1
-wire_hole_width = 15;		// Width of wire hole default = 15
-wire_hole_length = 10;		// Length of the wireclamp that sticks out default = 10
-wire_top_wall = 4;			// Thickness of top wire wall default = 4mm
+separation = 0.8;   			// Separation between cell top and wire slots (aka tab thickness) default = 1
+wire_hole_width = 10;		// Width of wire hole default = 15
+wire_hole_length = 0;		// Length of the wireclamp that sticks out default = 10
+wire_top_wall = 8;			// Thickness of top wire wall default = 4mm
 clamp_plate_height = 4;		// default = 4
 bolt_dia_clearance = 1;		// Amount of extra diameter for bolt holes default = 1
 box_lip_height = box_wall * 0.75;	// Height of lip default = box_wall * 0.75
@@ -988,68 +995,71 @@ module single_insulator(hex_list)
 {
 	difference()
 	{
-		// sorry
-		for(hex_list = hex_list)
+		union()
 		{
-		// Iterate through each hex center and place a hex cell
-		translate([hex_list.x,hex_list.y,0])
-			{	
-				intersection()
-				{
-					union()
+			// sorry
+			for(hex_list = hex_list)
+			{
+			// Iterate through each hex center and place a hex cell
+			translate([hex_list.x,hex_list.y,0])
+				{	
+					intersection()
 					{
-						// Hex block
-						hex(holder_height-slot_height + insulator_thickness, hex_pt + hextra);
-					}
-
-					union()
-					{
-						if(wire_style == "strip")
+						union()
 						{
-							// 1st column slot
-							rotate([0,0,60])
-								translate([0,0,holder_height + slot_height])
-									cube([hex_w+1,col_slot_width-insulator_tolerance,4*slot_height], center=true);
-
-							// 2nd column slot
-							rotate([0,0,-60])
-								translate([0,0,holder_height + slot_height])
-									cube([hex_w+1,col_slot_width-insulator_tolerance,4*slot_height], center=true);
-
-							// Row slot
-							translate([0,0,holder_height + slot_height])
-								cube([hex_w+1,row_slot_width-insulator_tolerance,4*slot_height], center=true);
+							// Hex block
+							hex(holder_height-slot_height + insulator_thickness, hex_pt + hextra);
 						}
-						else if(wire_style == "bus")
+
+						union()
 						{
-							// 1st column slot
-							rotate([0,0,60])
-								translate([0,0,holder_height])
-									cube([hex_w+1,col_slot_width-insulator_tolerance,2*slot_height], center=true);
+							if(wire_style == "strip")
+							{
+								// 1st column slot
+								rotate([0,0,60])
+									translate([0,0,holder_height + slot_height])
+										cube([hex_w+1,col_slot_width-insulator_tolerance,4*slot_height], center=true);
 
-							// 2nd column slot
-							rotate([0,0,-60])
-								translate([0,0,holder_height])
-									cube([hex_w+1,col_slot_width-insulator_tolerance,2*slot_height], center=true);
+								// 2nd column slot
+								rotate([0,0,-60])
+									translate([0,0,holder_height + slot_height])
+										cube([hex_w+1,col_slot_width-insulator_tolerance,4*slot_height], center=true);
 
-							// Row slot A
-							translate([0,(hex_pt*cos(60) + hex_pt)/2,holder_height])
-								cube([hex_w + extra,row_slot_width-insulator_tolerance,2*slot_height], center=true);
+								// Row slot
+								translate([0,0,holder_height + slot_height])
+									cube([hex_w+1,row_slot_width-insulator_tolerance,4*slot_height], center=true);
+							}
+							else if(wire_style == "bus")
+							{
+								// 1st column slot
+								rotate([0,0,60])
+									translate([0,0,holder_height])
+										cube([hex_w+1,col_slot_width-insulator_tolerance,2*slot_height], center=true);
 
-							// Row slot B
-							translate([0,-(hex_pt*cos(60) + hex_pt)/2,holder_height])
-								cube([hex_w + extra,row_slot_width-insulator_tolerance,2*slot_height], center=true);
+								// 2nd column slot
+								rotate([0,0,-60])
+									translate([0,0,holder_height])
+										cube([hex_w+1,col_slot_width-insulator_tolerance,2*slot_height], center=true);
 
-							// Cell opening
-							translate([0,0,holder_height-slot_height])
-								cylinder(h=slot_height,d=opening_dia-insulator_tolerance);
+								// Row slot A
+								translate([0,(hex_pt*cos(60) + hex_pt)/2,holder_height])
+									cube([hex_w + extra,row_slot_width-insulator_tolerance,2*slot_height], center=true);
+
+								// Row slot B
+								translate([0,-(hex_pt*cos(60) + hex_pt)/2,holder_height])
+									cube([hex_w + extra,row_slot_width-insulator_tolerance,2*slot_height], center=true);
+
+								// Cell opening
+								translate([0,0,holder_height-slot_height])
+									cylinder(h=slot_height,d=opening_dia-insulator_tolerance);
+							}
+							
 						}
 						
-					}
-					
 
-				}
-			}	
+					}
+				}	
+			}
 		}
 
 		// cut out stacking bolt holes
@@ -1186,30 +1196,34 @@ module box_holder_support(lid_support_height = box_lid_height,spacer = 0)
 {
 	difference()
 	{
-		for(col = [1:num_cols])
+		union()
 		{
-			// iterate on one side
-			// add support in the shape of a hex inbetween cols
-			union()
+			for(col = [1:num_cols])
 			{
-				translate([get_hex_center_x_length(col+0.5),-get_hex_center_y_length(2)-box_clearance,-(box_wall+box_clearance)])
-					hex(lid_support_height);
-				if(spacer)
+				// iterate on one side
+				// add support in the shape of a hex inbetween cols
+				union()
 				{
-					translate([get_hex_center_x_length(col)+hex_w/2,-(get_hex_center_y_length(2) + box_clearance - spacer_overhang),-box_clearance-box_wall])
+					translate([get_hex_center_x_length(col+0.5),-get_hex_center_y_length(2)-box_clearance,-(box_wall+box_clearance)])
+						hex(lid_support_height);
+					if(spacer)
 					{
-						intersection()
+						translate([get_hex_center_x_length(col)+hex_w/2,-(get_hex_center_y_length(2) + box_clearance - spacer_overhang),-box_clearance-box_wall])
 						{
-							translate([0,0,0])
-								cube([hex_w/2,hex_pt * 2 + spacer_overhang,(spacer+box_wall)*3],center = true);
-							hex(spacer+box_wall);
+							intersection()
+							{
+								translate([0,0,0])
+									cube([hex_w/2,hex_pt * 2 + spacer_overhang,(spacer+box_wall)*3],center = true);
+								hex(spacer+box_wall);
+							}
+							
 						}
-						
+							
 					}
-						
 				}
 			}
 		}
+		
 		// Cutouts
 
 		// TESTING: flatten the lid support tips for injection molded holders with tabs
