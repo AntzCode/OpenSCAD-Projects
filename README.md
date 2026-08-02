@@ -11,6 +11,14 @@ A scaled-model replica of the original Brookville Shunter situated at the histor
 
 ![Render: Journal assembly with axle bearing and suspension](./Vehicles/Brookville-Shunter/Renders/Journal-Assembly/Brookville-Shunter-JournalAssembly.png)
 
+## Magnetic GoPro Mount
+
+![Photo: Magnetic GoPro Mount](./Tools/GoPro/MagnetMount/renders/gopro-magnet-mount-prototype.webp)
+
+A case for holding a donut style magnet, with clips on top for clamping the gopro position. Designed for a microwave oven magnet.
+
+- fully configurable (magnet size, case thickness, tolerances)
+
 ## Enclosure for XL4015
 
 Constant Current & Constant Voltage Step down DC-DC Converter 
