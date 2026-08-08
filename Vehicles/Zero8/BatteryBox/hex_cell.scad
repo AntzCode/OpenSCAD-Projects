@@ -14,6 +14,18 @@
 // BASIC CONFIGURATION
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+show_60A_bms_mount_box = true; // boolean flag to show/hide the bms mount
+
+bms_60A_mount_box_width = 65;
+bms_60A_mount_box_length = 72;
+bms_60A_mount_box_height = 9;
+bms_60A_mount_box_thickness = 2;
+bms_60A_mount_box_wire_loom_width = 37;
+bms_60A_mount_box_main_wire_width = 25;
+bms_60A_mount_box_main_wire_offset = 8;
+bms_60A_mount_box_support_thickness = 8;
+bms_60A_mount_box_support_offset = 0.3;
+bms_60A_mount_box_latch_width = 12;
 
 cell_dia = 18.8;    // Cell diameter default = 18.4 for 18650s **PRINT OUT TEST FIT PIECE STL FIRST**
 cell_height = 65;	// Cell height default = 65 for 18650s
@@ -40,9 +52,9 @@ box_style = "bolt";		// "bolt" for bolting the box pack together
 						// "both" default: uses bolts for the 4 corners and zipties inbetween. Useful for mounting the pack to something with zipties but while still using bolts to hold it together 
 
 // "normal","mirrored", or "both". "assembled" is used for debugging.  You'll want a mirrored piece if the tops and bottom are different ( ie. When there are even rows in rectangular style or any number of rows in parallelogram. The Console will tell you if you need a mirrored piece).
-part_type = "both";
+//part_type = "both";
 //part_type="normal";
-//part_type="mirrored";
+part_type="mirrored";
 
 // "holder" to generate cell holders,
 // "cap" to generate pack end caps,
@@ -182,9 +194,27 @@ wire_clamp_nib_dia = 5;
 		}
 		else if (part == "holder")
 		{
-			mirror([0,1,0])
-				rotate([0,180,0])
-					holders();
+            difference()
+            {                    
+                mirror([0,1,0])
+                    rotate([0,180,0])
+                        holders();
+                if(show_60A_bms_mount_box){
+                    // carve left half of box
+                    translate([
+                        -(num_cols * cell_dia + num_cols*2*wall),
+                        -cell_dia/2, 
+                        -((slot_height + separation))
+                    ])
+                    rotate([-180, 90, 90])
+                    render()
+                    cube([
+                        cell_height/2,
+                        num_cols * cell_dia + num_cols*2*wall,
+                        bms_60A_mount_box_height + bms_60A_mount_box_thickness * 2
+                    ]);
+                }
+            }
 		}
 	}
 	else if(part_type == "both")
@@ -368,12 +398,28 @@ wire_clamp_nib_dia = 5;
 			cap(cap_wall,cap_clearance);
 		}
 		else if (part == "holder")
-			rotate([0,0,0])
-			{
-				holders();
-			}
-				
-			
+            difference()
+            {
+                rotate([0,0,0])
+                {
+                    holders();
+                }
+                if(show_60A_bms_mount_box){
+                    // carve left half of box
+                    translate([
+                        (cell_dia*num_cols+wall*num_cols*2-(cell_dia+wall*2)/2) - (cell_dia*num_cols+wall*num_cols*2), 
+                        ((cell_dia+wall*2) * sqrt(3)/2)-bms_60A_mount_box_height-wall, 
+                        cell_height/2+slot_height+separation
+                    ])
+                    rotate([-180, 90, 90])
+                    render()
+                    cube([
+                        cell_height/2,
+                        (cell_dia*num_cols+wall*num_cols*2),
+                        bms_60A_mount_box_height + bms_60A_mount_box_thickness * 2
+                    ]);
+                }
+            }
 		else if (part == "box lid")
 		{
 			translate([0,get_hex_center_y_length(num_cols),0])
@@ -457,6 +503,207 @@ if (part_type == "mirrored" && (part == "box lid" || part == "box bottom"))
 
 if (pack_style == "tria" && (part == "box lid" || part == "box bottom" || part == "cap"))
 	echo("\n******************************************************* \n There are currently no boxes and caps for triangle style\n*******************************************************");
+
+    
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bms_60A_mount_box_width_overall = bms_60A_mount_box_width + bms_60A_mount_box_thickness * 2;
+bms_60A_mount_box_width_difference_to_cell_height = cell_height - bms_60A_mount_box_width_overall;
+bms_60A_mount_box_length_overall = bms_60A_mount_box_length + bms_60A_mount_box_thickness * 2;
+
+module bms_60A_mount_box()
+{
+    translate([0, 0, 0])
+    rotate([0, 0, 0])
+    
+    union()
+    {
+        difference()
+        {
+            union()
+            {
+                difference()
+                {
+                    cube([
+                        bms_60A_mount_box_width_overall,
+                        bms_60A_mount_box_length_overall,
+                        bms_60A_mount_box_height + bms_60A_mount_box_thickness
+                    ]);
+                    
+                    translate([bms_60A_mount_box_thickness, bms_60A_mount_box_thickness, bms_60A_mount_box_thickness])
+                    cube([
+                        bms_60A_mount_box_width, 
+                        bms_60A_mount_box_length, 
+                        bms_60A_mount_box_height
+                    ]);
+                    
+                }
+                            
+                // support left side
+                *color("red")
+                translate([
+                    bms_60A_mount_box_thickness + bms_60A_mount_box_support_offset, 
+                    bms_60A_mount_box_thickness + bms_60A_mount_box_support_offset,
+                    bms_60A_mount_box_thickness + bms_60A_mount_box_support_offset
+                ])
+                cube([
+                    bms_60A_mount_box_support_thickness, 
+                    bms_60A_mount_box_length - bms_60A_mount_box_support_offset * 2, 
+                    bms_60A_mount_box_height - bms_60A_mount_box_support_offset * 2
+                ]);
+                
+                // support right side
+                *color("red")
+                translate([
+                    bms_60A_mount_box_width + bms_60A_mount_box_thickness - bms_60A_mount_box_support_thickness - bms_60A_mount_box_support_offset,
+                    bms_60A_mount_box_thickness + bms_60A_mount_box_support_offset,
+                    bms_60A_mount_box_thickness + bms_60A_mount_box_support_offset
+                ])
+                cube([
+                    bms_60A_mount_box_support_thickness, 
+                    bms_60A_mount_box_length - bms_60A_mount_box_support_offset * 2, 
+                    bms_60A_mount_box_height - bms_60A_mount_box_support_offset * 2
+                ]);
+
+                // latch left side
+                translate([
+                    0, 
+                    0, 
+                    bms_60A_mount_box_height + bms_60A_mount_box_thickness
+                ])
+                cube([
+                    bms_60A_mount_box_latch_width,
+                    bms_60A_mount_box_length + 
+        bms_60A_mount_box_thickness * 2,
+                    bms_60A_mount_box_thickness
+                ]);
+                
+                // latch right side
+                translate([
+                    bms_60A_mount_box_width + bms_60A_mount_box_thickness * 2 - bms_60A_mount_box_latch_width,
+                    0, 
+                    bms_60A_mount_box_height + bms_60A_mount_box_thickness
+                ])
+                cube([
+                    bms_60A_mount_box_latch_width,
+                    bms_60A_mount_box_length + 
+        bms_60A_mount_box_thickness * 2,
+                    bms_60A_mount_box_thickness
+                ]);
+            }
+            
+            // cut out wire loom slot
+            translate([(bms_60A_mount_box_width - bms_60A_mount_box_wire_loom_width)/2 + bms_60A_mount_box_thickness, 0, bms_60A_mount_box_thickness])
+            cube([bms_60A_mount_box_wire_loom_width,  bms_60A_mount_box_thickness, bms_60A_mount_box_height]);
+            
+        
+            // cut out left slot
+            translate([
+                0,
+                bms_60A_mount_box_length - bms_60A_mount_box_main_wire_width - bms_60A_mount_box_main_wire_offset + bms_60A_mount_box_thickness,
+                bms_60A_mount_box_thickness
+            ])
+            cube([
+                bms_60A_mount_box_thickness + bms_60A_mount_box_thickness + bms_60A_mount_box_latch_width,  
+                bms_60A_mount_box_main_wire_width, 
+                bms_60A_mount_box_height + bms_60A_mount_box_thickness
+            ]);
+            
+            // cut out right slot
+            translate([
+                bms_60A_mount_box_width - bms_60A_mount_box_thickness - bms_60A_mount_box_latch_width, 
+                bms_60A_mount_box_length - bms_60A_mount_box_main_wire_width - bms_60A_mount_box_main_wire_offset + bms_60A_mount_box_thickness,
+                bms_60A_mount_box_thickness
+            ])
+            cube([
+                bms_60A_mount_box_thickness + bms_60A_mount_box_thickness * 2 + bms_60A_mount_box_latch_width, 
+                bms_60A_mount_box_main_wire_width, 
+                bms_60A_mount_box_height + bms_60A_mount_box_thickness
+            ]);
+            
+            translate([
+                bms_60A_mount_box_width + bms_60A_mount_box_thickness, 
+                bms_60A_mount_box_length - bms_60A_mount_box_main_wire_width - bms_60A_mount_box_main_wire_offset + bms_60A_mount_box_thickness,
+                bms_60A_mount_box_thickness
+            ])
+            cube([
+                bms_60A_mount_box_thickness,  
+                bms_60A_mount_box_main_wire_width, 
+                bms_60A_mount_box_height
+            ]);
+        }
+    }
+}
+
+
+module bms_60A_mount_box_right_half()
+{
+    difference()
+    {
+        bms_60A_mount_box();
+            
+        translate([
+            -bms_60A_mount_box_width_overall/2 + bms_60A_mount_box_thickness,
+            0,
+            0
+        ])
+        cube([
+            bms_60A_mount_box_width_overall,
+            bms_60A_mount_box_length + bms_60A_mount_box_thickness * 2,
+            bms_60A_mount_box_height + bms_60A_mount_box_thickness * 2
+        ]);
+    }
+}
+
+
+module bms_60A_mount_box_left_half()
+{
+    difference()
+    {
+        bms_60A_mount_box();
+        
+        translate([
+            (bms_60A_mount_box_width_overall)/2 - bms_60A_mount_box_thickness,
+            0,
+            0
+        ])
+        cube([
+            bms_60A_mount_box_width_overall,
+            bms_60A_mount_box_length_overall,
+            bms_60A_mount_box_height + bms_60A_mount_box_thickness * 2
+        ]);
+    }
+}
+
+
+if(show_60A_bms_mount_box && part == "holder" && part_type == "mirrored"){
+    
+    // show left half of box
+    translate([
+        -bms_60A_mount_box_length - bms_60A_mount_box_thickness * 2 - cell_dia / 2 - wall, 
+        -cell_dia/2, 
+        -((slot_height + separation) + (cell_height - bms_60A_mount_box_width)/2)
+    ])
+    rotate([-180, 90, 90])
+    render()
+    bms_60A_mount_box_left_half();
+    
+}
+
+
+if(show_60A_bms_mount_box && part == "holder" && part_type == "normal"){
+    // show right half of box
+    translate([
+        (cell_dia*5+wall*10)-(bms_60A_mount_box_length+bms_60A_mount_box_thickness*2)-cell_dia-wall, 
+        ((cell_dia+wall*2) * sqrt(3) / 2)/2-wall*2, 
+        bms_60A_mount_box_width + bms_60A_mount_box_thickness * 2 + slot_height + separation + ((cell_height - bms_60A_mount_box_width)/2)
+    ])
+    rotate([180, 90, 90])
+    render()
+    bms_60A_mount_box_right_half();
+    
+    
+}
 
 
 
