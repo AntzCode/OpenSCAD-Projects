@@ -19,6 +19,14 @@ A case for holding a donut style magnet, with clips on top for clamping the gopr
 
 - fully configurable (magnet size, case thickness, tolerances)
 
+## Rear Brake Cable Bracket for Zero 8
+
+![Photo: Brake Cable Bracket](./Vehicles/Zero8/RearBrakeCableMount/photos/20260809_121456.jpg)
+
+[A printable stopper](./Vehicles/Zero8/RearBrakeCableMount/photos/20260809_100946.jpg) for the rear-wheel friction brake cable on a Zero 8 scooter where the [original bracket has been broken](./Vehicles/Zero8/RearBrakeCableMount/photos/20260809_113919.jpg).
+
+- designed for 6mm bolt. Requires basic engineering skills to [drill + tap](./Vehicles/Zero8/RearBrakeCableMount/photos/20260809_113554.jpg) the rear fork
+
 ## Enclosure for XL4015
 
 Constant Current & Constant Voltage Step down DC-DC Converter 
